@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>韩花亭烤肉考试《Plus版本4.0》</title>
+    <title>韩花亭烤肉考试系统 v8.0</title>
     <style>
         * {
             box-sizing: border-box;
@@ -716,38 +716,485 @@
             text-align: left;
         }
         th {
-            background: #f8f8f8;
-            color: var(--text-dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
             font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         tr:hover {
-            background: #f9f9f9;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
         }
-        /* 管理员导航标签 */
+        /* 管理员导航标签 - 全新高端设计 */
         .admin-nav-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
+            gap: 8px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e8e8e8;
             flex-wrap: wrap;
+            padding-bottom: 0;
+            background: linear-gradient(135deg, #fafbfc 0%, #f0f2f5 100%);
+            border-radius: 12px 12px 0 0;
+            padding: 15px 15px 0 15px;
         }
         .admin-tab {
-            padding: 10px 20px;
+            padding: 14px 28px;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            font-weight: 500;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 14px;
+            position: relative;
+            background: transparent;
+            color: #666;
+        }
+        .admin-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #c0392b, #e74c3c);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
         .admin-tab.active {
-            border-color: var(--brand-red);
-            color: var(--brand-red);
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            color: #c0392b;
+            box-shadow: 0 -4px 15px rgba(192, 57, 43, 0.15);
+        }
+        .admin-tab.active::after {
+            transform: scaleX(1);
         }
         .admin-tab:hover:not(.active) {
-            color: var(--brand-red);
-            border-color: #f0f0f0;
+            color: #c0392b;
+            background: rgba(192, 57, 43, 0.05);
         }
         .admin-tab-content {
+            background: linear-gradient(135deg, #fff 0%, #fafbfc 100%);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 25px;
             min-height: 500px;
+        }
+        /* 管理员界面高端头部 */
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+        .admin-header h2 {
+            color: #fff;
+            margin: 0;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .admin-header .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .admin-header .admin-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .admin-header .logout-btn {
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .admin-header .logout-btn:hover {
+            background: rgba(255,255,255,0.35);
+        }
+        /* 统计卡片高端设计 */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .stat-card h4 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .stat-card .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-card.pass .stat-value {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* 试卷卡片高端设计 */
+        .paper-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 16px 0 0 16px;
+        }
+        .paper-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .paper-card h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .paper-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .paper-status.active {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+        }
+        .paper-status.inactive {
+            background: #e0e0e0;
+            color: #666;
+        }
+        .paper-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        .paper-meta p {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* 记录项高端设计 */
+        .record-item {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+        .record-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .record-item h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .record-item .record-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        .record-item .score-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .record-item .score-badge.pass {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+        }
+        .record-item .score-badge.fail {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: #fff;
+        }
+        /* 选择框高端设计 */
+        .record-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        /* 批量操作按钮组 */
+        .batch-action-bar {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .batch-action-bar .selected-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .batch-action-bar .selected-count {
+            color: #667eea;
+            font-weight: 600;
+        }
+        /* 云端预留提示优化 */
+        .cloud-reserve-tip {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .cloud-reserve-tip::before {
+            content: '☁️';
+            font-size: 20px;
+        }
+        /* 店长权限提示优化 */
+        .shop-limit-tip {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+        /* 成绩分享按钮 */
+        .share-score-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .share-score-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+        /* 解析编辑功能 */
+        .analysis-edit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .analysis-edit-btn:hover {
+            transform: scale(1.05);
+        }
+        .analysis-content {
+            margin-top: 10px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .analysis-content.editing {
+            background: #fff;
+            border: 2px solid #667eea;
+            padding: 20px;
+        }
+        .analysis-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .analysis-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        /* 超级管理员标识 */
+        .super-admin-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        /* 手机号绑定提示 */
+        .phone-bind-notice {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+            font-size: 13px;
+        }
+        /* 防作弊提示 */
+        .anti-cheat-notice {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* 新增安全检测样式 */
+        .security-alert {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #dc3545;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        /* 分享成绩弹窗 */
+        .share-modal-content {
+            text-align: center;
+            padding: 30px;
+        }
+        .share-score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+        .share-score-card .score-value {
+            font-size: 64px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .share-score-card .score-label {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .share-link-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        .copy-link-btn {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .copy-link-btn:hover {
+            background: #764ba2;
+        }
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            .stat-cards {
+                grid-template-columns: 1fr;
+            }
+            .batch-action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
         /* 店长权限提示 */
         .shop-limit-tip {
@@ -797,77 +1244,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        /* 统计卡片 */
-        .stat-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: var(--bg-white);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .stat-card h4 {
-            color: var(--text-gray);
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .stat-card .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--brand-red);
-        }
-        .stat-card.pass .stat-value {
-            color: var(--success);
-        }
-        .stat-card.avg .stat-value {
-            color: var(--brand-orange);
-        }
-        /* 试卷卡片 */
-        .paper-card {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
-        }
-        .paper-card:hover {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-        .paper-card h4 {
-            color: var(--brand-red);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .paper-card .paper-meta {
-            color: var(--text-gray);
-            font-size: 14px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-        .paper-status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: normal;
-        }
-        .paper-status.active {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .paper-status.inactive {
-            background: #fee2e2;
-            color: #991b1b;
         }
         /* 响应式适配 */
         @media (max-width: 768px) {
@@ -1287,6 +1663,11 @@ D|选项D"></textarea>
         <!-- 管理员登录表单 -->
         <div id="adminLoginForm" style="display: none;">
             <div class="login-input">
+                <label for="adminPhone">手机号（超级管理员专用）</label>
+                <input type="tel" id="adminPhone" placeholder="请输入手机号（超级管理员）">
+                <div class="error-tip" id="adminPhoneError">请输入有效的11位手机号</div>
+            </div>
+            <div class="login-input">
                 <label for="adminShop">管理门店</label>
                 <select id="adminShop">
                     <option value="">全部门店（仅超级管理员）</option>
@@ -1402,6 +1783,7 @@ D|选项D"></textarea>
                             <th>题目内容</th>
                             <th>分值</th>
                             <th>标准答案</th>
+                            <th>解析</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -1569,10 +1951,13 @@ D|选项D"></textarea>
             PAPERS: "hht_exam_papers",
             RECORDS: "hht_exam_records",
             CONFIG: "hht_exam_config",
-            TEMP_ANSWER: "hht_temp_answer_"
+            TEMP_ANSWER: "hht_temp_answer_",
+            PHONE_BINDINGS: "hht_phone_bindings",
+            EXAM_SESSIONS: "hht_exam_sessions"
         };
 
         // ==================== 系统配置 ====================
+        // 版本: v8.0 | 开发者: 王博通 | 更新日期: 2026-03-18
         let SYSTEM_CONFIG = {
             notice: "",
             screenCheck: true,
@@ -1580,14 +1965,30 @@ D|选项D"></textarea>
             banCopy: true,
             allowRepeat: true,
             multiRule: "loose",
-            // 密码配置
-            superAdminPwd: "98qaz099",
+            // 超级管理员手机号（最高权限账号）
+            superAdminPhone: "17556936573",
+            // 密码配置（v8.0更新）
+            superAdminPwd: "admin@hht2024",
+            systemAdminPwd: "sys@hht2024",
+            computerPwd: "hht@exam2024",
             shopManagerPwd: {
-                "韩花亭烤肉一店": "10qaz001",
-                "韩花亭烤肉两店": "10qaz002",
-                "韩花亭烤肉三店": "10qaz003",
-                "韩花亭烤肉四店": "10qaz004"
+                "韩花亭烤肉一店": "shop1@hht2024",
+                "韩花亭烤肉两店": "shop2@hht2024",
+                "韩花亭烤肉三店": "shop3@hht2024",
+                "韩花亭烤肉四店": "shop4@hht2024"
             },
+            // 防作弊增强配置
+            antiCheat: {
+                enableFaceDetection: false,
+                enableBrowserLock: true,
+                enableRightClickBlock: true,
+                enableDevToolsBlock: true,
+                enablePrintBlock: true,
+                maxIdleTime: 300,
+                enableAutoSubmit: true
+            },
+            // 手机号绑定记录
+            phoneBindings: {},
             // 云端预留
             apiUrl: "",
             cloudEnabled: false
@@ -1879,6 +2280,8 @@ D|选项D"></textarea>
                 adminShop: document.getElementById('adminShop'),
                 adminPwd: document.getElementById('adminPwd'),
                 adminPwdError: document.getElementById('adminPwdError'),
+                adminPhone: document.getElementById('adminPhone'),
+                adminPhoneError: document.getElementById('adminPhoneError'),
                 loginBtn: document.getElementById('loginBtn'),
                 phone: document.getElementById('phone'),
                 name: document.getElementById('name'),
@@ -1941,7 +2344,7 @@ D|选项D"></textarea>
         // 登录界面动态效果：打字机+Logo动画+版本号动态
         function initLoginAnimation() {
             const titleText = "韩花亭烤肉考试";
-            const versionText = "《Plus版本4.0》";
+            const versionText = "《v7.0》";
             const subtitleText = "员工考试系统【企业版】";
             let titleIndex = 0;
             
@@ -2259,6 +2662,125 @@ D|选项D"></textarea>
                     showTipModal('禁止操作', '考试期间禁止粘贴内容');
                 }
             });
+            // ==================== 防作弊增强功能 ====================
+            // 禁止右键菜单
+            document.addEventListener('contextmenu', (e) => {
+                if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enableRightClickBlock) {
+                    e.preventDefault();
+                    showTipModal('禁止操作', '考试期间禁止使用右键菜单');
+                }
+            });
+            // 禁止打印
+            document.addEventListener('beforeprint', (e) => {
+                if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enablePrintBlock) {
+                    e.preventDefault();
+                    showTipModal('禁止操作', '考试期间禁止打印');
+                }
+            });
+            // 禁止快捷键
+            document.addEventListener('keydown', (e) => {
+                if (elements.examContainer.style.display === 'block') {
+                    // 禁止F12开发者工具
+                    if (e.key === 'F12' && SYSTEM_CONFIG.antiCheat.enableDevToolsBlock) {
+                        e.preventDefault();
+                        showTipModal('禁止操作', '考试期间禁止使用开发者工具');
+                        return;
+                    }
+                    // 禁止Ctrl+Shift+I/J/C
+                    if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) && SYSTEM_CONFIG.antiCheat.enableDevToolsBlock) {
+                        e.preventDefault();
+                        showTipModal('禁止操作', '考试期间禁止使用开发者工具');
+                        return;
+                    }
+                    // 禁止Ctrl+U查看源码
+                    if (e.ctrlKey && e.key === 'u' && SYSTEM_CONFIG.antiCheat.enableDevToolsBlock) {
+                        e.preventDefault();
+                        showTipModal('禁止操作', '考试期间禁止查看源码');
+                        return;
+                    }
+                    // 禁止Ctrl+S保存
+                    if (e.ctrlKey && e.key === 's') {
+                        e.preventDefault();
+                        showTipModal('禁止操作', '考试期间禁止保存页面');
+                        return;
+                    }
+                    // 禁止Ctrl+P打印
+                    if (e.ctrlKey && e.key === 'p' && SYSTEM_CONFIG.antiCheat.enablePrintBlock) {
+                        e.preventDefault();
+                        showTipModal('禁止操作', '考试期间禁止打印');
+                        return;
+                    }
+                }
+            });
+            // 检测开发者工具打开
+            let devToolsOpened = false;
+            const devToolsCheck = setInterval(() => {
+                if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enableDevToolsBlock) {
+                    const threshold = 160;
+                    if (window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold) {
+                        if (!devToolsOpened) {
+                            devToolsOpened = true;
+                            screenSwitchCount++;
+                            if (screenSwitchCount >= 3) {
+                                handleSubmit();
+                                showTipModal('试卷自动提交', '检测到开发者工具打开，试卷已自动提交');
+                            } else {
+                                showTipModal('警告', `检测到开发者工具打开！警告次数：${screenSwitchCount}/3`);
+                            }
+                        }
+                    } else {
+                        devToolsOpened = false;
+                    }
+                }
+            }, 1000);
+            // 空闲时间检测
+            let idleTimer = null;
+            let idleTime = 0;
+            const resetIdleTimer = () => {
+                idleTime = 0;
+                if (idleTimer) clearTimeout(idleTimer);
+            };
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+                document.addEventListener(event, resetIdleTimer);
+            });
+            const checkIdleTime = setInterval(() => {
+                if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.maxIdleTime > 0) {
+                    idleTime++;
+                    if (idleTime >= SYSTEM_CONFIG.antiCheat.maxIdleTime) {
+                        if (SYSTEM_CONFIG.antiCheat.enableAutoSubmit) {
+                            handleSubmit();
+                            showTipModal('试卷自动提交', '长时间无操作，试卷已自动提交');
+                        } else {
+                            showTipModal('警告', '长时间无操作，请注意！');
+                            idleTime = 0;
+                        }
+                    }
+                }
+            }, 1000);
+            // 浏览器焦点检测
+            window.addEventListener('blur', () => {
+                if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enableBrowserLock) {
+                    screenSwitchCount++;
+                    if (screenSwitchCount >= 3) {
+                        handleSubmit();
+                        showTipModal('试卷自动提交', '检测到切换窗口，试卷已自动提交');
+                    } else {
+                        showTipModal('警告', `检测到切换窗口！警告次数：${screenSwitchCount}/3`);
+                    }
+                }
+            });
+            // 全屏退出检测
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement && elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enableBrowserLock) {
+                    screenSwitchCount++;
+                    if (screenSwitchCount >= 3) {
+                        handleSubmit();
+                        showTipModal('试卷自动提交', '检测到退出全屏，试卷已自动提交');
+                    } else {
+                        showTipModal('警告', `检测到退出全屏！警告次数：${screenSwitchCount}/3`);
+                    }
+                }
+            });
             // 答题事件监听
             document.addEventListener('change', (e) => {
                 if (e.target.matches('input, textarea')) {
@@ -2312,10 +2834,20 @@ D|选项D"></textarea>
                     elements.shopError.style.display = 'none';
                 }
             } else {
+                // 管理员验证
                 const pwdVal = elements.adminPwd.value.trim();
                 const shopVal = elements.adminShop.value;
+                const adminPhoneVal = elements.adminPhone ? elements.adminPhone.value.trim() : '';
+                
                 // 验证密码
                 if (currentRole === 'super_admin') {
+                    // 超级管理员需要验证手机号和密码
+                    if (adminPhoneVal && !/^1[3-9]\d{9}$/.test(adminPhoneVal)) {
+                        elements.adminPhoneError.style.display = 'block';
+                        isValid = false;
+                    } else {
+                        elements.adminPhoneError.style.display = 'none';
+                    }
                     if (pwdVal !== ADMIN_PASSWORD) {
                         elements.adminPwdError.style.display = 'block';
                         isValid = false;
@@ -2337,15 +2869,61 @@ D|选项D"></textarea>
             return isValid;
         }
 
+        // ==================== 手机号绑定验证 ====================
+        function checkPhoneBinding(phone, name, shop) {
+            const bindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+            if (bindings[phone]) {
+                const binding = bindings[phone];
+                if (binding.name !== name || binding.shop !== shop) {
+                    return { valid: false, message: `该手机号已绑定账号：${binding.name}（${binding.shop}），如需修改请联系管理员` };
+                }
+                return { valid: true, message: '' };
+            }
+            return { valid: true, message: '' };
+        }
+
+        function savePhoneBinding(phone, name, shop) {
+            const bindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+            bindings[phone] = { name, shop, bindTime: Date.now() };
+            localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(bindings));
+        }
+
+        // ==================== 检查超级管理员手机号 ====================
+        function checkSuperAdminPhone(phone) {
+            return phone === SYSTEM_CONFIG.superAdminPhone;
+        }
+
         function handleLogin() {
             if (!validateLoginForm()) return;
+            
+            const phoneVal = elements.phone.value.trim();
+            const nameVal = elements.name.value.trim();
+            const shopVal = elements.shop.value;
+            
             if (currentRole === 'employee') {
+                // 检查是否使用超级管理员手机号
+                if (checkSuperAdminPhone(phoneVal)) {
+                    showTipModal('权限不足', '请使用管理员入口登录');
+                    return;
+                }
+                
+                // 检查手机号绑定
+                const bindCheck = checkPhoneBinding(phoneVal, nameVal, shopVal);
+                if (!bindCheck.valid) {
+                    showTipModal('绑定验证失败', bindCheck.message);
+                    return;
+                }
+                
                 currentUser = {
                     type: 'employee',
-                    phone: elements.phone.value.trim(),
-                    name: elements.name.value.trim(),
-                    shop: elements.shop.value
+                    phone: phoneVal,
+                    name: nameVal,
+                    shop: shopVal
                 };
+                
+                // 保存手机号绑定
+                savePhoneBinding(phoneVal, nameVal, shopVal);
+                
                 // 检查是否允许重复考试
                 if (!SYSTEM_CONFIG.allowRepeat) {
                     const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
@@ -2358,17 +2936,28 @@ D|选项D"></textarea>
                 startExam();
             } else {
                 // 管理员登录
+                const pwdVal = elements.adminPwd.value.trim();
+                const adminShopVal = elements.adminShop.value;
+                const adminPhoneVal = elements.adminPhone ? elements.adminPhone.value.trim() : '';
+                
                 if (currentRole === 'super_admin') {
-                    currentUser = { type: 'super_admin', name: '超级管理员' };
+                    // 超级管理员手机号可以直接用密码登录
+                    currentUser = { type: 'super_admin', name: '超级管理员', phone: adminPhoneVal };
                     currentAdminShop = '';
-                    // 超级管理员显示系统设置
                     elements.superAdminConfigTab.style.display = 'block';
                     elements.shopLimitTip.style.display = 'none';
                 } else {
-                    currentUser = { type: 'shop_manager', name: '店长', shop: currentAdminShop };
-                    // 店长隐藏系统设置
-                    elements.superAdminConfigTab.style.display = 'none';
-                    elements.shopLimitTip.style.display = 'block';
+                    // 店长登录时检查手机号是否为超级管理员
+                    if (checkSuperAdminPhone(adminPhoneVal)) {
+                        currentUser = { type: 'super_admin', name: '超级管理员', phone: adminPhoneVal };
+                        currentAdminShop = '';
+                        elements.superAdminConfigTab.style.display = 'block';
+                        elements.shopLimitTip.style.display = 'none';
+                    } else {
+                        currentUser = { type: 'shop_manager', name: '店长', shop: currentAdminShop };
+                        elements.superAdminConfigTab.style.display = 'none';
+                        elements.shopLimitTip.style.display = 'block';
+                    }
                 }
                 elements.adminContainer.style.display = 'block';
                 renderPaperList();
@@ -2384,6 +2973,8 @@ D|选项D"></textarea>
             elements.shop.value = '';
             elements.adminPwd.value = '';
             elements.adminShop.value = '';
+            if (elements.adminPhone) elements.adminPhone.value = '';
+            if (elements.adminPhoneError) elements.adminPhoneError.style.display = 'none';
             // 重置角色
             currentRole = 'employee';
             elements.roleItems.forEach(i => i.classList.remove('active'));
@@ -3025,12 +3616,86 @@ D|选项D"></textarea>
                                 ${record.totalScore >= (record.paperName ? currentPaper.passScore : 90) ? '✅ 及格' : '❌ 不及格'}
                             </p>
                         </div>
+                        <div class="record-btn-group">
+                            <button class="share-score-btn" onclick="shareScore(${record.id})">
+                                📤 分享成绩
+                            </button>
+                        </div>
                     </div>
                 `).join('');
             }
             elements.examContainer.style.display = 'none';
             elements.historyContainer.style.display = 'block';
         }
+
+        // ==================== 成绩分享功能 ====================
+        window.shareScore = function(recordId) {
+            const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+            const record = records.find(r => r.id === recordId);
+            if (!record) return;
+            
+            const isPassed = record.totalScore >= (record.paperName ? (PAPERS.find(p => p.id === record.paperId)?.passScore || 90) : 90);
+            const totalScore = record.paperName ? (PAPERS.find(p => p.id === record.paperId)?.totalScore || 150) : 150;
+            
+            const shareContent = `
+                <div class="share-modal-content">
+                    <div class="share-score-card">
+                        <div class="score-label">${record.paperName || '韩花亭烤肉考试'}</div>
+                        <div class="score-value">${record.totalScore}</div>
+                        <div class="score-label">总分 ${totalScore} 分</div>
+                        <div style="margin-top:15px;font-size:16px;">
+                            ${isPassed ? '🎉 恭喜通过考试！' : '💪 继续加油！'}
+                        </div>
+                    </div>
+                    <div style="margin:20px 0;text-align:left;">
+                        <p><strong>考生：</strong>${record.user.name}</p>
+                        <p><strong>门店：</strong>${record.user.shop}</p>
+                        <p><strong>考试时间：</strong>${record.submitTime}</p>
+                        <p><strong>用时：</strong>${formatTime(record.duration)}</p>
+                        <p><strong>客观题得分：</strong>${record.objectiveScore}分</p>
+                        <p><strong>主观题得分：</strong>${record.subjectiveScore}分</p>
+                    </div>
+                    <div class="share-link-box">
+                        韩花亭烤肉考试系统 - 成绩单
+                    </div>
+                    <button class="copy-link-btn" onclick="copyShareContent(${recordId})">
+                        📋 复制成绩单
+                    </button>
+                </div>
+            `;
+            
+            elements.modalTitle.textContent = '分享成绩';
+            elements.modalContent.innerHTML = shareContent;
+            elements.modalCancelBtn.style.display = 'inline-block';
+            elements.modalCancelBtn.textContent = '关闭';
+            elements.tipModal.style.display = 'flex';
+        };
+
+        window.copyShareContent = function(recordId) {
+            const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+            const record = records.find(r => r.id === recordId);
+            if (!record) return;
+            
+            const isPassed = record.totalScore >= (record.paperName ? (PAPERS.find(p => p.id === record.paperId)?.passScore || 90) : 90);
+            const totalScore = record.paperName ? (PAPERS.find(p => p.id === record.paperId)?.totalScore || 150) : 150;
+            
+            const text = `【韩花亭烤肉考试成绩单】
+考试：${record.paperName || '韩花亭烤肉考试'}
+考生：${record.user.name}
+门店：${record.user.shop}
+总分：${record.totalScore}/${totalScore}分
+客观题：${record.objectiveScore}分
+主观题：${record.subjectiveScore}分
+状态：${isPassed ? '✅ 通过' : '❌ 未通过'}
+考试时间：${record.submitTime}
+用时：${formatTime(record.duration)}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showTipModal('复制成功', '成绩单已复制到剪贴板，可以分享给他人');
+            }).catch(() => {
+                showTipModal('复制失败', '请手动复制成绩单内容');
+            });
+        };
 
         // ==================== 试卷管理 ====================
         function renderPaperList() {
@@ -3223,7 +3888,7 @@ D|选项D"></textarea>
             const paperId = document.getElementById('questionPaperSelect').value;
             const paper = PAPERS.find(p => p.id === paperId);
             if (!paper || !paper.questions) {
-                elements.questionTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666;">暂无题目</td></tr>';
+                elements.questionTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666;">暂无题目</td></tr>';
                 return;
             }
             const questions = paper.questions;
@@ -3239,23 +3904,76 @@ D|选项D"></textarea>
                 const typeQuestions = questions[type];
                 if (!typeQuestions) return;
                 typeQuestions.sort((a,b) => a.sort - b.sort).forEach(q => {
+                    const analysis = q.analysis || '';
+                    const isSuperAdmin = currentUser.type === 'super_admin';
                     html += `
                         <tr>
                             <td>${q.sort}</td>
                             <td>${typeMap[type]}</td>
-                            <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.content}</td>
+                            <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${q.content}">${q.content}</td>
                             <td>${q.score}</td>
-                            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${Array.isArray(q.answer) ? q.answer.join(',') : q.answer}</td>
+                            <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${Array.isArray(q.answer) ? q.answer.join(',') : q.answer}">${Array.isArray(q.answer) ? q.answer.join(',') : q.answer}</td>
+                            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${analysis}">${analysis || (isSuperAdmin ? '<span style="color:#999;">点击添加解析</span>' : '-')}</td>
                             <td>
                                 <button class="modal-btn primary-btn" style="padding:4px 8px;font-size:12px;" onclick="editQuestion('${paperId}', '${type}', '${q.id}')">编辑</button>
+                                ${isSuperAdmin ? `<button class="modal-btn" style="padding:4px 8px;font-size:12px;background:#9b59b6;" onclick="editAnalysis('${paperId}', '${type}', '${q.id}')">解析</button>` : ''}
                                 <button class="modal-btn danger-btn" style="padding:4px 8px;font-size:12px;" onclick="deleteQuestion('${paperId}', '${type}', '${q.id}')">删除</button>
                             </td>
                         </tr>
                     `;
                 });
             });
-            elements.questionTableBody.innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:#666;">暂无题目</td></tr>';
+            elements.questionTableBody.innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:#666;">暂无题目</td></tr>';
         }
+
+        // 解析编辑功能
+        window.editAnalysis = function(paperId, type, qid) {
+            const paper = PAPERS.find(p => p.id === paperId);
+            if (!paper || !paper.questions) return;
+            const question = paper.questions[type].find(q => q.id === qid);
+            if (!question) return;
+            
+            const analysisHtml = `
+                <div style="padding:20px;">
+                    <div class="form-group">
+                        <label>题目内容</label>
+                        <div style="padding:10px;background:#f5f5f5;border-radius:6px;">${question.content}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>题目解析（仅超级管理员可见）</label>
+                        <textarea id="editAnalysisText" rows="6" class="analysis-textarea" placeholder="请输入本题的详细解析内容...">${question.analysis || ''}</textarea>
+                    </div>
+                    <div class="modal-btn-group">
+                        <button class="modal-btn confirm-btn" onclick="saveAnalysis('${paperId}', '${type}', '${qid}')">保存解析</button>
+                        <button class="modal-btn cancel-btn" onclick="closeAnalysisModal()">取消</button>
+                    </div>
+                </div>
+            `;
+            
+            elements.modalTitle.textContent = '编辑题目解析';
+            elements.modalContent.innerHTML = analysisHtml;
+            elements.modalCancelBtn.style.display = 'none';
+            elements.tipModal.style.display = 'flex';
+        };
+
+        window.saveAnalysis = function(paperId, type, qid) {
+            const paperIndex = PAPERS.findIndex(p => p.id === paperId);
+            if (paperIndex === -1) return;
+            const question = PAPERS[paperIndex].questions[type].find(q => q.id === qid);
+            if (!question) return;
+            
+            const analysisText = document.getElementById('editAnalysisText').value.trim();
+            question.analysis = analysisText;
+            
+            savePapers();
+            elements.tipModal.style.display = 'none';
+            renderAdminQuestionTable();
+            showTipModal('保存成功', '题目解析已更新');
+        };
+
+        window.closeAnalysisModal = function() {
+            elements.tipModal.style.display = 'none';
+        };
 
         window.editQuestion = function(paperId, type, qid) {
             const paper = PAPERS.find(p => p.id === paperId);
@@ -3411,8 +4129,8 @@ D|选项D"></textarea>
                 }
                 showConfirmModal('确认删除', `确定要删除选中的${checked.length}条记录吗？此操作不可恢复！`, () => {
                     let records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
-                    const ids = Array.from(checked).map(i => i.value);
-                    records = records.filter(r => !ids.includes(String(r.id)));
+                    const ids = Array.from(checked).map(i => parseInt(i.value));
+                    records = records.filter(r => !ids.includes(r.id));
                     localStorage.setItem(STORAGE_KEY.RECORDS, JSON.stringify(records));
                     renderAdminRecords();
                     showTipModal('删除成功', `已删除${checked.length}条记录`);
@@ -3426,9 +4144,9 @@ D|选项D"></textarea>
                 }
                 showConfirmModal('确认清零', `确定要清零选中的${checked.length}条记录的成绩吗？`, () => {
                     let records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
-                    const ids = Array.from(checked).map(i => i.value);
+                    const ids = Array.from(checked).map(i => parseInt(i.value));
                     records = records.map(r => {
-                        if (ids.includes(String(r.id))) {
+                        if (ids.includes(r.id)) {
                             return { ...r, subjectiveScore: 0, totalScore: r.objectiveScore, status: 'pending_review' };
                         }
                         return r;
@@ -3471,6 +4189,10 @@ D|选项D"></textarea>
             const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
             const record = records.find(r => r.id === recordId);
             if (!record) return;
+            
+            // 权限检查：只有管理员可以查看标准答案
+            const canViewAnswer = currentUser.type === 'super_admin' || currentUser.type === 'shop_manager';
+            
             let detailHtml = `
                 <p><strong>学员信息：</strong>${record.user.name}（${record.user.shop} | ${record.user.phone}）</p>
                 <p><strong>试卷：</strong>${record.paperName || '标准版'}</p>
@@ -3492,7 +4214,7 @@ D|选项D"></textarea>
                         <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee;">
                             <p><strong>${wq.type}：${wq.content}</strong></p>
                             <p>学员答案：${wq.userAnswer}</p>
-                            <p>正确答案：${wq.correctAnswer}</p>
+                            ${canViewAnswer ? `<p style="color:#27ae60;font-weight:600;">正确答案：${wq.correctAnswer}</p>` : '<p style="color:#999;">正确答案：<span style="background:#eee;padding:2px 8px;border-radius:4px;">仅管理员可见</span></p>'}
                             <p>得分：${wq.getScore || 0}/${wq.score}分</p>
                         </div>
                     `;
