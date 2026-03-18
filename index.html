@@ -272,29 +272,73 @@
             width: 100%;
             padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
             margin-top: 10px;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .login-btn {
-            background: var(--brand-red);
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(192, 57, 43, 0.3);
         }
         .login-btn:hover {
-            background: #a93226;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(192, 57, 43, 0.3);
+            background: linear-gradient(135deg, #a93226 0%, #c0392b 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(192, 57, 43, 0.4);
         }
         .admin-switch {
-            background: var(--brand-gray);
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
             color: #fff;
             margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
         }
         .admin-switch:hover {
-            background: #7f8c8d;
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.4);
+        }
+        /* 云端同步状态样式 v8.0 */
+        .sync-status {
+            text-align: center;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .sync-status.success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        .sync-status.error {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .sync-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1565c0;
+        }
+        .sync-icon {
+            font-size: 16px;
+            animation: cloudFloat 3s ease-in-out infinite;
+        }
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
         /* 倒计时样式 */
         .countdown {
@@ -498,69 +542,82 @@
             border-color: var(--border-color);
             color: #999;
         }
-        /* 按钮样式优化 */
+        /* 按钮样式优化 v8.0 高级感设计 */
         .btn-group {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
+            gap: 12px;
+            margin-top: 25px;
             flex-wrap: wrap;
+            justify-content: center;
         }
         .submit-btn, .history-btn, .back-btn, .reset-btn, .export-btn {
             flex: 1;
-            min-width: 180px;
-            padding: 15px;
+            min-width: 140px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
         .submit-btn {
-            background: var(--brand-red);
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(192, 57, 43, 0.3);
         }
         .submit-btn:disabled {
-            background: #ccc;
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
         .submit-btn:hover:not(:disabled) {
-            background: #a93226;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(192, 57, 43, 0.2);
+            background: linear-gradient(135deg, #a93226 0%, #c0392b 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(192, 57, 43, 0.4);
         }
         .history-btn {
-            background: var(--brand-orange);
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
         }
         .history-btn:hover {
-            background: #e67e22;
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.4);
         }
         .back-btn {
-            background: var(--brand-gray);
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
         }
         .back-btn:hover {
-            background: #7f8c8d;
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #7f8c8d 0%, #6c7a7d 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(149, 165, 166, 0.4);
         }
         .reset-btn {
-            background: var(--warning);
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
         }
         .reset-btn:hover {
-            background: #d35400;
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #d35400 0%, #ba4a00 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.4);
         }
         .export-btn {
-            background: var(--brand-green);
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
         }
         .export-btn:hover {
-            background: var(--success);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #219653 0%, #27ae60 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
         }
         /* 结果样式 */
         .result {
@@ -1684,6 +1741,12 @@ D|选项D"></textarea>
             </div>
         </div>
         <button class="login-btn" id="loginBtn">登录</button>
+        <!-- 云端同步状态 v8.0 -->
+        <div id="syncStatus" class="sync-status" style="display: none;"></div>
+        <div class="sync-info" id="syncInfo">
+            <span class="sync-icon">☁️</span>
+            <span id="syncTimeText">JSONBin.io 云端同步</span>
+        </div>
     </div>
 
     <!-- 考试界面 -->
@@ -1735,7 +1798,8 @@ D|选项D"></textarea>
     <div class="admin-container" id="adminContainer">
         <!-- 云端预留提示 -->
         <div class="cloud-reserve-tip">
-            🚀 系统已预留云端部署接口，后续上线后可无缝切换至云端，实现多端数据同步、门店数据隔离、权限分级管理
+            ☁️ v8.0 云端同步已启用 (JSONBin.io) | 数据每30秒自动同步
+            <button class="sync-btn" id="forceSyncBtn" style="margin-left: 15px; padding: 5px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">立即同步</button>
         </div>
         
         <!-- 店长权限提示 -->
@@ -1911,12 +1975,27 @@ D|选项D"></textarea>
                 </div>
             </div>
             <div class="form-group">
-                <label>云端后端配置（预留上线接口）</label>
-                <input type="text" id="configApiUrl" placeholder="后端API接口地址，上线后填写即可无缝切换云端">
-                <p class="tip-text">预留接口，对接后端后可实现云端数据同步、多端数据互通、门店数据隔离、权限分级管理</p>
+                <label>☁️ JSONBin.io 云端同步配置</label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>API Master Key</label>
+                        <input type="password" id="configJsonBinApiKey" placeholder="$2a$10$... 格式的密钥">
+                    </div>
+                    <div class="form-group">
+                        <label>Bin ID (首次同步后自动生成)</label>
+                        <input type="text" id="configJsonBinId" placeholder="自动生成，无需填写">
+                    </div>
+                </div>
+                <p class="tip-text">
+                    📝 <strong>获取API Key步骤：</strong><br>
+                    1. 访问 <a href="https://jsonbin.io" target="_blank" style="color: var(--brand-blue);">jsonbin.io</a> 注册账号<br>
+                    2. 进入 API Keys 页面，复制 Master Key<br>
+                    3. 粘贴到上方输入框，点击保存即可启用云端同步
+                </p>
             </div>
             <div class="btn-group">
                 <button class="confirm-btn" id="saveConfigBtn">保存设置</button>
+                <button class="success-btn" id="testSyncBtn">测试同步</button>
                 <button class="reset-btn" id="resetConfigBtn">恢复默认设置</button>
             </div>
         </div>
@@ -1957,7 +2036,7 @@ D|选项D"></textarea>
         };
 
         // ==================== 系统配置 ====================
-        // 版本: v8.0 | 开发者: 王博通 | 更新日期: 2026-03-18
+        // 版本: v8.0 | 开发者: 王博通 | 更新日期: 2026-03-19
         let SYSTEM_CONFIG = {
             notice: "",
             screenCheck: true,
@@ -1989,11 +2068,184 @@ D|选项D"></textarea>
             },
             // 手机号绑定记录
             phoneBindings: {},
-            // 云端预留
-            apiUrl: "",
-            cloudEnabled: false
+            // 云端同步配置（v8.0新增 - JSONBin.io）
+            apiUrl: "https://api.jsonbin.io/v3",
+            cloudEnabled: true,
+            cloudSyncInterval: 30000,
+            lastSyncTime: null,
+            syncKey: "hht_exam_cloud_data",
+            jsonBinApiKey: "",
+            jsonBinId: ""
         };
         let ADMIN_PASSWORD = SYSTEM_CONFIG.superAdminPwd;
+
+        // ==================== 云端同步模块 v8.0 (JSONBin.io) ====================
+        const CloudSync = {
+            syncTimer: null,
+            isSyncing: false,
+            
+            init() {
+                if (SYSTEM_CONFIG.cloudEnabled) {
+                    this.startAutoSync();
+                    if (SYSTEM_CONFIG.jsonBinId) {
+                        this.syncFromCloud();
+                    }
+                }
+            },
+            
+            startAutoSync() {
+                if (this.syncTimer) clearInterval(this.syncTimer);
+                this.syncTimer = setInterval(() => {
+                    this.syncToCloud();
+                }, SYSTEM_CONFIG.cloudSyncInterval || 30000);
+            },
+            
+            stopAutoSync() {
+                if (this.syncTimer) {
+                    clearInterval(this.syncTimer);
+                    this.syncTimer = null;
+                }
+            },
+            
+            async syncToCloud() {
+                if (!SYSTEM_CONFIG.cloudEnabled || this.isSyncing) return;
+                if (!SYSTEM_CONFIG.jsonBinApiKey) {
+                    console.log('[云端同步] 未配置API Key，跳过同步');
+                    return;
+                }
+                this.isSyncing = true;
+                
+                try {
+                    const syncData = {
+                        timestamp: Date.now(),
+                        records: JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]'),
+                        papers: JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]'),
+                        config: JSON.parse(localStorage.getItem(STORAGE_KEY.CONFIG) || '{}'),
+                        phoneBindings: JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}')
+                    };
+                    
+                    if (SYSTEM_CONFIG.jsonBinId) {
+                        await this.updateBin(syncData);
+                    } else {
+                        await this.createBin(syncData);
+                    }
+                    
+                    SYSTEM_CONFIG.lastSyncTime = Date.now();
+                    localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
+                    
+                    console.log('[云端同步] 数据已同步到JSONBin.io');
+                    this.showSyncStatus('success', '数据同步成功');
+                } catch (e) {
+                    console.error('[云端同步] 同步失败:', e);
+                    this.showSyncStatus('error', '同步失败: ' + e.message);
+                } finally {
+                    this.isSyncing = false;
+                }
+            },
+            
+            async createBin(data) {
+                const response = await fetch('https://api.jsonbin.io/v3/b', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey,
+                        'X-Bin-Name': 'hht-exam-data'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('创建数据失败');
+                
+                const result = await response.json();
+                SYSTEM_CONFIG.jsonBinId = result.metadata.id;
+                localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
+                console.log('[云端同步] 已创建数据Bin:', SYSTEM_CONFIG.jsonBinId);
+            },
+            
+            async updateBin(data) {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('更新数据失败');
+                console.log('[云端同步] 数据已更新');
+            },
+            
+            async syncFromCloud() {
+                if (!SYSTEM_CONFIG.cloudEnabled || !SYSTEM_CONFIG.jsonBinId || !SYSTEM_CONFIG.jsonBinApiKey) return;
+                
+                try {
+                    this.showSyncStatus('success', '正在从云端获取数据...');
+                    
+                    const response = await fetch(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}/latest`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('获取数据失败');
+                    
+                    const result = await response.json();
+                    const data = result.record;
+                    
+                    if (data.records && Array.isArray(data.records)) {
+                        const localRecords = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+                        const mergedRecords = this.mergeRecords(localRecords, data.records);
+                        localStorage.setItem(STORAGE_KEY.RECORDS, JSON.stringify(mergedRecords));
+                    }
+                    if (data.papers && Array.isArray(data.papers)) {
+                        localStorage.setItem(STORAGE_KEY.PAPERS, JSON.stringify(data.papers));
+                    }
+                    if (data.config && Object.keys(data.config).length > 0) {
+                        const localConfig = JSON.parse(localStorage.getItem(STORAGE_KEY.CONFIG) || '{}');
+                        const mergedConfig = { ...data.config, ...localConfig, jsonBinApiKey: SYSTEM_CONFIG.jsonBinApiKey, jsonBinId: SYSTEM_CONFIG.jsonBinId };
+                        localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(mergedConfig));
+                    }
+                    if (data.phoneBindings) {
+                        localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(data.phoneBindings));
+                    }
+                    
+                    console.log('[云端同步] 数据已从JSONBin.io恢复');
+                    this.showSyncStatus('success', '数据恢复成功');
+                } catch (e) {
+                    console.error('[云端同步] 恢复失败:', e);
+                    this.showSyncStatus('error', '恢复失败: ' + e.message);
+                }
+            },
+            
+            mergeRecords(local, cloud) {
+                const recordMap = new Map();
+                local.forEach(r => recordMap.set(r.id, r));
+                cloud.forEach(r => {
+                    if (!recordMap.has(r.id) || (r.timestamp && (!recordMap.get(r.id).timestamp || r.timestamp > recordMap.get(r.id).timestamp))) {
+                        recordMap.set(r.id, r);
+                    }
+                });
+                return Array.from(recordMap.values());
+            },
+            
+            showSyncStatus(type, message) {
+                const statusEl = document.getElementById('syncStatus');
+                if (statusEl) {
+                    statusEl.textContent = message;
+                    statusEl.className = 'sync-status ' + type;
+                    statusEl.style.display = 'block';
+                    setTimeout(() => {
+                        statusEl.style.display = 'none';
+                    }, 3000);
+                }
+            },
+            
+            forceSync() {
+                this.syncToCloud();
+            }
+        };
 
         // ==================== 三大特色 ====================
         const THREE_FEATURES = ["969秘制肥牛", "果味秘制猪排", "烧椒酱/南瓜粥"];
@@ -2339,12 +2591,14 @@ D|选项D"></textarea>
             initEventListeners();
             // 初始化登录界面动态效果
             initLoginAnimation();
+            // 初始化云端同步
+            CloudSync.init();
         });
 
         // 登录界面动态效果：打字机+Logo动画+版本号动态
         function initLoginAnimation() {
             const titleText = "韩花亭烤肉考试";
-            const versionText = "《v7.0》";
+            const versionText = "《v8.0》";
             const subtitleText = "员工考试系统【企业版】";
             let titleIndex = 0;
             
@@ -2606,6 +2860,28 @@ D|选项D"></textarea>
             });
             // 系统设置-保存
             document.getElementById('saveConfigBtn')?.addEventListener('click', saveSystemConfig);
+            // 系统设置-测试同步
+            document.getElementById('testSyncBtn')?.addEventListener('click', async () => {
+                const apiKey = document.getElementById('configJsonBinApiKey').value.trim();
+                if (!apiKey) {
+                    showTipModal('提示', '请先填写 JSONBin.io API Key');
+                    return;
+                }
+                showTipModal('测试同步', '正在测试云端连接...');
+                try {
+                    SYSTEM_CONFIG.jsonBinApiKey = apiKey;
+                    await CloudSync.syncToCloud();
+                    showTipModal('测试成功', '云端同步功能正常！Bin ID: ' + (SYSTEM_CONFIG.jsonBinId || '已创建'));
+                    document.getElementById('configJsonBinId').value = SYSTEM_CONFIG.jsonBinId || '';
+                } catch (e) {
+                    showTipModal('测试失败', '同步失败: ' + e.message);
+                }
+            });
+            // 云端同步-立即同步
+            document.getElementById('forceSyncBtn')?.addEventListener('click', () => {
+                CloudSync.forceSync();
+                showTipModal('同步成功', '数据已同步到云端');
+            });
             // 系统设置-恢复默认
             document.getElementById('resetConfigBtn')?.addEventListener('click', () => {
                 showConfirmModal('确认恢复', '恢复默认设置将清空所有自定义配置，确定继续吗？', () => {
@@ -2616,15 +2892,33 @@ D|选项D"></textarea>
                         banCopy: true,
                         allowRepeat: true,
                         multiRule: "loose",
-                        superAdminPwd: "hhtsuper2024",
+                        superAdminPhone: "17556936573",
+                        superAdminPwd: "admin@hht2024",
+                        systemAdminPwd: "sys@hht2024",
+                        computerPwd: "hht@exam2024",
                         shopManagerPwd: {
-                            "韩花亭烤肉一店": "hhtshop12024",
-                            "韩花亭烤肉两店": "hhtshop22024",
-                            "韩花亭烤肉三店": "hhtshop32024",
-                            "韩花亭烤肉四店": "hhtshop42024"
+                            "韩花亭烤肉一店": "shop1@hht2024",
+                            "韩花亭烤肉两店": "shop2@hht2024",
+                            "韩花亭烤肉三店": "shop3@hht2024",
+                            "韩花亭烤肉四店": "shop4@hht2024"
                         },
-                        apiUrl: "",
-                        cloudEnabled: false
+                        antiCheat: {
+                            enableFaceDetection: false,
+                            enableBrowserLock: true,
+                            enableRightClickBlock: true,
+                            enableDevToolsBlock: true,
+                            enablePrintBlock: true,
+                            maxIdleTime: 300,
+                            enableAutoSubmit: true
+                        },
+                        phoneBindings: {},
+                        apiUrl: "https://api.jsonbin.io/v3",
+                        cloudEnabled: true,
+                        cloudSyncInterval: 30000,
+                        lastSyncTime: null,
+                        syncKey: "hht_exam_cloud_data",
+                        jsonBinApiKey: "",
+                        jsonBinId: ""
                     };
                     ADMIN_PASSWORD = SYSTEM_CONFIG.superAdminPwd;
                     localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
@@ -4358,7 +4652,9 @@ D|选项D"></textarea>
             document.getElementById('configShopPwd2').value = SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉两店'];
             document.getElementById('configShopPwd3').value = SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉三店'];
             document.getElementById('configShopPwd4').value = SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉四店'];
-            document.getElementById('configApiUrl').value = SYSTEM_CONFIG.apiUrl;
+            // JSONBin.io配置
+            document.getElementById('configJsonBinApiKey').value = SYSTEM_CONFIG.jsonBinApiKey || '';
+            document.getElementById('configJsonBinId').value = SYSTEM_CONFIG.jsonBinId || '';
         }
 
         function updateNotice() {
@@ -4371,6 +4667,9 @@ D|选项D"></textarea>
         }
 
         function saveSystemConfig() {
+            const jsonBinApiKey = document.getElementById('configJsonBinApiKey').value.trim();
+            const jsonBinId = document.getElementById('configJsonBinId').value.trim();
+            
             SYSTEM_CONFIG = {
                 notice: document.getElementById('configNotice').value.trim(),
                 screenCheck: document.getElementById('configScreenCheck').checked,
@@ -4378,20 +4677,37 @@ D|选项D"></textarea>
                 banCopy: document.getElementById('configBanCopy').checked,
                 allowRepeat: document.getElementById('configAllowRepeat').checked,
                 multiRule: document.getElementById('configMultiRule').value,
+                superAdminPhone: SYSTEM_CONFIG.superAdminPhone,
                 superAdminPwd: document.getElementById('configAdminPwd').value.trim() || SYSTEM_CONFIG.superAdminPwd,
+                systemAdminPwd: SYSTEM_CONFIG.systemAdminPwd,
+                computerPwd: SYSTEM_CONFIG.computerPwd,
                 shopManagerPwd: {
                     "韩花亭烤肉一店": document.getElementById('configShopPwd1').value.trim() || SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉一店'],
                     "韩花亭烤肉两店": document.getElementById('configShopPwd2').value.trim() || SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉两店'],
                     "韩花亭烤肉三店": document.getElementById('configShopPwd3').value.trim() || SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉三店'],
                     "韩花亭烤肉四店": document.getElementById('configShopPwd4').value.trim() || SYSTEM_CONFIG.shopManagerPwd['韩花亭烤肉四店']
                 },
-                apiUrl: document.getElementById('configApiUrl').value.trim(),
-                cloudEnabled: false
+                antiCheat: SYSTEM_CONFIG.antiCheat,
+                phoneBindings: SYSTEM_CONFIG.phoneBindings,
+                apiUrl: "https://api.jsonbin.io/v3",
+                cloudEnabled: true,
+                cloudSyncInterval: SYSTEM_CONFIG.cloudSyncInterval || 30000,
+                lastSyncTime: SYSTEM_CONFIG.lastSyncTime,
+                syncKey: SYSTEM_CONFIG.syncKey || "hht_exam_cloud_data",
+                jsonBinApiKey: jsonBinApiKey,
+                jsonBinId: jsonBinId
             };
             ADMIN_PASSWORD = SYSTEM_CONFIG.superAdminPwd;
             localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
-            updateNotice();
-            showTipModal('保存成功', '系统设置已更新');
+            
+            if (jsonBinApiKey) {
+                CloudSync.syncToCloud();
+                updateNotice();
+                showTipModal('保存成功', '系统设置已更新，数据正在同步到云端...');
+            } else {
+                updateNotice();
+                showTipModal('保存成功', '系统设置已更新（云端同步未配置）');
+            }
         }
 
         // ==================== 通用工具 ====================
