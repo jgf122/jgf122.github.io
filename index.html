@@ -1813,6 +1813,7 @@ D|选项D"></textarea>
             <div class="admin-tab" data-tab="question">题库管理</div>
             <div class="admin-tab" data-tab="record">学员记录</div>
             <div class="admin-tab" data-tab="stat">成绩统计</div>
+            <div class="admin-tab" data-tab="security" id="superAdminSecurityTab" style="display: none;">安全日志</div>
             <div class="admin-tab" data-tab="config" id="superAdminConfigTab" style="display: none;">系统设置</div>
         </div>
 
@@ -1910,6 +1911,73 @@ D|选项D"></textarea>
                         <tbody id="shopStatTableBody"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- 安全日志 -->
+        <div class="admin-tab-content" id="securityTab" style="display: none;">
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <h4>总日志数</h4>
+                    <div class="stat-value" id="securityLogTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>今日登录失败</h4>
+                    <div class="stat-value" id="securityLogFailed">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>可疑活动</h4>
+                    <div class="stat-value" id="securityLogSuspicious">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>警告级别</h4>
+                    <div class="stat-value" id="securityLogWarnings">0</div>
+                </div>
+            </div>
+            <div class="btn-group" style="margin-bottom: 20px;">
+                <button class="export-btn" id="exportSecurityLogBtn">导出日志</button>
+                <button class="danger-btn" id="clearSecurityLogBtn">清空日志</button>
+                <button class="reset-btn" id="refreshSecurityLogBtn">刷新日志</button>
+            </div>
+            <div class="form-group">
+                <label>日志筛选</label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <select id="securityLogFilter">
+                            <option value="all">全部日志</option>
+                            <option value="info">信息 (info)</option>
+                            <option value="warning">警告 (warning)</option>
+                            <option value="error">错误 (error)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="securityEventTypeFilter">
+                            <option value="all">全部类型</option>
+                            <option value="LOGIN_SUCCESS">登录成功</option>
+                            <option value="LOGIN_FAILED">登录失败</option>
+                            <option value="LOGOUT">登出</option>
+                            <option value="PERMISSION_DENIED">权限拒绝</option>
+                            <option value="SUSPICIOUS_ACTIVITY">可疑活动</option>
+                            <option value="ANTI_CHEAT_TRIGGERED">防作弊触发</option>
+                            <option value="CONFIG_CHANGE">配置更改</option>
+                            <option value="DATA_EXPORT">数据导出</option>
+                            <option value="DATA_DELETE">数据删除</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table id="securityLogTable">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>级别</th>
+                            <th>事件类型</th>
+                            <th>详情</th>
+                        </tr>
+                    </thead>
+                    <tbody id="securityLogTableBody"></tbody>
+                </table>
             </div>
         </div>
 
@@ -2032,7 +2100,8 @@ D|选项D"></textarea>
             CONFIG: "hht_exam_config",
             TEMP_ANSWER: "hht_temp_answer_",
             PHONE_BINDINGS: "hht_phone_bindings",
-            EXAM_SESSIONS: "hht_exam_sessions"
+            EXAM_SESSIONS: "hht_exam_sessions",
+            SECURITY_LOGS: "hht_security_logs"
         };
 
         // ==================== 系统配置 ====================
@@ -2079,16 +2148,19 @@ D|选项D"></textarea>
         };
         let ADMIN_PASSWORD = SYSTEM_CONFIG.superAdminPwd;
 
-        // ==================== 云端同步模块 v8.0 (JSONBin.io) ====================
+        // ==================== 云端同步模块 v8.1 (JSONBin.io) 优化版 ====================
         const CloudSync = {
             syncTimer: null,
             isSyncing: false,
+            maxRetries: 3,
+            retryDelay: 2000,
+            requestTimeout: 15000,
             
             init() {
                 if (SYSTEM_CONFIG.cloudEnabled) {
                     this.startAutoSync();
                     if (SYSTEM_CONFIG.jsonBinId) {
-                        this.syncFromCloud();
+                        setTimeout(() => this.syncFromCloud(), 1000);
                     }
                 }
             },
@@ -2107,6 +2179,72 @@ D|选项D"></textarea>
                 }
             },
             
+            async fetchWithTimeout(url, options = {}, timeout = this.requestTimeout) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    return response;
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    throw error;
+                }
+            },
+            
+            async delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            },
+            
+            async fetchWithRetry(url, options = {}, retries = this.maxRetries) {
+                let lastError;
+                
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        console.log(`[云端同步] 发起请求 (${i + 1}/${retries}):`, url);
+                        const response = await this.fetchWithTimeout(url, options);
+                        
+                        console.log('[云端同步] 响应状态:', response.status, response.statusText);
+                        
+                        if (response.status === 401) {
+                            const errorBody = await response.text().catch(() => '');
+                            console.error('[云端同步] 401认证失败详情:', errorBody);
+                            throw new Error('API Key无效或已过期 (401)，请检查密钥是否正确');
+                        }
+                        
+                        if (response.status === 404 && !url.includes('/latest') && url.includes('/b/')) {
+                            console.log('[云端同步] Bin不存在，需要重建');
+                            SYSTEM_CONFIG.jsonBinId = '';
+                            localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
+                            throw new Error('BIN_NOT_FOUND');
+                        }
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text().catch(() => '');
+                            console.error('[云端同步] 错误响应:', errorText);
+                            throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+                        }
+                        
+                        return response;
+                    } catch (error) {
+                        lastError = error;
+                        console.warn(`[云端同步] 请求失败 (${i + 1}/${retries}):`, error.message);
+                        
+                        if (i < retries - 1 && !error.message.includes('401')) {
+                            await this.delay(this.retryDelay * (i + 1));
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                
+                throw lastError;
+            },
+            
             async syncToCloud() {
                 if (!SYSTEM_CONFIG.cloudEnabled || this.isSyncing) return;
                 if (!SYSTEM_CONFIG.jsonBinApiKey) {
@@ -2116,13 +2254,19 @@ D|选项D"></textarea>
                 this.isSyncing = true;
                 
                 try {
+                    SecurityLogger.cloudSync('started', { action: 'syncToCloud' });
+                    
                     const syncData = {
                         timestamp: Date.now(),
                         records: JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]'),
                         papers: JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]'),
                         config: JSON.parse(localStorage.getItem(STORAGE_KEY.CONFIG) || '{}'),
-                        phoneBindings: JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}')
+                        phoneBindings: JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}'),
+                        securityLogs: SecurityLogger.getLogs().slice(0, 100)
                     };
+                    
+                    const dataSize = new Blob([JSON.stringify(syncData)]).size;
+                    console.log(`[云端同步] 数据大小: ${(dataSize / 1024).toFixed(2)} KB`);
                     
                     if (SYSTEM_CONFIG.jsonBinId) {
                         await this.updateBin(syncData);
@@ -2134,36 +2278,60 @@ D|选项D"></textarea>
                     localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
                     
                     console.log('[云端同步] 数据已同步到JSONBin.io');
+                    SecurityLogger.cloudSync('success', { 
+                        dataSize: dataSize,
+                        recordCount: syncData.records.length,
+                        paperCount: syncData.papers.length
+                    });
                     this.showSyncStatus('success', '数据同步成功');
                 } catch (e) {
                     console.error('[云端同步] 同步失败:', e);
-                    this.showSyncStatus('error', '同步失败: ' + e.message);
+                    SecurityLogger.cloudSync('failed', { error: e.message });
+                    
+                    if (e.message === 'BIN_NOT_FOUND') {
+                        this.showSyncStatus('error', '云端数据不存在，正在重建...');
+                        setTimeout(() => this.syncToCloud(), 1000);
+                    } else {
+                        this.showSyncStatus('error', '同步失败: ' + e.message);
+                    }
                 } finally {
                     this.isSyncing = false;
                 }
             },
             
             async createBin(data) {
-                const response = await fetch('https://api.jsonbin.io/v3/b', {
+                const apiKey = SYSTEM_CONFIG.jsonBinApiKey;
+                console.log('[云端同步] 使用API Key:', apiKey ? `${apiKey.substring(0, 10)}...` : '未设置');
+                
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': apiKey,
+                    'X-Bin-Name': 'hht-exam-data'
+                };
+                
+                console.log('[云端同步] 请求头:', JSON.stringify(headers, null, 2));
+                
+                const response = await this.fetchWithRetry('https://api.jsonbin.io/v3/b', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey,
-                        'X-Bin-Name': 'hht-exam-data'
-                    },
+                    headers: headers,
                     body: JSON.stringify(data)
                 });
                 
-                if (!response.ok) throw new Error('创建数据失败');
-                
                 const result = await response.json();
+                console.log('[云端同步] 创建响应:', result);
+                
+                if (!result.metadata || !result.metadata.id) {
+                    throw new Error('创建Bin失败: 响应格式错误');
+                }
+                
                 SYSTEM_CONFIG.jsonBinId = result.metadata.id;
                 localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
                 console.log('[云端同步] 已创建数据Bin:', SYSTEM_CONFIG.jsonBinId);
+                SecurityLogger.cloudSync('bin_created', { binId: SYSTEM_CONFIG.jsonBinId });
             },
             
             async updateBin(data) {
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}`, {
+                await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2171,8 +2339,6 @@ D|选项D"></textarea>
                     },
                     body: JSON.stringify(data)
                 });
-                
-                if (!response.ok) throw new Error('更新数据失败');
                 console.log('[云端同步] 数据已更新');
             },
             
@@ -2181,41 +2347,64 @@ D|选项D"></textarea>
                 
                 try {
                     this.showSyncStatus('success', '正在从云端获取数据...');
+                    SecurityLogger.cloudSync('started', { action: 'syncFromCloud' });
                     
-                    const response = await fetch(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}/latest`, {
+                    const response = await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}/latest`, {
                         method: 'GET',
                         headers: {
                             'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey
                         }
                     });
                     
-                    if (!response.ok) throw new Error('获取数据失败');
-                    
                     const result = await response.json();
                     const data = result.record;
+                    
+                    let recordsUpdated = 0;
+                    let papersUpdated = 0;
                     
                     if (data.records && Array.isArray(data.records)) {
                         const localRecords = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
                         const mergedRecords = this.mergeRecords(localRecords, data.records);
                         localStorage.setItem(STORAGE_KEY.RECORDS, JSON.stringify(mergedRecords));
+                        recordsUpdated = mergedRecords.length - localRecords.length;
                     }
+                    
                     if (data.papers && Array.isArray(data.papers)) {
-                        localStorage.setItem(STORAGE_KEY.PAPERS, JSON.stringify(data.papers));
+                        const localPapers = JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]');
+                        if (data.papers.length > localPapers.length) {
+                            localStorage.setItem(STORAGE_KEY.PAPERS, JSON.stringify(data.papers));
+                            papersUpdated = data.papers.length - localPapers.length;
+                        }
                     }
+                    
                     if (data.config && Object.keys(data.config).length > 0) {
                         const localConfig = JSON.parse(localStorage.getItem(STORAGE_KEY.CONFIG) || '{}');
                         const mergedConfig = { ...data.config, ...localConfig, jsonBinApiKey: SYSTEM_CONFIG.jsonBinApiKey, jsonBinId: SYSTEM_CONFIG.jsonBinId };
                         localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(mergedConfig));
                     }
+                    
                     if (data.phoneBindings) {
                         localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(data.phoneBindings));
                     }
                     
                     console.log('[云端同步] 数据已从JSONBin.io恢复');
+                    SecurityLogger.cloudSync('success', { 
+                        action: 'syncFromCloud',
+                        recordsUpdated,
+                        papersUpdated
+                    });
                     this.showSyncStatus('success', '数据恢复成功');
                 } catch (e) {
                     console.error('[云端同步] 恢复失败:', e);
-                    this.showSyncStatus('error', '恢复失败: ' + e.message);
+                    SecurityLogger.cloudSync('failed', { action: 'syncFromCloud', error: e.message });
+                    
+                    if (e.message === 'BIN_NOT_FOUND') {
+                        SYSTEM_CONFIG.jsonBinId = '';
+                        localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
+                        this.showSyncStatus('error', '云端数据不存在，将创建新备份');
+                    } else {
+                        this.showSyncStatus('error', '恢复失败: ' + e.message);
+                    }
                 }
             },
             
@@ -2238,12 +2427,183 @@ D|选项D"></textarea>
                     statusEl.style.display = 'block';
                     setTimeout(() => {
                         statusEl.style.display = 'none';
-                    }, 3000);
+                    }, 5000);
                 }
             },
             
             forceSync() {
                 this.syncToCloud();
+            }
+        };
+
+        // ==================== 安全日志模块 v8.0 ====================
+        const SecurityLogger = {
+            maxLogs: 1000,
+            
+            log(eventType, details, level = 'info') {
+                const log = {
+                    id: Date.now() + Math.random().toString(36).substr(2, 9),
+                    timestamp: new Date().toISOString(),
+                    localTime: new Date().toLocaleString(),
+                    eventType: eventType,
+                    level: level,
+                    details: details,
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
+                };
+                
+                let logs = this.getLogs();
+                logs.unshift(log);
+                
+                if (logs.length > this.maxLogs) {
+                    logs = logs.slice(0, this.maxLogs);
+                }
+                
+                localStorage.setItem(STORAGE_KEY.SECURITY_LOGS, JSON.stringify(logs));
+                
+                console.log(`[安全日志][${level.toUpperCase()}] ${eventType}:`, details);
+                return log;
+            },
+            
+            getLogs() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEY.SECURITY_LOGS) || '[]');
+                } catch (e) {
+                    return [];
+                }
+            },
+            
+            clearLogs() {
+                localStorage.removeItem(STORAGE_KEY.SECURITY_LOGS);
+            },
+            
+            exportLogs() {
+                const logs = this.getLogs();
+                const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `安全日志_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            
+            loginAttempt(user, role, success, reason = '') {
+                return this.log('LOGIN_ATTEMPT', {
+                    user: user,
+                    role: role,
+                    success: success,
+                    reason: reason,
+                    ip: 'client-side'
+                }, success ? 'info' : 'warning');
+            },
+            
+            loginSuccess(user, role) {
+                return this.log('LOGIN_SUCCESS', {
+                    user: user,
+                    role: role
+                }, 'info');
+            },
+            
+            loginFailed(user, role, reason) {
+                return this.log('LOGIN_FAILED', {
+                    user: user,
+                    role: role,
+                    reason: reason
+                }, 'warning');
+            },
+            
+            logout(user, role) {
+                return this.log('LOGOUT', {
+                    user: user,
+                    role: role
+                }, 'info');
+            },
+            
+            permissionDenied(user, action, resource) {
+                return this.log('PERMISSION_DENIED', {
+                    user: user,
+                    action: action,
+                    resource: resource
+                }, 'warning');
+            },
+            
+            suspiciousActivity(user, activity, details) {
+                return this.log('SUSPICIOUS_ACTIVITY', {
+                    user: user,
+                    activity: activity,
+                    details: details
+                }, 'error');
+            },
+            
+            configChange(user, changes) {
+                return this.log('CONFIG_CHANGE', {
+                    user: user,
+                    changes: changes
+                }, 'info');
+            },
+            
+            dataExport(user, dataType) {
+                return this.log('DATA_EXPORT', {
+                    user: user,
+                    dataType: dataType
+                }, 'info');
+            },
+            
+            dataDelete(user, dataType, count) {
+                return this.log('DATA_DELETE', {
+                    user: user,
+                    dataType: dataType,
+                    count: count
+                }, 'warning');
+            },
+            
+            examSubmit(user, paperName, score) {
+                return this.log('EXAM_SUBMIT', {
+                    user: user,
+                    paperName: paperName,
+                    score: score
+                }, 'info');
+            },
+            
+            antiCheatTriggered(user, triggerType, details) {
+                return this.log('ANTI_CHEAT_TRIGGERED', {
+                    user: user,
+                    triggerType: triggerType,
+                    details: details
+                }, 'error');
+            },
+            
+            cloudSync(status, details) {
+                return this.log('CLOUD_SYNC', {
+                    status: status,
+                    details: details
+                }, status === 'success' ? 'info' : 'warning');
+            },
+            
+            getStats() {
+                const logs = this.getLogs();
+                const stats = {
+                    total: logs.length,
+                    byLevel: {},
+                    byType: {},
+                    recentFailed: 0,
+                    recentSuspicious: 0
+                };
+                
+                const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+                
+                logs.forEach(log => {
+                    stats.byLevel[log.level] = (stats.byLevel[log.level] || 0) + 1;
+                    stats.byType[log.eventType] = (stats.byType[log.eventType] || 0) + 1;
+                    
+                    if (new Date(log.timestamp).getTime() > oneDayAgo) {
+                        if (log.eventType === 'LOGIN_FAILED') stats.recentFailed++;
+                        if (log.eventType === 'SUSPICIOUS_ACTIVITY' || log.eventType === 'ANTI_CHEAT_TRIGGERED') stats.recentSuspicious++;
+                    }
+                });
+                
+                return stats;
             }
         };
 
@@ -2773,6 +3133,8 @@ D|选项D"></textarea>
                         renderStatData();
                     } else if (tabName === 'record') {
                         renderAdminRecords();
+                    } else if (tabName === 'security') {
+                        renderSecurityLogs();
                     }
                 });
             });
@@ -3100,6 +3462,27 @@ D|选项D"></textarea>
             document.getElementById('statPaperSelect')?.addEventListener('change', (e) => {
                 renderStatData();
             });
+            // 安全日志筛选
+            document.getElementById('securityLogFilter')?.addEventListener('change', renderSecurityLogs);
+            document.getElementById('securityEventTypeFilter')?.addEventListener('change', renderSecurityLogs);
+            // 安全日志导出
+            document.getElementById('exportSecurityLogBtn')?.addEventListener('click', () => {
+                SecurityLogger.exportLogs();
+                showTipModal('导出成功', '安全日志已导出');
+            });
+            // 安全日志清空
+            document.getElementById('clearSecurityLogBtn')?.addEventListener('click', () => {
+                showConfirmModal('确认清空', '确定要清空所有安全日志吗？此操作不可恢复！', () => {
+                    SecurityLogger.clearLogs();
+                    renderSecurityLogs();
+                    showTipModal('清空成功', '安全日志已清空');
+                });
+            });
+            // 安全日志刷新
+            document.getElementById('refreshSecurityLogBtn')?.addEventListener('click', () => {
+                renderSecurityLogs();
+                showTipModal('刷新成功', '安全日志已刷新');
+            });
         }
 
         // ==================== 登录相关 ====================
@@ -3188,7 +3571,16 @@ D|选项D"></textarea>
         }
 
         function handleLogin() {
-            if (!validateLoginForm()) return;
+            if (!validateLoginForm()) {
+                const phoneVal = elements.phone.value.trim();
+                const adminPhoneVal = elements.adminPhone ? elements.adminPhone.value.trim() : '';
+                SecurityLogger.loginFailed(
+                    phoneVal || adminPhoneVal || 'unknown',
+                    currentRole,
+                    '表单验证失败'
+                );
+                return;
+            }
             
             const phoneVal = elements.phone.value.trim();
             const nameVal = elements.name.value.trim();
@@ -3197,6 +3589,7 @@ D|选项D"></textarea>
             if (currentRole === 'employee') {
                 // 检查是否使用超级管理员手机号
                 if (checkSuperAdminPhone(phoneVal)) {
+                    SecurityLogger.suspiciousActivity(phoneVal, 'super_admin_phone_used', '员工尝试使用超级管理员手机号登录');
                     showTipModal('权限不足', '请使用管理员入口登录');
                     return;
                 }
@@ -3204,6 +3597,7 @@ D|选项D"></textarea>
                 // 检查手机号绑定
                 const bindCheck = checkPhoneBinding(phoneVal, nameVal, shopVal);
                 if (!bindCheck.valid) {
+                    SecurityLogger.loginFailed(phoneVal, currentRole, bindCheck.message);
                     showTipModal('绑定验证失败', bindCheck.message);
                     return;
                 }
@@ -3223,10 +3617,12 @@ D|选项D"></textarea>
                     const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
                     const hasPassed = records.some(r => r.user.phone === currentUser.phone && r.paperId === currentPaper.id && r.totalScore >= currentPaper.passScore);
                     if (hasPassed) {
+                        SecurityLogger.loginFailed(phoneVal, currentRole, '已通过考试，不允许重复');
                         showTipModal('无法考试', '你已通过本试卷考试，无需重复参加');
                         return;
                     }
                 }
+                SecurityLogger.loginSuccess(`${nameVal}(${phoneVal})`, currentRole);
                 startExam();
             } else {
                 // 管理员登录
@@ -3239,18 +3635,24 @@ D|选项D"></textarea>
                     currentUser = { type: 'super_admin', name: '超级管理员', phone: adminPhoneVal };
                     currentAdminShop = '';
                     elements.superAdminConfigTab.style.display = 'block';
+                    document.getElementById('superAdminSecurityTab').style.display = 'block';
                     elements.shopLimitTip.style.display = 'none';
+                    SecurityLogger.loginSuccess('超级管理员', 'super_admin');
                 } else {
                     // 店长登录时检查手机号是否为超级管理员
                     if (checkSuperAdminPhone(adminPhoneVal)) {
                         currentUser = { type: 'super_admin', name: '超级管理员', phone: adminPhoneVal };
                         currentAdminShop = '';
                         elements.superAdminConfigTab.style.display = 'block';
+                        document.getElementById('superAdminSecurityTab').style.display = 'block';
                         elements.shopLimitTip.style.display = 'none';
+                        SecurityLogger.loginSuccess('超级管理员(店长入口)', 'super_admin');
                     } else {
                         currentUser = { type: 'shop_manager', name: '店长', shop: currentAdminShop };
                         elements.superAdminConfigTab.style.display = 'none';
+                        document.getElementById('superAdminSecurityTab').style.display = 'none';
                         elements.shopLimitTip.style.display = 'block';
+                        SecurityLogger.loginSuccess(`店长(${currentAdminShop})`, 'shop_manager');
                     }
                 }
                 elements.adminContainer.style.display = 'block';
@@ -3878,6 +4280,7 @@ D|选项D"></textarea>
         function logout() {
             showConfirmModal('确认退出', '退出后未提交的答案将保留24小时，确定退出吗？', () => {
                 clearInterval(countdownTimer);
+                SecurityLogger.logout(currentUser.name || '员工', currentUser.type || 'employee');
                 elements.examContainer.style.display = 'none';
                 elements.loginContainer.style.display = 'block';
                 resetLoginForm();
@@ -4636,6 +5039,67 @@ D|选项D"></textarea>
                 `;
             });
             elements.shopStatTableBody.innerHTML = shopHtml;
+        }
+
+        // ==================== 安全日志 ====================
+        function renderSecurityLogs() {
+            const logs = SecurityLogger.getLogs();
+            const levelFilter = document.getElementById('securityLogFilter').value;
+            const typeFilter = document.getElementById('securityEventTypeFilter').value;
+            
+            let filteredLogs = logs;
+            if (levelFilter !== 'all') {
+                filteredLogs = filteredLogs.filter(log => log.level === levelFilter);
+            }
+            if (typeFilter !== 'all') {
+                filteredLogs = filteredLogs.filter(log => log.eventType === typeFilter);
+            }
+            
+            const stats = SecurityLogger.getStats();
+            document.getElementById('securityLogTotal').textContent = stats.total;
+            document.getElementById('securityLogFailed').textContent = stats.recentFailed;
+            document.getElementById('securityLogSuspicious').textContent = stats.recentSuspicious;
+            document.getElementById('securityLogWarnings').textContent = stats.byLevel['warning'] || 0;
+            
+            const levelColors = {
+                'info': '#27ae60',
+                'warning': '#f39c12',
+                'error': '#e74c3c'
+            };
+            
+            const eventTypeNames = {
+                'LOGIN_ATTEMPT': '登录尝试',
+                'LOGIN_SUCCESS': '登录成功',
+                'LOGIN_FAILED': '登录失败',
+                'LOGOUT': '登出',
+                'PERMISSION_DENIED': '权限拒绝',
+                'SUSPICIOUS_ACTIVITY': '可疑活动',
+                'ANTI_CHEAT_TRIGGERED': '防作弊触发',
+                'CONFIG_CHANGE': '配置更改',
+                'DATA_EXPORT': '数据导出',
+                'DATA_DELETE': '数据删除',
+                'EXAM_SUBMIT': '考试提交',
+                'CLOUD_SYNC': '云端同步'
+            };
+            
+            if (filteredLogs.length === 0) {
+                document.getElementById('securityLogTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#666;">暂无日志记录</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            filteredLogs.slice(0, 100).forEach(log => {
+                const detailsStr = typeof log.details === 'object' ? JSON.stringify(log.details, null, 2) : log.details;
+                html += `
+                    <tr>
+                        <td style="font-size:12px;">${log.localTime}</td>
+                        <td><span style="color:${levelColors[log.level] || '#666'};font-weight:600;">${log.level.toUpperCase()}</span></td>
+                        <td>${eventTypeNames[log.eventType] || log.eventType}</td>
+                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;font-size:12px;" title="${detailsStr.replace(/"/g, '&quot;')}">${detailsStr.substring(0, 100)}${detailsStr.length > 100 ? '...' : ''}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('securityLogTableBody').innerHTML = html;
         }
 
         // ==================== 系统设置 ====================
