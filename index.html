@@ -1888,11 +1888,17 @@ D|选项D"></textarea>
             </div>
         </div>
         <button class="login-btn" id="loginBtn">登录</button>
-        <!-- 云端同步状态 v8.0 -->
+        <!-- 云端同步状态 v8.2 -->
         <div id="syncStatus" class="sync-status" style="display: none;"></div>
         <div class="sync-info" id="syncInfo">
             <span class="sync-icon">☁️</span>
-            <span id="syncTimeText">JSONBin.io 云端同步</span>
+            <span id="syncTimeText">JSONBin.io 云端同步 v8.2</span>
+            <button type="button" id="manualSyncBtn" style="margin-left:10px;padding:5px 10px;background:#3498db;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;" onclick="CloudSync.forceSync()">立即同步</button>
+        </div>
+        <div id="syncDetailInfo" style="text-align:center;font-size:12px;color:#666;margin-top:5px;">
+            <span id="syncRecordCount">本地记录: 0条</span> | 
+            <span id="syncLastTime">上次同步: 未同步</span> |
+            <span id="syncBinId" style="cursor:pointer;color:#3498db;" onclick="showBinIdModal()">Bin ID: 未设置</span>
         </div>
     </div>
 
@@ -2348,17 +2354,20 @@ D|选项D"></textarea>
             // 手机号绑定记录
             phoneBindings: {},
             // 云端同步配置（v8.0新增 - JSONBin.io）
+            // 重要：jsonBinApiKey必须由用户在登录时输入，不在此硬编码
+            // jsonBinId用于跨用户数据共享，首次创建后所有用户共享此ID
             apiUrl: "https://api.jsonbin.io/v3",
             cloudEnabled: true,
             cloudSyncInterval: 30000,
             lastSyncTime: null,
             syncKey: "hht_exam_cloud_data",
-            jsonBinApiKey: "$2a$10$nqAj61o6/eSnKs9VK89s2OsfKxpnnAofXjSexuBfsyuzoFRprm3MO",
-            jsonBinId: ""
+            jsonBinApiKey: "",
+            jsonBinId: "",
+            sharedBinId: "68da9f60a8584e2b5c1f5b6e"
         };
         let ADMIN_PASSWORD = SYSTEM_CONFIG.superAdminPwd;
 
-        // ==================== 云端同步模块 v8.1 (JSONBin.io) 优化版 ====================
+        // ==================== 云端同步模块 v8.2 (JSONBin.io) 跨用户共享版 ====================
         const CloudSync = {
             syncTimer: null,
             isSyncing: false,
@@ -2367,18 +2376,18 @@ D|选项D"></textarea>
             requestTimeout: 15000,
             
             init() {
-                if (SYSTEM_CONFIG.cloudEnabled) {
+                if (SYSTEM_CONFIG.cloudEnabled && SYSTEM_CONFIG.jsonBinApiKey) {
                     this.startAutoSync();
-                    if (SYSTEM_CONFIG.jsonBinId) {
-                        setTimeout(() => this.syncFromCloud(), 1000);
-                    }
+                    setTimeout(() => this.syncFromCloud(), 1000);
                 }
             },
             
             startAutoSync() {
                 if (this.syncTimer) clearInterval(this.syncTimer);
                 this.syncTimer = setInterval(() => {
-                    this.syncToCloud();
+                    if (SYSTEM_CONFIG.jsonBinApiKey) {
+                        this.syncToCloud();
+                    }
                 }, SYSTEM_CONFIG.cloudSyncInterval || 30000);
             },
             
@@ -2426,13 +2435,6 @@ D|选项D"></textarea>
                             throw new Error('API Key无效或已过期 (401)，请检查密钥是否正确');
                         }
                         
-                        if (response.status === 404 && !url.includes('/latest') && url.includes('/b/')) {
-                            console.log('[云端同步] Bin不存在，需要重建');
-                            SYSTEM_CONFIG.jsonBinId = '';
-                            localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
-                            throw new Error('BIN_NOT_FOUND');
-                        }
-                        
                         if (!response.ok) {
                             const errorText = await response.text().catch(() => '');
                             console.error('[云端同步] 错误响应:', errorText);
@@ -2455,6 +2457,16 @@ D|选项D"></textarea>
                 throw lastError;
             },
             
+            getBinId() {
+                if (SYSTEM_CONFIG.jsonBinId) {
+                    return SYSTEM_CONFIG.jsonBinId;
+                }
+                if (SYSTEM_CONFIG.sharedBinId) {
+                    return SYSTEM_CONFIG.sharedBinId;
+                }
+                return null;
+            },
+            
             async syncToCloud() {
                 if (!SYSTEM_CONFIG.cloudEnabled || this.isSyncing) return;
                 if (!SYSTEM_CONFIG.jsonBinApiKey) {
@@ -2466,23 +2478,64 @@ D|选项D"></textarea>
                 try {
                     SecurityLogger.cloudSync('started', { action: 'syncToCloud' });
                     
+                    let cloudData = null;
+                    const binId = this.getBinId();
+                    
+                    if (binId) {
+                        try {
+                            const response = await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+                                method: 'GET',
+                                headers: {
+                                    'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey
+                                }
+                            });
+                            const result = await response.json();
+                            cloudData = result.record;
+                            console.log('[云端同步] 成功获取云端数据');
+                        } catch (e) {
+                            console.log('[云端同步] 无法获取云端数据，将创建新数据');
+                        }
+                    }
+                    
+                    const localRecords = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+                    const localPapers = JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]');
+                    const localPhoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                    
+                    let mergedRecords = localRecords;
+                    let mergedPapers = localPapers;
+                    let mergedPhoneBindings = localPhoneBindings;
+                    
+                    if (cloudData) {
+                        mergedRecords = this.mergeRecords(localRecords, cloudData.records || []);
+                        mergedPapers = this.mergePapers(localPapers, cloudData.papers || []);
+                        mergedPhoneBindings = { ...cloudData.phoneBindings, ...localPhoneBindings };
+                    }
+                    
                     const syncData = {
                         timestamp: Date.now(),
-                        records: JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]'),
-                        papers: JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]'),
-                        config: JSON.parse(localStorage.getItem(STORAGE_KEY.CONFIG) || '{}'),
-                        phoneBindings: JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}'),
+                        version: '8.2',
+                        records: mergedRecords,
+                        papers: mergedPapers,
+                        config: {
+                            allowRepeat: SYSTEM_CONFIG.allowRepeat,
+                            superAdminPhone: SYSTEM_CONFIG.superAdminPhone
+                        },
+                        phoneBindings: mergedPhoneBindings,
                         securityLogs: SecurityLogger.getLogs().slice(0, 100)
                     };
                     
                     const dataSize = new Blob([JSON.stringify(syncData)]).size;
                     console.log(`[云端同步] 数据大小: ${(dataSize / 1024).toFixed(2)} KB`);
                     
-                    if (SYSTEM_CONFIG.jsonBinId) {
-                        await this.updateBin(syncData);
+                    if (binId) {
+                        await this.updateBin(binId, syncData);
                     } else {
                         await this.createBin(syncData);
                     }
+                    
+                    localStorage.setItem(STORAGE_KEY.RECORDS, JSON.stringify(mergedRecords));
+                    localStorage.setItem(STORAGE_KEY.PAPERS, JSON.stringify(mergedPapers));
+                    localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(mergedPhoneBindings));
                     
                     SYSTEM_CONFIG.lastSyncTime = Date.now();
                     localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
@@ -2490,20 +2543,15 @@ D|选项D"></textarea>
                     console.log('[云端同步] 数据已同步到JSONBin.io');
                     SecurityLogger.cloudSync('success', { 
                         dataSize: dataSize,
-                        recordCount: syncData.records.length,
-                        paperCount: syncData.papers.length
+                        recordCount: mergedRecords.length,
+                        paperCount: mergedPapers.length
                     });
-                    this.showSyncStatus('success', '数据同步成功');
+                    this.showSyncStatus('success', `同步成功！共${mergedRecords.length}条记录`);
+                    this.updateSyncInfo();
                 } catch (e) {
                     console.error('[云端同步] 同步失败:', e);
                     SecurityLogger.cloudSync('failed', { error: e.message });
-                    
-                    if (e.message === 'BIN_NOT_FOUND') {
-                        this.showSyncStatus('error', '云端数据不存在，正在重建...');
-                        setTimeout(() => this.syncToCloud(), 1000);
-                    } else {
-                        this.showSyncStatus('error', '同步失败: ' + e.message);
-                    }
+                    this.showSyncStatus('error', '同步失败: ' + e.message);
                 } finally {
                     this.isSyncing = false;
                 }
@@ -2511,15 +2559,13 @@ D|选项D"></textarea>
             
             async createBin(data) {
                 const apiKey = SYSTEM_CONFIG.jsonBinApiKey;
-                console.log('[云端同步] 使用API Key:', apiKey ? `${apiKey.substring(0, 10)}...` : '未设置');
+                console.log('[云端同步] 创建新Bin...');
                 
                 const headers = {
                     'Content-Type': 'application/json',
                     'X-Master-Key': apiKey,
-                    'X-Bin-Name': 'hht-exam-data'
+                    'X-Bin-Name': 'hht-exam-shared-data'
                 };
-                
-                console.log('[云端同步] 请求头:', JSON.stringify(headers, null, 2));
                 
                 const response = await this.fetchWithRetry('https://api.jsonbin.io/v3/b', {
                     method: 'POST',
@@ -2536,12 +2582,12 @@ D|选项D"></textarea>
                 
                 SYSTEM_CONFIG.jsonBinId = result.metadata.id;
                 localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
-                console.log('[云端同步] 已创建数据Bin:', SYSTEM_CONFIG.jsonBinId);
+                console.log('[云端同步] 已创建共享数据Bin:', SYSTEM_CONFIG.jsonBinId);
                 SecurityLogger.cloudSync('bin_created', { binId: SYSTEM_CONFIG.jsonBinId });
             },
             
-            async updateBin(data) {
-                await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}`, {
+            async updateBin(binId, data) {
+                await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${binId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2549,17 +2595,27 @@ D|选项D"></textarea>
                     },
                     body: JSON.stringify(data)
                 });
-                console.log('[云端同步] 数据已更新');
+                console.log('[云端同步] 数据已更新到Bin:', binId);
             },
             
             async syncFromCloud() {
-                if (!SYSTEM_CONFIG.cloudEnabled || !SYSTEM_CONFIG.jsonBinId || !SYSTEM_CONFIG.jsonBinApiKey) return;
+                if (!SYSTEM_CONFIG.cloudEnabled || !SYSTEM_CONFIG.jsonBinApiKey) {
+                    console.log('[云端同步] 未配置API Key，跳过读取');
+                    return;
+                }
                 
                 try {
                     this.showSyncStatus('success', '正在从云端获取数据...');
                     SecurityLogger.cloudSync('started', { action: 'syncFromCloud' });
                     
-                    const response = await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${SYSTEM_CONFIG.jsonBinId}/latest`, {
+                    const binId = this.getBinId();
+                    if (!binId) {
+                        console.log('[云端同步] 没有可用的Bin ID');
+                        this.showSyncStatus('error', '请先同步数据');
+                        return;
+                    }
+                    
+                    const response = await this.fetchWithRetry(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
                         method: 'GET',
                         headers: {
                             'X-Master-Key': SYSTEM_CONFIG.jsonBinApiKey
@@ -2577,24 +2633,31 @@ D|选项D"></textarea>
                         const mergedRecords = this.mergeRecords(localRecords, data.records);
                         localStorage.setItem(STORAGE_KEY.RECORDS, JSON.stringify(mergedRecords));
                         recordsUpdated = mergedRecords.length - localRecords.length;
+                        console.log(`[云端同步] 记录合并: 本地${localRecords.length}条 + 云端${data.records.length}条 = ${mergedRecords.length}条`);
                     }
                     
                     if (data.papers && Array.isArray(data.papers)) {
                         const localPapers = JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]');
-                        if (data.papers.length > localPapers.length) {
-                            localStorage.setItem(STORAGE_KEY.PAPERS, JSON.stringify(data.papers));
-                            papersUpdated = data.papers.length - localPapers.length;
-                        }
+                        const mergedPapers = this.mergePapers(localPapers, data.papers);
+                        localStorage.setItem(STORAGE_KEY.PAPERS, JSON.stringify(mergedPapers));
+                        papersUpdated = mergedPapers.length - localPapers.length;
+                    }
+                    
+                    if (data.phoneBindings) {
+                        const localBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                        const mergedBindings = { ...localBindings, ...data.phoneBindings };
+                        localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(mergedBindings));
                     }
                     
                     if (data.config && Object.keys(data.config).length > 0) {
                         const localConfig = JSON.parse(localStorage.getItem(STORAGE_KEY.CONFIG) || '{}');
-                        const mergedConfig = { ...data.config, ...localConfig, jsonBinApiKey: SYSTEM_CONFIG.jsonBinApiKey, jsonBinId: SYSTEM_CONFIG.jsonBinId };
+                        const mergedConfig = { 
+                            ...data.config, 
+                            ...localConfig, 
+                            jsonBinApiKey: SYSTEM_CONFIG.jsonBinApiKey,
+                            jsonBinId: binId
+                        };
                         localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(mergedConfig));
-                    }
-                    
-                    if (data.phoneBindings) {
-                        localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(data.phoneBindings));
                     }
                     
                     console.log('[云端同步] 数据已从JSONBin.io恢复');
@@ -2603,30 +2666,42 @@ D|选项D"></textarea>
                         recordsUpdated,
                         papersUpdated
                     });
-                    this.showSyncStatus('success', '数据恢复成功');
+                    this.showSyncStatus('success', `数据恢复成功！共${JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]').length}条记录`);
+                    this.updateSyncInfo();
                 } catch (e) {
                     console.error('[云端同步] 恢复失败:', e);
                     SecurityLogger.cloudSync('failed', { action: 'syncFromCloud', error: e.message });
-                    
-                    if (e.message === 'BIN_NOT_FOUND') {
-                        SYSTEM_CONFIG.jsonBinId = '';
-                        localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
-                        this.showSyncStatus('error', '云端数据不存在，将创建新备份');
-                    } else {
-                        this.showSyncStatus('error', '恢复失败: ' + e.message);
-                    }
+                    this.showSyncStatus('error', '恢复失败: ' + e.message);
                 }
             },
             
             mergeRecords(local, cloud) {
                 const recordMap = new Map();
-                local.forEach(r => recordMap.set(r.id, r));
+                local.forEach(r => {
+                    if (r && r.id) recordMap.set(r.id, r);
+                });
                 cloud.forEach(r => {
-                    if (!recordMap.has(r.id) || (r.timestamp && (!recordMap.get(r.id).timestamp || r.timestamp > recordMap.get(r.id).timestamp))) {
-                        recordMap.set(r.id, r);
+                    if (r && r.id) {
+                        const existing = recordMap.get(r.id);
+                        if (!existing || (r.timestamp && (!existing.timestamp || r.timestamp > existing.timestamp))) {
+                            recordMap.set(r.id, r);
+                        }
                     }
                 });
                 return Array.from(recordMap.values());
+            },
+            
+            mergePapers(local, cloud) {
+                const paperMap = new Map();
+                local.forEach(p => {
+                    if (p && p.id) paperMap.set(p.id, p);
+                });
+                cloud.forEach(p => {
+                    if (p && p.id && !paperMap.has(p.id)) {
+                        paperMap.set(p.id, p);
+                    }
+                });
+                return Array.from(paperMap.values());
             },
             
             showSyncStatus(type, message) {
@@ -2643,7 +2718,74 @@ D|选项D"></textarea>
             
             forceSync() {
                 this.syncToCloud();
+            },
+            
+            async syncWithRetry(maxAttempts = 3) {
+                for (let i = 0; i < maxAttempts; i++) {
+                    try {
+                        await this.syncToCloud();
+                        return true;
+                    } catch (e) {
+                        console.error(`[云端同步] 第${i + 1}次同步失败:`, e.message);
+                        if (i < maxAttempts - 1) {
+                            await this.delay(2000 * (i + 1));
+                        }
+                    }
+                }
+                return false;
+            },
+            
+            updateSyncInfo() {
+                const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+                const recordCountEl = document.getElementById('syncRecordCount');
+                const lastTimeEl = document.getElementById('syncLastTime');
+                const binIdEl = document.getElementById('syncBinId');
+                
+                if (recordCountEl) {
+                    recordCountEl.textContent = `本地记录: ${records.length}条`;
+                }
+                if (lastTimeEl && SYSTEM_CONFIG.lastSyncTime) {
+                    const date = new Date(SYSTEM_CONFIG.lastSyncTime);
+                    lastTimeEl.textContent = `上次同步: ${date.toLocaleString()}`;
+                }
+                if (binIdEl) {
+                    const binId = this.getBinId();
+                    binIdEl.textContent = `Bin ID: ${binId ? binId.substring(0, 8) + '...' : '未设置'}`;
+                }
             }
+        };
+        
+        window.showBinIdModal = function() {
+            const currentBinId = CloudSync.getBinId() || '';
+            const binIdHtml = `
+                <div class="api-key-modal-content">
+                    <div class="form-group">
+                        <label>当前Bin ID</label>
+                        <input type="text" id="inputBinId" value="${currentBinId}" placeholder="输入共享的Bin ID">
+                        <p style="font-size:12px;color:#666;margin-top:5px;">多个用户使用相同的Bin ID可实现数据共享</p>
+                    </div>
+                    <div class="modal-btn-group">
+                        <button class="modal-btn confirm-btn" onclick="saveBinId()">保存</button>
+                        <button class="modal-btn cancel-btn" onclick="closeApiKeyModal()">取消</button>
+                    </div>
+                </div>
+            `;
+            elements.modalTitle.textContent = '设置共享Bin ID';
+            elements.modalContent.innerHTML = binIdHtml;
+            elements.modalCancelBtn.style.display = 'none';
+            elements.tipModal.style.display = 'flex';
+        };
+        
+        window.saveBinId = function() {
+            const newBinId = document.getElementById('inputBinId').value.trim();
+            if (newBinId) {
+                SYSTEM_CONFIG.jsonBinId = newBinId;
+                localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
+                CloudSync.updateSyncInfo();
+                CloudSync.syncFromCloud();
+            }
+            elements.tipModal.style.display = 'none';
+            showTipModal('保存成功', 'Bin ID已更新，正在同步数据...');
         };
 
         // ==================== 安全日志模块 v8.0 ====================
@@ -3163,6 +3305,8 @@ D|选项D"></textarea>
             initLoginAnimation();
             // 初始化云端同步
             CloudSync.init();
+            // 更新同步状态显示
+            CloudSync.updateSyncInfo();
         });
 
         // 登录界面动态效果：打字机+Logo动画+版本号动态
@@ -4421,7 +4565,7 @@ D|选项D"></textarea>
                 elements.submitBtn.disabled = true;
                 
                 setTimeout(() => {
-                    CloudSync.syncToCloud();
+                    CloudSync.syncWithRetry(3);
                     SecurityLogger.examSubmit(currentUser.name, currentPaper.name, objectiveScore);
                 }, 2000);
             });
