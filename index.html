@@ -2070,24 +2070,56 @@ D|选项D"></textarea>
 
         <!-- 安全日志 -->
         <div class="admin-tab-content" id="securityTab" style="display: none;">
-            <div class="stat-cards">
-                <div class="stat-card">
-                    <h4>总日志数</h4>
-                    <div class="stat-value" id="securityLogTotal">0</div>
+            <!-- 安全巡检面板 -->
+            <div class="security-scan-panel" style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                <h3 style="margin-bottom:15px;color:#c0392b;">🛡️ 安全巡检中心</h3>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <h4>安全评分</h4>
+                        <div class="stat-value" id="securityScore">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>漏洞数量</h4>
+                        <div class="stat-value" id="vulnerabilityCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>警告数量</h4>
+                        <div class="stat-value" id="warningCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>上次扫描</h4>
+                        <div class="stat-value" id="lastScanTime" style="font-size:14px;">未扫描</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <h4>今日登录失败</h4>
-                    <div class="stat-value" id="securityLogFailed">0</div>
-                </div>
-                <div class="stat-card">
-                    <h4>可疑活动</h4>
-                    <div class="stat-value" id="securityLogSuspicious">0</div>
-                </div>
-                <div class="stat-card">
-                    <h4>警告级别</h4>
-                    <div class="stat-value" id="securityLogWarnings">0</div>
+                <div class="btn-group" style="margin-top:15px;">
+                    <button class="confirm-btn" onclick="runSecurityScan()">🔍 立即扫描</button>
+                    <button class="export-btn" onclick="showScanReport()">📋 查看报告</button>
                 </div>
             </div>
+            
+            <!-- 日志监控面板 -->
+            <div class="log-monitor-panel" style="background:#fff3cd;padding:20px;border-radius:8px;margin-bottom:20px;">
+                <h3 style="margin-bottom:15px;color:#856404;">📊 日志监控统计</h3>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <h4>总日志数</h4>
+                        <div class="stat-value" id="securityLogTotal">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>今日登录失败</h4>
+                        <div class="stat-value" id="securityLogFailed">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>可疑活动</h4>
+                        <div class="stat-value" id="securityLogSuspicious">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>警告级别</h4>
+                        <div class="stat-value" id="securityLogWarnings">0</div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="btn-group" style="margin-bottom: 20px;">
                 <button class="export-btn" id="exportSecurityLogBtn">导出日志</button>
                 <button class="danger-btn" id="clearSecurityLogBtn">清空日志</button>
@@ -2787,6 +2819,381 @@ D|选项D"></textarea>
             elements.tipModal.style.display = 'none';
             showTipModal('保存成功', 'Bin ID已更新，正在同步数据...');
         };
+        
+        window.runSecurityScan = async function() {
+            showTipModal('安全扫描', '正在进行安全巡检...');
+            const results = await SecurityScanner.runFullScan();
+            updateSecurityScanUI(results);
+            elements.tipModal.style.display = 'none';
+            showTipModal('扫描完成', `安全评分: ${results.score}/100`);
+        };
+        
+        window.showScanReport = function() {
+            const report = SecurityScanner.getScanReport();
+            alert(report);
+        };
+        
+        function updateSecurityScanUI(results) {
+            document.getElementById('securityScore').textContent = results.score;
+            document.getElementById('vulnerabilityCount').textContent = results.vulnerabilities.length;
+            document.getElementById('warningCount').textContent = results.warnings.length;
+            document.getElementById('lastScanTime').textContent = new Date().toLocaleTimeString();
+        }
+
+        // ==================== 内容审核模块 v8.2 (Guardrails AI 风格) ====================
+        const ContentGuard = {
+            sensitiveWords: [
+                '傻逼', '操你', '妈的', '草泥马', '王八蛋', '滚蛋', '去死',
+                'fuck', 'shit', 'damn', 'ass', 'bitch',
+                '作弊', '答案', '泄露', '偷看', '抄袭'
+            ],
+            
+            injectionPatterns: [
+                /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+                /javascript:/gi,
+                /on\w+\s*=/gi,
+                /eval\s*\(/gi,
+                /document\./gi,
+                /\.innerHTML\s*=/gi,
+                /union\s+select/gi,
+                /or\s+1\s*=\s*1/gi,
+                /drop\s+table/gi,
+                /insert\s+into/gi,
+                /delete\s+from/gi
+            ],
+            
+            checkContent(text, type = 'general') {
+                const result = {
+                    isValid: true,
+                    filteredText: text,
+                    violations: [],
+                    riskLevel: 'low'
+                };
+                
+                if (!text || typeof text !== 'string') {
+                    return result;
+                }
+                
+                let filteredText = text;
+                
+                for (const word of this.sensitiveWords) {
+                    if (filteredText.toLowerCase().includes(word.toLowerCase())) {
+                        result.violations.push({
+                            type: 'sensitive_word',
+                            word: word,
+                            position: filteredText.toLowerCase().indexOf(word.toLowerCase())
+                        });
+                        filteredText = filteredText.replace(new RegExp(word, 'gi'), '*'.repeat(word.length));
+                    }
+                }
+                
+                for (const pattern of this.injectionPatterns) {
+                    if (pattern.test(text)) {
+                        result.violations.push({
+                            type: 'injection_attempt',
+                            pattern: pattern.toString()
+                        });
+                        filteredText = filteredText.replace(pattern, '[已过滤]');
+                    }
+                }
+                
+                if (text.length > 5000) {
+                    result.violations.push({
+                        type: 'length_exceeded',
+                        length: text.length,
+                        maxLength: 5000
+                    });
+                    filteredText = filteredText.substring(0, 5000);
+                }
+                
+                if (result.violations.length > 0) {
+                    result.isValid = false;
+                    result.filteredText = filteredText;
+                    
+                    if (result.violations.some(v => v.type === 'injection_attempt')) {
+                        result.riskLevel = 'high';
+                    } else if (result.violations.length > 3) {
+                        result.riskLevel = 'medium';
+                    }
+                    
+                    SecurityLogger.suspiciousActivity(
+                        currentUser?.phone || 'unknown',
+                        'content_violation',
+                        `内容审核发现${result.violations.length}个违规项: ${result.violations.map(v => v.type).join(', ')}`
+                    );
+                }
+                
+                return result;
+            },
+            
+            checkAnswer(answer, questionType) {
+                const result = this.checkContent(answer, 'answer');
+                if (!result.isValid) {
+                    console.warn('[内容审核] 答案包含违规内容:', result.violations);
+                }
+                return result;
+            },
+            
+            checkUserInput(input, inputType = 'text') {
+                return this.checkContent(input, inputType);
+            },
+            
+            escapeHTML(str) {
+                const escapeChars = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '/': '&#x2F;',
+                    '`': '&#x60;',
+                    '=': '&#x3D;'
+                };
+                return String(str).replace(/[&<>"'`=/]/g, char => escapeChars[char]);
+            }
+        };
+
+        // ==================== 安全巡检模块 v8.2 (本地化替代Docker方案) ====================
+        const SecurityScanner = {
+            scanResults: null,
+            lastScanTime: null,
+            
+            async runFullScan() {
+                console.log('[安全巡检] 开始全面安全扫描...');
+                const results = {
+                    timestamp: new Date().toISOString(),
+                    vulnerabilities: [],
+                    warnings: [],
+                    info: [],
+                    score: 100
+                };
+                
+                results.vulnerabilities.push(...this.checkXSSVulnerabilities());
+                results.vulnerabilities.push(...this.checkSQLInjectionVulnerabilities());
+                results.vulnerabilities.push(...this.checkCSRFVulnerabilities());
+                results.warnings.push(...this.checkDataSecurity());
+                results.warnings.push(...this.checkSessionSecurity());
+                results.info.push(...this.checkBrowserSecurity());
+                results.info.push(...this.checkStorageSecurity());
+                
+                const totalIssues = results.vulnerabilities.length + results.warnings.length;
+                results.score = Math.max(0, 100 - (results.vulnerabilities.length * 20) - (results.warnings.length * 5));
+                
+                this.scanResults = results;
+                this.lastScanTime = Date.now();
+                
+                console.log('[安全巡检] 扫描完成，安全评分:', results.score);
+                SecurityLogger.log('security_scan', { score: results.score, issues: totalIssues }, 'info');
+                
+                return results;
+            },
+            
+            checkXSSVulnerabilities() {
+                const issues = [];
+                const inputs = document.querySelectorAll('input[type="text"], textarea');
+                
+                inputs.forEach(input => {
+                    if (!input.hasAttribute('maxlength')) {
+                        issues.push({
+                            type: 'xss',
+                            severity: 'medium',
+                            element: input.name || input.id,
+                            message: '输入框未设置最大长度限制'
+                        });
+                    }
+                });
+                
+                return issues;
+            },
+            
+            checkSQLInjectionVulnerabilities() {
+                const issues = [];
+                return issues;
+            },
+            
+            checkCSRFVulnerabilities() {
+                const issues = [];
+                const forms = document.querySelectorAll('form');
+                
+                forms.forEach(form => {
+                    const csrfToken = form.querySelector('input[name="csrf_token"]');
+                    if (!csrfToken) {
+                        issues.push({
+                            type: 'csrf',
+                            severity: 'low',
+                            message: '表单缺少CSRF令牌（本地应用可忽略）'
+                        });
+                    }
+                });
+                
+                return issues;
+            },
+            
+            checkDataSecurity() {
+                const issues = [];
+                
+                const sensitiveData = localStorage.getItem(STORAGE_KEY.CONFIG);
+                if (sensitiveData && sensitiveData.includes('password')) {
+                    issues.push({
+                        type: 'data_security',
+                        severity: 'medium',
+                        message: '本地存储中包含敏感配置信息'
+                    });
+                }
+                
+                return issues;
+            },
+            
+            checkSessionSecurity() {
+                const issues = [];
+                
+                if (!window.isSecureContext) {
+                    issues.push({
+                        type: 'session',
+                        severity: 'low',
+                        message: '非HTTPS环境，建议使用HTTPS'
+                    });
+                }
+                
+                return issues;
+            },
+            
+            checkBrowserSecurity() {
+                const issues = [];
+                
+                if (navigator.webdriver) {
+                    issues.push({
+                        type: 'browser',
+                        severity: 'info',
+                        message: '检测到自动化测试环境'
+                    });
+                }
+                
+                return issues;
+            },
+            
+            checkStorageSecurity() {
+                const issues = [];
+                
+                const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+                if (records.length > 1000) {
+                    issues.push({
+                        type: 'storage',
+                        severity: 'info',
+                        message: `本地存储记录较多(${records.length}条)，建议清理`
+                    });
+                }
+                
+                return issues;
+            },
+            
+            getScanReport() {
+                if (!this.scanResults) {
+                    return '尚未进行安全扫描';
+                }
+                
+                let report = '=== 安全巡检报告 ===\n';
+                report += `扫描时间: ${this.scanResults.timestamp}\n`;
+                report += `安全评分: ${this.scanResults.score}/100\n\n`;
+                
+                if (this.scanResults.vulnerabilities.length > 0) {
+                    report += '【漏洞】\n';
+                    this.scanResults.vulnerabilities.forEach(v => {
+                        report += `  - [${v.severity}] ${v.message}\n`;
+                    });
+                }
+                
+                if (this.scanResults.warnings.length > 0) {
+                    report += '【警告】\n';
+                    this.scanResults.warnings.forEach(w => {
+                        report += `  - ${w.message}\n`;
+                    });
+                }
+                
+                if (this.scanResults.info.length > 0) {
+                    report += '【信息】\n';
+                    this.scanResults.info.forEach(i => {
+                        report += `  - ${i.message}\n`;
+                    });
+                }
+                
+                return report;
+            }
+        };
+
+        // ==================== 日志监控模块 v8.2 (替代FreeAIGuard) ====================
+        const LogMonitor = {
+            monitorInterval: null,
+            alertThreshold: {
+                failedLogin: 5,
+                suspiciousActivity: 3,
+                contentViolation: 10
+            },
+            
+            start() {
+                console.log('[日志监控] 启动日志监控系统...');
+                this.checkAnomalies();
+                this.monitorInterval = setInterval(() => {
+                    this.checkAnomalies();
+                }, 60000);
+            },
+            
+            stop() {
+                if (this.monitorInterval) {
+                    clearInterval(this.monitorInterval);
+                    this.monitorInterval = null;
+                }
+            },
+            
+            checkAnomalies() {
+                const logs = SecurityLogger.getLogs();
+                const now = Date.now();
+                const oneHourAgo = now - 3600000;
+                
+                const recentLogs = logs.filter(l => new Date(l.timestamp).getTime() > oneHourAgo);
+                
+                const failedLogins = recentLogs.filter(l => l.eventType === 'login_failed');
+                if (failedLogins.length >= this.alertThreshold.failedLogin) {
+                    this.triggerAlert('high', '登录失败次数异常', `过去1小时登录失败${failedLogins.length}次`);
+                }
+                
+                const suspiciousActivities = recentLogs.filter(l => l.eventType === 'suspicious_activity');
+                if (suspiciousActivities.length >= this.alertThreshold.suspiciousActivity) {
+                    this.triggerAlert('medium', '可疑活动检测', `过去1小时检测到${suspiciousActivities.length}次可疑活动`);
+                }
+                
+                const contentViolations = recentLogs.filter(l => l.eventType === 'content_violation');
+                if (contentViolations.length >= this.alertThreshold.contentViolation) {
+                    this.triggerAlert('low', '内容违规频繁', `过去1小时检测到${contentViolations.length}次内容违规`);
+                }
+            },
+            
+            triggerAlert(level, title, message) {
+                console.warn(`[日志监控][${level.toUpperCase()}] ${title}: ${message}`);
+                SecurityLogger.log('security_alert', { level, title, message }, level);
+                
+                if (level === 'high') {
+                    alert(`安全警报: ${title}\n${message}`);
+                }
+            },
+            
+            getStatistics() {
+                const logs = SecurityLogger.getLogs();
+                const now = Date.now();
+                const oneDayAgo = now - 86400000;
+                
+                const recentLogs = logs.filter(l => new Date(l.timestamp).getTime() > oneDayAgo);
+                
+                return {
+                    totalLogs: logs.length,
+                    recentLogs: recentLogs.length,
+                    loginSuccess: recentLogs.filter(l => l.eventType === 'login_success').length,
+                    loginFailed: recentLogs.filter(l => l.eventType === 'login_failed').length,
+                    suspiciousActivities: recentLogs.filter(l => l.eventType === 'suspicious_activity').length,
+                    contentViolations: recentLogs.filter(l => l.eventType === 'content_violation').length
+                };
+            }
+        };
 
         // ==================== 安全日志模块 v8.0 ====================
         const SecurityLogger = {
@@ -3307,6 +3714,16 @@ D|选项D"></textarea>
             CloudSync.init();
             // 更新同步状态显示
             CloudSync.updateSyncInfo();
+            // 启动安全巡检模块
+            LogMonitor.start();
+            // 运行初始安全扫描
+            setTimeout(() => {
+                SecurityScanner.runFullScan().then(results => {
+                    if (results.score < 80) {
+                        console.warn('[安全巡检] 安全评分较低，请检查系统配置');
+                    }
+                });
+            }, 3000);
         });
 
         // 登录界面动态效果：打字机+Logo动画+版本号动态
@@ -4405,18 +4822,29 @@ D|选项D"></textarea>
                     answers[q.id] = checked ? checked.value : null;
                 });
             }
-            // 填空题
+            // 填空题 - 添加内容审核
             if (questions.fill) {
                 questions.fill.forEach(q => {
                     const inputs = document.querySelectorAll(`input[name^="${q.id}_"]`);
-                    answers[q.id] = Array.from(inputs).map(i => i.value.trim());
+                    const rawAnswers = Array.from(inputs).map(i => i.value.trim());
+                    const checkedAnswers = rawAnswers.map(ans => {
+                        const result = ContentGuard.checkContent(ans, 'fill');
+                        return result.filteredText;
+                    });
+                    answers[q.id] = checkedAnswers;
                 });
             }
-            // 主观题
+            // 主观题 - 添加内容审核
             if (questions.subjective) {
                 questions.subjective.forEach(q => {
                     const textarea = document.querySelector(`textarea[name="${q.id}"]`);
-                    answers[q.id] = textarea ? textarea.value.trim() : '';
+                    const rawAnswer = textarea ? textarea.value.trim() : '';
+                    const result = ContentGuard.checkContent(rawAnswer, 'subjective');
+                    answers[q.id] = result.filteredText;
+                    
+                    if (!result.isValid) {
+                        console.warn(`[内容审核] 主观题 ${q.id} 内容已过滤:`, result.violations);
+                    }
                 });
             }
             return answers;
