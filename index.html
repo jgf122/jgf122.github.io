@@ -2141,6 +2141,7 @@
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         /* 试卷卡片高端设计 */
         .paper-card {
@@ -4191,6 +4192,36 @@
         </div>
     </div>
 
+    <!-- 版本更新总结弹窗 -->
+    <div class="modal" id="updateSummaryModal">
+        <div class="modal-content">
+            <div class="modal-title" style="background: linear-gradient(135deg, #667eea, #764ba2);color:white;">✨ 系统更新</div>
+            <div id="updateSummaryContent" style="text-align:left;max-height:400px;overflow-y:auto;">
+                <h4 style="margin-top:0;color:#667eea;">📋 本次更新内容</h4>
+                <div style="margin:10px 0;">
+                    <h5 style="margin-bottom:5px;">🔧 修复优化</h5>
+                    <ul style="margin:0;padding-left:20px;color:#666;">
+                        <li>修复答题界面功能异常</li>
+                        <li>优化系统设置页面显示</li>
+                        <li>修复题库管理权限问题</li>
+                        <li>提升整体稳定性</li>
+                    </ul>
+                </div>
+                <div style="margin:15px 0;">
+                    <h5 style="margin-bottom:5px;">➕ 新增功能</h5>
+                    <ul style="margin:0;padding-left:20px;color:#666;">
+                        <li>超级管理员称号管理</li>
+                        <li>超级管理员榜单管理</li>
+                        <li>超级管理员论坛管理</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-btn-group">
+                <button class="modal-btn confirm-btn" id="closeUpdateSummaryBtn">我知道了</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 通用提示弹窗 -->
     <div class="modal" id="tipModal">
         <div class="modal-content">
@@ -5966,6 +5997,8 @@ D|选项D"></textarea>
                     return;
                 }
 
+                const userGradeData = user.phone ? GradeSystem.getUserGradeData(user.phone) : GradeSystem.getDefaultGradeData();
+                
                 const modalContent = `
                     <div style="text-align:left;">
                         <div class="form-group">
@@ -5998,6 +6031,20 @@ D|选项D"></textarea>
                                 <option value="super_admin" ${user.role === 'super_admin' ? 'selected' : ''}>超级管理员</option>
                             </select>
                         </div>
+                        ${isSuperAdmin ? `
+                        <div class="form-group">
+                            <label>称号</label>
+                            <select id="editUserGrade">
+                                <option value="intern" ${userGradeData.grade === 'intern' ? 'selected' : ''}>实习生</option>
+                                <option value="roaster" ${userGradeData.grade === 'roaster' ? 'selected' : ''}>烤肉师</option>
+                                <option value="junior" ${userGradeData.grade === 'junior' ? 'selected' : ''}>初级烤肉师</option>
+                                <option value="middle" ${userGradeData.grade === 'middle' ? 'selected' : ''}>中级烤肉师</option>
+                                <option value="senior" ${userGradeData.grade === 'senior' ? 'selected' : ''}>高级烤肉师</option>
+                                <option value="silver" ${userGradeData.grade === 'silver' ? 'selected' : ''}>银牌烤肉师</option>
+                                <option value="gold" ${userGradeData.grade === 'gold' ? 'selected' : ''}>金牌烤肉师</option>
+                            </select>
+                        </div>
+                        ` : ''}
                         <div class="form-group">
                             <label>新密码（留空则不修改）</label>
                             <input type="password" id="editUserNewPassword" placeholder="请输入新密码">
@@ -6033,6 +6080,15 @@ D|选项D"></textarea>
 
                         if (isSuperAdmin) {
                             newInfo.username = document.getElementById('editUserUsername').value.trim();
+                            
+                            const gradeSelect = document.getElementById('editUserGrade');
+                            if (gradeSelect && user.phone) {
+                                const newGrade = gradeSelect.value;
+                                let userGradeData = GradeSystem.getUserGradeData(user.phone);
+                                userGradeData.grade = newGrade;
+                                userGradeData.gradeUpdateTime = new Date().toISOString();
+                                GradeSystem.saveUserGradeData(user.phone, userGradeData);
+                            }
                         }
 
                         const newPassword = document.getElementById('editUserNewPassword').value.trim();
@@ -6353,6 +6409,32 @@ D|选项D"></textarea>
                 }
             },
 
+            async removeUserFromRank(userId) {
+                try {
+                    const scoreBinId = jsonbinRequest.getBinId('score');
+                    if (!scoreBinId) {
+                        console.log('[排行榜] 未配置 score Bin ID');
+                        return false;
+                    }
+
+                    const scoreData = await jsonbinRequest.get(scoreBinId) || {};
+                    const scores = scoreData.scores || [];
+                    
+                    scoreData.scores = scores.filter(s => s.userId !== userId);
+                    
+                    await jsonbinRequest.put(scoreBinId, scoreData);
+                    
+                    await this.updateRankList();
+                    await this.renderRankList();
+                    
+                    console.log('[排行榜] 用户已从榜单移除:', userId);
+                    return true;
+                } catch (error) {
+                    console.error('[排行榜] 移除用户失败:', error);
+                    return false;
+                }
+            },
+
             renderRankItem(item, index, type) {
                 let value = '';
                 let unit = '';
@@ -6378,6 +6460,7 @@ D|选项D"></textarea>
                 else if (index === 2) rankClass = 'rank-bronze';
 
                 const gradeData = GradeSystem.getUserGradeData(item.userId);
+                const isSuperAdmin = currentUser && currentUser.type === 'super_admin';
 
                 return `
                     <div class="rank-item ${rankClass}" style="display:flex;align-items:center;padding:15px;background:white;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
@@ -6390,6 +6473,18 @@ D|选项D"></textarea>
                             <div class="rank-shop" style="font-size:14px;color:#999;margin-top:4px;">${item.shop}</div>
                         </div>
                         <div class="rank-value" style="font-size:20px;font-weight:bold;color:var(--brand-blue);">${value}${unit}</div>
+                        ${isSuperAdmin ? `
+                            <button 
+                                class="btn-remove-rank" 
+                                onclick="RankSystem.removeUserFromRank('${item.userId}').then(success => {
+                                    if (success) showTipModal('成功', '已将该用户从榜单移除');
+                                    else showTipModal('失败', '移除失败，请稍后重试');
+                                })"
+                                style="margin-left:10px;padding:8px 16px;background:#ff4d4f;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;"
+                            >
+                                踢出榜单
+                            </button>
+                        ` : ''}
                     </div>
                 `;
             },
@@ -9168,10 +9263,56 @@ D|选项D"></textarea>
                 });
             },
             
+            deletePost(postId) {
+                const posts = this.getPosts();
+                const postIndex = posts.findIndex(p => p.id === parseInt(postId));
+                
+                if (postIndex === -1) {
+                    throw new Error('帖子不存在');
+                }
+                
+                posts[postIndex].isDeleted = true;
+                posts[postIndex].deleteTime = new Date().toISOString();
+                posts[postIndex].deletedBy = currentUser;
+                this.savePosts(posts);
+                
+                return true;
+            },
+
+            toggleTop(postId) {
+                const posts = this.getPosts();
+                const postIndex = posts.findIndex(p => p.id === parseInt(postId));
+                
+                if (postIndex === -1) {
+                    throw new Error('帖子不存在');
+                }
+                
+                posts[postIndex].isTop = !posts[postIndex].isTop;
+                this.savePosts(posts);
+                
+                return posts[postIndex].isTop;
+            },
+
+            toggleEssence(postId) {
+                const posts = this.getPosts();
+                const postIndex = posts.findIndex(p => p.id === parseInt(postId));
+                
+                if (postIndex === -1) {
+                    throw new Error('帖子不存在');
+                }
+                
+                posts[postIndex].isEssence = !posts[postIndex].isEssence;
+                this.savePosts(posts);
+                
+                return posts[postIndex].isEssence;
+            },
+
             renderPostList(posts) {
                 if (posts.length === 0) {
                     return '<p style="text-align:center;color:#666;padding:40px;">暂无帖子，来发布第一个帖子吧！</p>';
                 }
+                
+                const isSuperAdmin = currentUser && currentUser.type === 'super_admin';
                 
                 return posts.map(post => {
                     const boards = this.getBoards();
@@ -9188,6 +9329,19 @@ D|选项D"></textarea>
                                     <button class="confirm-btn" style="font-size:12px;padding:5px 10px;" onclick="ForumSystem.jumpToKnowledge('${post.knowledge}')">
                                         📝 跳转刷题
                                     </button>
+                                ` : ''}
+                                ${isSuperAdmin ? `
+                                    <div style="display:flex;gap:5px;margin-left:10px;">
+                                        <button class="text-btn" style="font-size:12px;" onclick="event.stopPropagation();ForumSystem.toggleTop(${post.id});ForumSystem.renderForum();">
+                                            ${post.isTop ? '取消置顶' : '置顶'}
+                                        </button>
+                                        <button class="text-btn" style="font-size:12px;" onclick="event.stopPropagation();ForumSystem.toggleEssence(${post.id});ForumSystem.renderForum();">
+                                            ${post.isEssence ? '取消精华' : '加精'}
+                                        </button>
+                                        <button class="text-btn" style="font-size:12px;color:#dc3545;" onclick="event.stopPropagation();if(confirm('确定要删除这个帖子吗？')){ForumSystem.deletePost(${post.id});ForumSystem.renderForum();}">
+                                            删除
+                                        </button>
+                                    </div>
                                 ` : ''}
                             </div>
                             ${post.tags.length > 0 ? `
@@ -10506,6 +10660,7 @@ D|选项D"></textarea>
                 examContainer: document.getElementById('examContainer'),
                 examinerInfo: document.getElementById('examinerInfo'),
                 submitBtn: document.getElementById('submitBtn'),
+                fullscreenBtn: document.getElementById('fullscreenBtn'),
                 resetBtn: document.getElementById('resetBtn'),
                 logoutBtn: document.getElementById('logoutBtn'),
                 resultDiv: document.getElementById('result'),
@@ -10594,6 +10749,26 @@ D|选项D"></textarea>
             
             // 初始化增强同步模块
             EnhancedSync.init();
+            
+            // 检查并显示版本更新总结弹窗
+            const updateSummaryShown = localStorage.getItem('hht_update_summary_shown_20260321');
+            if (!updateSummaryShown) {
+                setTimeout(() => {
+                    const updateModal = document.getElementById('updateSummaryModal');
+                    if (updateModal) {
+                        updateModal.style.display = 'flex';
+                    }
+                }, 500);
+            }
+            
+            // 关闭版本更新总结弹窗
+            document.getElementById('closeUpdateSummaryBtn')?.addEventListener('click', () => {
+                const updateModal = document.getElementById('updateSummaryModal');
+                if (updateModal) {
+                    updateModal.style.display = 'none';
+                }
+                localStorage.setItem('hht_update_summary_shown_20260321', 'true');
+            });
         });
 
         // 登录界面动态效果：打字机+Logo动画+版本号动态
@@ -11096,6 +11271,10 @@ D|选项D"></textarea>
             elements.loginBtn.addEventListener('click', handleLogin);
             // 提交考试
             elements.submitBtn.addEventListener('click', handleSubmit);
+            // 全屏答题
+            elements.fullscreenBtn?.addEventListener('click', () => {
+                ExamEnhancement.enterFullScreen('examContainer');
+            });
             // 重新答题
             elements.resetBtn.addEventListener('click', resetExam);
             // 退出登录
@@ -11138,14 +11317,16 @@ D|选项D"></textarea>
                 tab.addEventListener('click', async () => {
                     const tabName = tab.dataset.tab;
 
-                    if (tabName === 'question' && currentUser.phone) {
-                        const hasPermission = await SecurityManager.checkQuestionBankPermission(
-                            currentUser.phone,
-                            currentAdminShop
-                        );
-                        if (!hasPermission) {
-                            showTipModal('权限不足', '您没有题库管理权限');
-                            return;
+                    if (tabName === 'question') {
+                        if (currentUser.type !== 'super_admin' && currentUser.phone) {
+                            const hasPermission = await SecurityManager.checkQuestionBankPermission(
+                                currentUser.phone,
+                                currentAdminShop
+                            );
+                            if (!hasPermission) {
+                                showTipModal('权限不足', '您没有题库管理权限');
+                                return;
+                            }
                         }
                     }
 
@@ -11920,6 +12101,9 @@ D|选项D"></textarea>
                 elements.adminContainer.style.display = 'block';
                 renderPaperList();
                 renderAdminRecords();
+                if (currentUser.type === 'super_admin') {
+                    updateConfigToView();
+                }
                 
                 CloudSync.syncFromCloud().catch(() => {});
                 
@@ -14230,11 +14414,6 @@ D|选项D"></textarea>
             }
         });
 
-        // 全屏按钮
-        document.getElementById('fullscreenBtn')?.addEventListener('click', () => {
-            ExamEnhancement.enterFullScreen('examContainer');
-        });
-
         // ==================== 排行榜事件监听 ====================
         document.getElementById('rankBtn')?.addEventListener('click', () => {
             RankSystem.showRankContainer();
@@ -15011,7 +15190,7 @@ D|选项D"></textarea>
 
         // ==================== 修改初始化，添加系统工具标签 ====================
         // 在DOMContentLoaded事件中添加系统工具标签
-        const originalInit = function() {
+        originalInit = function() {
             setTimeout(() => {
                 addAdminToolsTab();
                 PerformanceMonitor.startMonitoring();
