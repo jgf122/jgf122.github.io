@@ -1161,30 +1161,6 @@
             color: var(--brand-blue);
             border: 1px solid rgba(22, 93, 255, 0.3);
         }
-        /* 验证码样式 */
-        .captcha-container {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        .captcha-container .login-input {
-            flex: 1;
-            margin-bottom: 0;
-        }
-        .captcha-img {
-            width: 120px;
-            height: 50px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .captcha-img:hover {
-            border-color: var(--brand-orange);
-            box-shadow: var(--neon-orange);
-            transform: scale(1.05);
-        }
         /* 记住密码样式 */
         .remember-forgot {
             display: flex;
@@ -4430,17 +4406,14 @@ D|选项D"></textarea>
                 <div class="error-tip" id="shopError">请选择所在店面</div>
             </div>
             <div class="login-input">
+                <label for="employeePwd">密码</label>
+                <input type="password" id="employeePwd" placeholder="请输入密码" required="">
+                <div class="error-tip" id="employeePwdError">密码不能为空</div>
+            </div>
+            <div class="login-input">
                 <label for="loginApiKey">云端同步密钥（必填）</label>
                 <input type="password" id="loginApiKey" placeholder="请输入JSONBin.io API密钥" required="">
                 <div class="error-tip" id="loginApiKeyError">请输入云端同步密钥</div>
-            </div>
-            <div class="captcha-container">
-                <div class="login-input">
-                    <label for="captcha">验证码</label>
-                    <input type="text" id="captcha" placeholder="请输入验证码" required="">
-                    <div class="error-tip" id="captchaError">验证码错误</div>
-                </div>
-                <canvas id="captchaImg" class="captcha-img" title="点击刷新验证码"></canvas>
             </div>
         </div>
         <div class="remember-forgot">
@@ -4476,14 +4449,6 @@ D|选项D"></textarea>
                 <label for="adminLoginApiKey">云端同步密钥（必填）</label>
                 <input type="password" id="adminLoginApiKey" placeholder="请输入JSONBin.io API密钥" required="">
                 <div class="error-tip" id="adminLoginApiKeyError">请输入云端同步密钥</div>
-            </div>
-            <div class="captcha-container">
-                <div class="login-input">
-                    <label for="adminCaptcha">验证码</label>
-                    <input type="text" id="adminCaptcha" placeholder="请输入验证码" required="">
-                    <div class="error-tip" id="adminCaptchaError">验证码错误</div>
-                </div>
-                <canvas id="adminCaptchaImg" class="captcha-img" title="点击刷新验证码"></canvas>
             </div>
         </div>
         <div class="remember-forgot">
@@ -4566,7 +4531,7 @@ D|选项D"></textarea>
     <div class="admin-container" id="adminContainer">
         <!-- 云端预留提示 -->
         <div class="cloud-reserve-tip">
-            ☁️ v8.0 云端同步已启用 (JSONBin.io) | 数据每30秒自动同步
+            ☁️ v2.19.0 云端同步已启用 (JSONBin.io) | 数据每30秒自动同步
             <button class="sync-btn" id="forceSyncBtn" style="margin-left: 15px; padding: 5px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">立即同步</button>
         </div>
         
@@ -5405,7 +5370,7 @@ D|选项D"></textarea>
         };
 
         // ==================== 系统配置 ====================
-        // 版本: v2.19.0 | 开发者: 王博通 | 更新日期: 2026-03-19
+        // 版本: v2.19.0 | 开发者: 王博通 | 更新日期: 2026-03-21
         let SYSTEM_CONFIG = {
             notice: "",
             screenCheck: true,
@@ -5916,6 +5881,7 @@ D|选项D"></textarea>
                                         <button class="text-btn" style="color:#dc3545;" onclick="UserManager.rejectUser(${user.id})">拒绝</button>
                                     ` : ''}
                                     <button class="text-btn" onclick="UserManager.viewUserDetail(${user.id})">详情</button>
+                                    <button class="text-btn" style="color:#165dff;" onclick="UserManager.editUser(${user.id})">编辑</button>
                                 </div>
                             </div>
                             <div class="post-meta">
@@ -5977,6 +5943,135 @@ D|选项D"></textarea>
                 elements.modalTitle.textContent = '用户详情';
                 elements.modalContent.innerHTML = modalContent;
                 elements.modalCancelBtn.style.display = 'none';
+                elements.tipModal.style.display = 'flex';
+            },
+
+            editUser(userId) {
+                const user = this.currentUsers.find(u => u.id === userId);
+                if (!user) {
+                    showTipModal('错误', '用户不存在');
+                    return;
+                }
+
+                const isSuperAdmin = currentUser && (currentUser.type === 'super_admin');
+                const isShopManager = currentUser && (currentUser.type === 'shop_manager');
+                
+                if (!isSuperAdmin && !isShopManager) {
+                    showTipModal('权限不足', '只有管理员可以编辑用户信息');
+                    return;
+                }
+
+                if (!isSuperAdmin && user.shop && user.shop !== currentAdminShop) {
+                    showTipModal('权限不足', '店长只能编辑本店用户信息');
+                    return;
+                }
+
+                const modalContent = `
+                    <div style="text-align:left;">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" id="editUserUsername" value="${user.username}" ${!isSuperAdmin ? 'disabled' : ''}>
+                        </div>
+                        <div class="form-group">
+                            <label>姓名</label>
+                            <input type="text" id="editUserName" value="${user.name}">
+                        </div>
+                        <div class="form-group">
+                            <label>手机号</label>
+                            <input type="text" id="editUserPhone" value="${user.phone || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>所属门店</label>
+                            <select id="editUserShop" ${!isSuperAdmin && isShopManager ? 'disabled' : ''}>
+                                <option value="">请选择店面</option>
+                                <option value="韩花亭烤肉一店" ${user.shop === '韩花亭烤肉一店' ? 'selected' : ''}>韩花亭烤肉一店</option>
+                                <option value="韩花亭烤肉两店" ${user.shop === '韩花亭烤肉两店' ? 'selected' : ''}>韩花亭烤肉两店</option>
+                                <option value="韩花亭烤肉三店" ${user.shop === '韩花亭烤肉三店' ? 'selected' : ''}>韩花亭烤肉三店</option>
+                                <option value="韩花亭烤肉四店" ${user.shop === '韩花亭烤肉四店' ? 'selected' : ''}>韩花亭烤肉四店</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>角色</label>
+                            <select id="editUserRole" ${!isSuperAdmin ? 'disabled' : ''}>
+                                <option value="employee" ${user.role === 'employee' ? 'selected' : ''}>员工</option>
+                                <option value="shop_manager" ${user.role === 'shop_manager' ? 'selected' : ''}>店长</option>
+                                <option value="super_admin" ${user.role === 'super_admin' ? 'selected' : ''}>超级管理员</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>新密码（留空则不修改）</label>
+                            <input type="password" id="editUserNewPassword" placeholder="请输入新密码">
+                        </div>
+                        <div class="form-group">
+                            <label>状态</label>
+                            <select id="editUserStatus">
+                                <option value="pending" ${user.status === 'pending' ? 'selected' : ''}>待审核</option>
+                                <option value="approved" ${user.status === 'approved' ? 'selected' : ''}>已通过</option>
+                                <option value="rejected" ${user.status === 'rejected' ? 'selected' : ''}>已拒绝</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                elements.modalTitle.textContent = '编辑用户';
+                elements.modalContent.innerHTML = modalContent;
+                elements.modalCancelBtn.style.display = 'inline-block';
+                elements.modalConfirmBtn.style.display = 'inline-block';
+                elements.modalConfirmBtn.textContent = '保存';
+                
+                const oldOnclick = elements.modalConfirmBtn.onclick;
+                
+                elements.modalConfirmBtn.onclick = async () => {
+                    try {
+                        const newInfo = {
+                            name: document.getElementById('editUserName').value.trim(),
+                            phone: document.getElementById('editUserPhone').value.trim(),
+                            shop: document.getElementById('editUserShop').value,
+                            role: document.getElementById('editUserRole').value,
+                            status: document.getElementById('editUserStatus').value
+                        };
+
+                        if (isSuperAdmin) {
+                            newInfo.username = document.getElementById('editUserUsername').value.trim();
+                        }
+
+                        const newPassword = document.getElementById('editUserNewPassword').value.trim();
+                        if (newPassword) {
+                            newInfo.password = md5(newPassword);
+                        }
+
+                        if (!newInfo.name) {
+                            showTipModal('保存失败', '姓名不能为空');
+                            return;
+                        }
+
+                        await this.updateUserInfo(userId, newInfo);
+                        
+                        const bindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                        if (bindings[user.phone]) {
+                            const binding = bindings[user.phone];
+                            binding.name = newInfo.name;
+                            binding.shop = newInfo.shop;
+                            if (newPassword) {
+                                binding.password = md5(newPassword);
+                            }
+                            if (newInfo.phone && newInfo.phone !== user.phone) {
+                                delete bindings[user.phone];
+                                bindings[newInfo.phone] = binding;
+                            }
+                            localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(bindings));
+                        }
+
+                        showTipModal('保存成功', '用户信息已更新');
+                        elements.tipModal.style.display = 'none';
+                        elements.modalConfirmBtn.onclick = oldOnclick;
+                        
+                        await renderAdminUserList();
+                    } catch (e) {
+                        showTipModal('保存失败', e.message);
+                    }
+                };
+                
                 elements.tipModal.style.display = 'flex';
             },
 
@@ -6102,211 +6197,6 @@ D|选项D"></textarea>
 
             getTempAvatar() {
                 return this.tempAvatarData;
-            }
-        };
-
-        // ==================== 考试增强模块 ====================
-        const ExamEnhancement = {
-            currentExamId: null,
-            isFullscreen: false,
-            fullscreenListenerAdded: false,
-
-            async recordExamLog(userId, actionType, examId = null) {
-                try {
-                    const configBinId = jsonbinRequest.getBinId('config');
-                    if (!configBinId) {
-                        console.log('[考试增强] 未配置 config Bin ID');
-                        return;
-                    }
-
-                    const configData = await jsonbinRequest.get(configBinId) || {};
-                    const examLogs = configData.examLogs || [];
-
-                    const newLog = {
-                        id: Date.now() + Math.random(),
-                        userId: userId,
-                        actionType: actionType,
-                        examId: examId || this.currentExamId,
-                        time: new Date().toISOString()
-                    };
-
-                    examLogs.push(newLog);
-
-                    if (examLogs.length > 1000) {
-                        examLogs.splice(0, examLogs.length - 1000);
-                    }
-
-                    configData.examLogs = examLogs;
-                    await jsonbinRequest.put(configBinId, configData);
-
-                    console.log('[考试增强] 日志记录成功:', actionType);
-                } catch (error) {
-                    console.error('[考试增强] 记录日志失败:', error);
-                }
-            },
-
-            async enterFullScreen(containerId = 'examContainer') {
-                try {
-                    const container = document.getElementById(containerId);
-                    if (!container) {
-                        throw new Error('容器元素不存在');
-                    }
-
-                    if (container.requestFullscreen) {
-                        await container.requestFullscreen();
-                    } else if (container.webkitRequestFullscreen) {
-                        await container.webkitRequestFullscreen();
-                    } else if (container.msRequestFullscreen) {
-                        await container.msRequestFullscreen();
-                    } else if (container.mozRequestFullScreen) {
-                        await container.mozRequestFullScreen();
-                    }
-
-                    this.isFullscreen = true;
-                    this.addFullscreenListener();
-
-                    if (currentUser.phone) {
-                        await this.recordExamLog(currentUser.phone, 'fullscreen_enter');
-                    }
-
-                    console.log('[考试增强] 已进入全屏模式');
-                } catch (error) {
-                    console.error('[考试增强] 进入全屏失败:', error);
-                }
-            },
-
-            async exitFullScreen() {
-                try {
-                    if (document.exitFullscreen) {
-                        await document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) {
-                        await document.webkitExitFullscreen();
-                    } else if (document.msExitFullscreen) {
-                        await document.msExitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        await document.mozCancelFullScreen();
-                    }
-
-                    this.isFullscreen = false;
-                } catch (error) {
-                    console.error('[考试增强] 退出全屏失败:', error);
-                }
-            },
-
-            addFullscreenListener() {
-                if (this.fullscreenListenerAdded) return;
-
-                const handleFullscreenChange = async () => {
-                    const isFullscreenNow = document.fullscreenElement || 
-                                           document.webkitFullscreenElement ||
-                                           document.msFullscreenElement ||
-                                           document.mozFullScreenElement;
-
-                    if (this.isFullscreen && !isFullscreenNow) {
-                        this.isFullscreen = false;
-                        
-                        showTipModal('退出全屏提醒', '您已退出全屏模式，请继续答题');
-                        
-                        if (currentUser.phone) {
-                            await this.recordExamLog(currentUser.phone, 'fullscreen_exit');
-                        }
-
-                        console.log('[考试增强] 检测到退出全屏');
-                    }
-                };
-
-                document.addEventListener('fullscreenchange', handleFullscreenChange);
-                document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-                document.addEventListener('msfullscreenchange', handleFullscreenChange);
-                document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-
-                this.fullscreenListenerAdded = true;
-            },
-
-            preventCopyHandlers: [],
-
-            enablePreventCopy() {
-                const handleContextMenu = (e) => {
-                    e.preventDefault();
-                    this.handleCopyPrevent();
-                    return false;
-                };
-
-                const handleKeyDown = (e) => {
-                    if ((e.ctrlKey || e.metaKey) && 
-                        (e.key === 'c' || e.key === 'C' || 
-                         e.key === 'x' || e.key === 'X' || 
-                         e.key === 'v' || e.key === 'V')) {
-                        e.preventDefault();
-                        this.handleCopyPrevent();
-                        return false;
-                    }
-                };
-
-                const handleCopy = (e) => {
-                    e.preventDefault();
-                    this.handleCopyPrevent();
-                    return false;
-                };
-
-                const handleCut = (e) => {
-                    e.preventDefault();
-                    this.handleCopyPrevent();
-                    return false;
-                };
-
-                const handlePaste = (e) => {
-                    e.preventDefault();
-                    this.handleCopyPrevent();
-                    return false;
-                };
-
-                document.addEventListener('contextmenu', handleContextMenu);
-                document.addEventListener('keydown', handleKeyDown);
-                document.addEventListener('copy', handleCopy);
-                document.addEventListener('cut', handleCut);
-                document.addEventListener('paste', handlePaste);
-
-                this.preventCopyHandlers = [
-                    { event: 'contextmenu', handler: handleContextMenu },
-                    { event: 'keydown', handler: handleKeyDown },
-                    { event: 'copy', handler: handleCopy },
-                    { event: 'cut', handler: handleCut },
-                    { event: 'paste', handler: handlePaste }
-                ];
-
-                console.log('[考试增强] 防复制功能已启用');
-            },
-
-            disablePreventCopy() {
-                this.preventCopyHandlers.forEach(({ event, handler }) => {
-                    document.removeEventListener(event, handler);
-                });
-                this.preventCopyHandlers = [];
-                console.log('[考试增强] 防复制功能已禁用');
-            },
-
-            async handleCopyPrevent() {
-                showTipModal('操作受限', '考试期间禁止复制、剪切、粘贴操作');
-                
-                if (currentUser.phone) {
-                    await this.recordExamLog(currentUser.phone, 'copy_prevent');
-                }
-
-                SecurityLogger.log({
-                    level: 'warning',
-                    eventType: 'COPY_PREVENT',
-                    message: '检测到禁止的复制/剪切/粘贴操作',
-                    userId: currentUser.phone
-                });
-            },
-
-            setCurrentExamId(examId) {
-                this.currentExamId = examId;
-            },
-
-            init() {
-                console.log('[考试增强] 模块初始化完成');
             }
         };
 
@@ -7087,7 +6977,7 @@ D|选项D"></textarea>
                     
                     const syncData = {
                         timestamp: Date.now(),
-                        version: '8.2',
+                        version: '2.19.0',
                         records: mergedRecords,
                         papers: mergedPapers,
                         config: {
@@ -7290,8 +7180,13 @@ D|选项D"></textarea>
                 }
             },
             
-            forceSync() {
-                this.syncToCloud();
+            async forceSync() {
+                try {
+                    this.showSyncStatus('success', '正在同步数据...');
+                    await this.syncToCloud();
+                } catch (e) {
+                    console.error('[强制同步] 失败:', e);
+                }
             },
             
             async syncWithRetry(maxAttempts = 3) {
@@ -10604,6 +10499,8 @@ D|选项D"></textarea>
                 phoneError: document.getElementById('phoneError'),
                 nameError: document.getElementById('nameError'),
                 shopError: document.getElementById('shopError'),
+                employeePwd: document.getElementById('employeePwd'),
+                employeePwdError: document.getElementById('employeePwdError'),
                 loginNotice: document.getElementById('loginNotice'),
                 noticeContent: document.getElementById('noticeContent'),
                 examContainer: document.getElementById('examContainer'),
@@ -10648,15 +10545,9 @@ D|选项D"></textarea>
                 superAdminConfigTab: document.getElementById('superAdminConfigTab'),
                 loginApiKey: document.getElementById('loginApiKey'),
                 loginApiKeyError: document.getElementById('loginApiKeyError'),
-                captcha: document.getElementById('captcha'),
-                captchaImg: document.getElementById('captchaImg'),
-                captchaError: document.getElementById('captchaError'),
                 rememberPassword: document.getElementById('rememberPassword'),
                 adminLoginApiKey: document.getElementById('adminLoginApiKey'),
                 adminLoginApiKeyError: document.getElementById('adminLoginApiKeyError'),
-                adminCaptcha: document.getElementById('adminCaptcha'),
-                adminCaptchaImg: document.getElementById('adminCaptchaImg'),
-                adminCaptchaError: document.getElementById('adminCaptchaError'),
                 adminRememberPassword: document.getElementById('adminRememberPassword'),
                 registerLinkBtn: document.getElementById('registerLinkBtn')
             };
@@ -10691,6 +10582,7 @@ D|选项D"></textarea>
             
             // 初始化社交系统模块
             FriendSystem.init();
+            
             ChatSystem.init();
             NotificationCenter.init();
             
@@ -10706,13 +10598,18 @@ D|选项D"></textarea>
 
         // 登录界面动态效果：打字机+Logo动画+版本号动态
         function initLoginAnimation() {
+            console.log('[调试] 初始化登录动画...');
             const titleText = "韩花亭烤肉考试";
-            const versionText = "《v8.0》";
+            const versionText = "《v2.19.0》";
             const subtitleText = "员工考试系统【企业版】";
             let titleIndex = 0;
             
             // Logo淡入动画
             const logoEl = document.querySelector('.brand-logo');
+            if (!logoEl) {
+                console.error('[错误] 找不到.brand-logo元素');
+                return;
+            }
             logoEl.style.opacity = '0';
             logoEl.style.transform = 'scale(0.8)';
             setTimeout(() => {
@@ -10723,9 +10620,18 @@ D|选项D"></textarea>
             
             // 标题打字机效果
             setTimeout(() => {
+                const brandTitle = document.getElementById('brandTitle');
+                const versionTag = document.getElementById('versionTag');
+                const brandSubtitle = document.getElementById('brandSubtitle');
+                
+                if (!brandTitle || !versionTag || !brandSubtitle) {
+                    console.error('[错误] 找不到动态字体元素');
+                    return;
+                }
+                
                 const titleTimer = setInterval(() => {
                     if (titleIndex < titleText.length) {
-                        document.getElementById('brandTitle').textContent += titleText[titleIndex];
+                        brandTitle.textContent += titleText[titleIndex];
                         titleIndex++;
                     } else {
                         clearInterval(titleTimer);
@@ -10733,7 +10639,7 @@ D|选项D"></textarea>
                         let vIndex = 0;
                         const versionTimer = setInterval(() => {
                             if (vIndex < versionText.length) {
-                                document.getElementById('versionTag').textContent += versionText[vIndex];
+                                versionTag.textContent += versionText[vIndex];
                                 vIndex++;
                             } else {
                                 clearInterval(versionTimer);
@@ -10741,7 +10647,7 @@ D|选项D"></textarea>
                                 let sIndex = 0;
                                 const subtitleTimer = setInterval(() => {
                                     if (sIndex < subtitleText.length) {
-                                        document.getElementById('brandSubtitle').textContent += subtitleText[sIndex];
+                                        brandSubtitle.textContent += subtitleText[sIndex];
                                         sIndex++;
                                     } else {
                                         clearInterval(subtitleTimer);
@@ -10752,73 +10658,7 @@ D|选项D"></textarea>
                     }
                 }, 120);
             }, 300);
-        }
-
-        // 当前验证码
-        let currentCaptcha = '';
-        let currentAdminCaptcha = '';
-
-        // 生成验证码
-        function generateCaptcha(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return '';
-            
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.fillRect(0, 0, width, height);
-            
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-            let captcha = '';
-            const colors = ['#ff7a45', '#165dff', '#2ecc71', '#9b59b6', '#e74c3c'];
-            
-            for (let i = 0; i < 4; i++) {
-                const char = chars[Math.floor(Math.random() * chars.length)];
-                captcha += char;
-                
-                ctx.font = `${20 + Math.random() * 10}px Arial`;
-                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-                ctx.save();
-                ctx.translate(25 + i * 25, 35);
-                ctx.rotate((Math.random() - 0.5) * 0.4);
-                ctx.fillText(char, 0, 0);
-                ctx.restore();
-            }
-            
-            for (let i = 0; i < 4; i++) {
-                ctx.strokeStyle = colors[Math.floor(Math.random() * colors.length)];
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(Math.random() * width, Math.random() * height);
-                ctx.lineTo(Math.random() * width, Math.random() * height);
-                ctx.stroke();
-            }
-            
-            for (let i = 0; i < 50; i++) {
-                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-                ctx.beginPath();
-                ctx.arc(Math.random() * width, Math.random() * height, 1, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-            
-            return captcha;
-        }
-
-        // 刷新验证码
-        function refreshCaptcha(isAdmin = false) {
-            if (isAdmin) {
-                currentAdminCaptcha = generateCaptcha('adminCaptchaImg');
-            } else {
-                currentCaptcha = generateCaptcha('captchaImg');
-            }
-        }
-
-        // 验证验证码
-        function validateCaptcha(input, isAdmin = false) {
-            const targetCaptcha = isAdmin ? currentAdminCaptcha : currentCaptcha;
-            return input.toUpperCase() === targetCaptcha.toUpperCase();
+            console.log('[调试] 登录动画初始化完成');
         }
 
         // 记住密码相关
@@ -10862,8 +10702,6 @@ D|选项D"></textarea>
 
         // 初始化验证码和记住密码
         function initLoginFeatures() {
-            refreshCaptcha(false);
-            refreshCaptcha(true);
             initRememberedPassword();
         }
 
@@ -11210,14 +11048,6 @@ D|选项D"></textarea>
 
         // 初始化事件监听
         function initEventListeners() {
-            // 验证码刷新
-            elements.captchaImg?.addEventListener('click', () => {
-                refreshCaptcha(false);
-            });
-            elements.adminCaptchaImg?.addEventListener('click', () => {
-                refreshCaptcha(true);
-            });
-            
             // 记住密码
             elements.rememberPassword?.addEventListener('change', (e) => {
                 if (!e.target.checked) {
@@ -11231,11 +11061,15 @@ D|选项D"></textarea>
             });
             
             // 角色选择
-            elements.roleItems.forEach(item => {
-                item.addEventListener('click', () => {
+            console.log('[调试] 开始绑定角色选择事件, roleItems数量:', elements.roleItems.length);
+            elements.roleItems.forEach((item, index) => {
+                console.log(`[调试] 绑定角色 ${index}:`, item.dataset.role, item.textContent);
+                item.addEventListener('click', function(e) {
+                    console.log('[调试] 角色被点击:', this.dataset.role);
                     elements.roleItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    currentRole = item.dataset.role;
+                    this.classList.add('active');
+                    currentRole = this.dataset.role;
+                    console.log('[调试] currentRole已更新为:', currentRole);
                     if (currentRole === 'employee') {
                         elements.employeeLoginForm.style.display = 'block';
                         elements.adminPwdContainer.style.display = 'none';
@@ -11245,12 +11079,10 @@ D|选项D"></textarea>
                         elements.adminPwdContainer.style.display = 'block';
                         if (currentRole === 'super_admin') {
                             elements.loginTitle.textContent = '超级管理员登录';
-                            // 超级管理员可以选全部门店
                             elements.adminShop.disabled = false;
                             elements.adminShop.value = '';
                         } else {
                             elements.loginTitle.textContent = '店长管理员登录';
-                            // 店长只能选自己的门店，设置默认值为第一个门店
                             elements.adminShop.disabled = false;
                             if (!elements.adminShop.value) {
                                 elements.adminShop.value = elements.adminShop.options[1].value;
@@ -11878,12 +11710,23 @@ D|选项D"></textarea>
                 } else {
                     elements.shopError.style.display = 'none';
                 }
-                const apiKeyVal = document.getElementById('loginApiKey').value.trim();
-                if (!apiKeyVal) {
-                    document.getElementById('loginApiKeyError').style.display = 'block';
+                const employeePwdVal = elements.employeePwd ? elements.employeePwd.value.trim() : '';
+                if (!employeePwdVal) {
+                    if (elements.employeePwdError) {
+                        elements.employeePwdError.style.display = 'block';
+                    }
                     isValid = false;
                 } else {
-                    document.getElementById('loginApiKeyError').style.display = 'none';
+                    if (elements.employeePwdError) {
+                        elements.employeePwdError.style.display = 'none';
+                    }
+                }
+                const apiKeyVal = elements.loginApiKey.value.trim();
+                if (!apiKeyVal) {
+                    elements.loginApiKeyError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    elements.loginApiKeyError.style.display = 'none';
                 }
             } else {
                 const pwdVal = elements.adminPwd.value.trim();
@@ -11926,21 +11769,24 @@ D|选项D"></textarea>
         }
 
         // ==================== 手机号绑定验证 ====================
-        function checkPhoneBinding(phone, name, shop) {
+        function checkPhoneBinding(phone, name, shop, password) {
             const bindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
             if (bindings[phone]) {
                 const binding = bindings[phone];
                 if (binding.name !== name || binding.shop !== shop) {
                     return { valid: false, message: `该手机号已绑定账号：${binding.name}（${binding.shop}），如需修改请联系管理员` };
                 }
+                if (binding.password && binding.password !== md5(password)) {
+                    return { valid: false, message: '密码错误' };
+                }
                 return { valid: true, message: '' };
             }
             return { valid: true, message: '' };
         }
 
-        function savePhoneBinding(phone, name, shop) {
+        function savePhoneBinding(phone, name, shop, password) {
             const bindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
-            bindings[phone] = { name, shop, bindTime: Date.now() };
+            bindings[phone] = { name, shop, password: md5(password), bindTime: Date.now() };
             localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(bindings));
         }
 
@@ -11950,6 +11796,8 @@ D|选项D"></textarea>
         }
 
         function handleLogin() {
+            console.log('[handleLogin] 开始登录，当前角色:', currentRole);
+            
             if (!validateLoginForm()) {
                 const phoneVal = elements.phone.value.trim();
                 const adminPhoneVal = elements.adminPhone ? elements.adminPhone.value.trim() : '';
@@ -11961,21 +11809,14 @@ D|选项D"></textarea>
                 return;
             }
             
-            const captchaVal = currentRole === 'employee' 
-                ? elements.captcha.value.trim() 
-                : elements.adminCaptcha.value.trim();
-            
-            if (!validateCaptcha(captchaVal, currentRole !== 'employee')) {
-                showTipModal('验证码错误', '请输入正确的验证码');
-                refreshCaptcha(currentRole !== 'employee');
-                return;
-            }
-            
             const phoneVal = elements.phone.value.trim();
             const nameVal = elements.name.value.trim();
             const shopVal = elements.shop.value;
+            const employeePwdVal = elements.employeePwd ? elements.employeePwd.value.trim() : '';
             
             if (currentRole === 'employee') {
+                console.log('[handleLogin] 处理员工登录');
+                
                 if (elements.rememberPassword.checked) {
                     saveRememberedInfo({
                         phone: phoneVal,
@@ -11986,7 +11827,7 @@ D|选项D"></textarea>
                 } else {
                     clearRememberedInfo(false);
                 }
-                const loginApiKey = document.getElementById('loginApiKey').value.trim();
+                const loginApiKey = elements.loginApiKey.value.trim();
                 SYSTEM_CONFIG.jsonBinApiKey = loginApiKey;
                 localStorage.setItem(STORAGE_KEY.CONFIG, JSON.stringify(SYSTEM_CONFIG));
                 
@@ -11996,7 +11837,7 @@ D|选项D"></textarea>
                     return;
                 }
                 
-                const bindCheck = checkPhoneBinding(phoneVal, nameVal, shopVal);
+                const bindCheck = checkPhoneBinding(phoneVal, nameVal, shopVal, employeePwdVal);
                 if (!bindCheck.valid) {
                     SecurityLogger.loginFailed(phoneVal, currentRole, bindCheck.message);
                     showTipModal('绑定验证失败', bindCheck.message);
@@ -12010,7 +11851,7 @@ D|选项D"></textarea>
                     shop: shopVal
                 };
                 
-                savePhoneBinding(phoneVal, nameVal, shopVal);
+                savePhoneBinding(phoneVal, nameVal, shopVal, employeePwdVal);
                 
                 if (!SYSTEM_CONFIG.allowRepeat) {
                     const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
@@ -12068,11 +11909,12 @@ D|选项D"></textarea>
                         elements.shopLimitTip.style.display = 'none';
                         SecurityLogger.loginSuccess('超级管理员(店长入口)', 'super_admin');
                     } else {
-                        currentUser = { type: 'shop_manager', name: '店长', shop: currentAdminShop };
+                        currentUser = { type: 'shop_manager', name: '店长', shop: adminShopVal };
+                        currentAdminShop = adminShopVal;
                         elements.superAdminConfigTab.style.display = 'none';
                         document.getElementById('superAdminSecurityTab').style.display = 'none';
                         elements.shopLimitTip.style.display = 'block';
-                        SecurityLogger.loginSuccess(`店长(${currentAdminShop})`, 'shop_manager');
+                        SecurityLogger.loginSuccess(`店长(${adminShopVal})`, 'shop_manager');
                     }
                 }
                 elements.adminContainer.style.display = 'block';
@@ -14419,6 +14261,769 @@ D|选项D"></textarea>
             await RankSystem.updateRankList();
             await RankSystem.renderRankList();
         });
+
+        // ==================== 系统诊断模块 v8.1 ====================
+        const SystemDiagnostics = {
+            diagnostics: [],
+            
+            runFullDiagnostics() {
+                console.log('[系统诊断] 开始全面系统检查...');
+                this.diagnostics = [];
+                
+                this.checkLocalStorage();
+                this.checkPerformance();
+                this.checkMemory();
+                this.checkNetwork();
+                this.checkModules();
+                this.checkStorageSize();
+                
+                return this.generateReport();
+            },
+            
+            checkLocalStorage() {
+                try {
+                    const testKey = 'diagnostic_test';
+                    localStorage.setItem(testKey, 'test');
+                    localStorage.removeItem(testKey);
+                    this.addDiagnostic('localStorage', '正常', 'localStorage 读写功能正常');
+                } catch (e) {
+                    this.addDiagnostic('localStorage', '异常', `localStorage 错误: ${e.message}`);
+                }
+            },
+            
+            checkPerformance() {
+                const navigation = performance.getEntriesByType('navigation')[0];
+                if (navigation) {
+                    const loadTime = navigation.loadEventEnd - navigation.startTime;
+                    const status = loadTime < 3000 ? '良好' : loadTime < 5000 ? '一般' : '较差';
+                    this.addDiagnostic('性能', status, `页面加载时间: ${loadTime.toFixed(0)}ms`);
+                } else {
+                    this.addDiagnostic('性能', '未知', '无法获取性能数据');
+                }
+            },
+            
+            checkMemory() {
+                if (performance.memory) {
+                    const usedMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+                    const totalMB = (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+                    const usagePercent = ((performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit) * 100).toFixed(1);
+                    const status = usagePercent < 50 ? '良好' : usagePercent < 80 ? '一般' : '较高';
+                    this.addDiagnostic('内存', status, `已使用: ${usedMB}MB / ${totalMB}MB (${usagePercent}%)`);
+                } else {
+                    this.addDiagnostic('内存', '不支持', '该浏览器不支持内存API');
+                }
+            },
+            
+            checkNetwork() {
+                if (navigator.connection) {
+                    const connection = navigator.connection;
+                    const type = connection.effectiveType || connection.type || '未知';
+                    const downlink = connection.downlink ? `${connection.downlink}Mbps` : '未知';
+                    this.addDiagnostic('网络', '正常', `连接类型: ${type}, 下行速度: ${downlink}`);
+                } else if (navigator.onLine !== undefined) {
+                    const status = navigator.onLine ? '正常' : '离线';
+                    this.addDiagnostic('网络', status, navigator.onLine ? '网络连接正常' : '当前离线');
+                } else {
+                    this.addDiagnostic('网络', '未知', '无法检测网络状态');
+                }
+            },
+            
+            checkModules() {
+                const modules = [
+                    { name: 'UserManager', obj: typeof UserManager !== 'undefined' ? UserManager : null },
+                    { name: 'CloudSync', obj: typeof CloudSync !== 'undefined' ? CloudSync : null },
+                    { name: 'ExamEnhancement', obj: typeof ExamEnhancement !== 'undefined' ? ExamEnhancement : null },
+                    { name: 'RankSystem', obj: typeof RankSystem !== 'undefined' ? RankSystem : null },
+                    { name: 'ForumSystem', obj: typeof ForumSystem !== 'undefined' ? ForumSystem : null },
+                    { name: 'FriendSystem', obj: typeof FriendSystem !== 'undefined' ? FriendSystem : null },
+                    { name: 'ChatSystem', obj: typeof ChatSystem !== 'undefined' ? ChatSystem : null },
+                    { name: 'NotificationCenter', obj: typeof NotificationCenter !== 'undefined' ? NotificationCenter : null },
+                    { name: 'CommonUtils', obj: typeof CommonUtils !== 'undefined' ? CommonUtils : null },
+                    { name: 'SecurityManager', obj: typeof SecurityManager !== 'undefined' ? SecurityManager : null },
+                    { name: 'SecurityLogger', obj: typeof SecurityLogger !== 'undefined' ? SecurityLogger : null }
+                ];
+                
+                let okCount = 0;
+                let failCount = 0;
+                
+                modules.forEach(m => {
+                    if (m.obj) {
+                        okCount++;
+                    } else {
+                        failCount++;
+                    }
+                });
+                
+                const status = failCount === 0 ? '正常' : '异常';
+                this.addDiagnostic('模块', status, `已加载: ${okCount}/${modules.length} 个模块`);
+            },
+            
+            checkStorageSize() {
+                let totalSize = 0;
+                let largestKey = '';
+                let largestSize = 0;
+                
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key) {
+                        try {
+                            const value = localStorage.getItem(key) || '';
+                            const size = new Blob([value]).size;
+                            totalSize += size;
+                            
+                            if (size > largestSize) {
+                                largestSize = size;
+                                largestKey = key;
+                            }
+                        } catch (e) {}
+                    }
+                }
+                
+                const totalKB = (totalSize / 1024).toFixed(2);
+                const largestKB = (largestSize / 1024).toFixed(2);
+                const status = totalSize < 5 * 1024 * 1024 ? '良好' : totalSize < 10 * 1024 * 1024 ? '一般' : '较大';
+                
+                this.addDiagnostic('存储', status, `总大小: ${totalKB}KB, 最大项: ${largestKey || '无'} (${largestKB}KB)`);
+            },
+            
+            addDiagnostic(category, status, message) {
+                this.diagnostics.push({
+                    category,
+                    status,
+                    message,
+                    timestamp: new Date().toISOString()
+                });
+            },
+            
+            generateReport() {
+                const okCount = this.diagnostics.filter(d => d.status === '正常' || d.status === '良好').length;
+                const totalCount = this.diagnostics.length;
+                const score = Math.round((okCount / totalCount) * 100);
+                
+                return {
+                    score,
+                    diagnostics: this.diagnostics,
+                    summary: `${okCount}/${totalCount} 项检查通过，综合评分: ${score}分`,
+                    timestamp: new Date().toLocaleString()
+                };
+            },
+            
+            showDiagnosticsModal() {
+                const report = this.runFullDiagnostics();
+                const statusColor = (status) => {
+                    switch(status) {
+                        case '正常': case '良好': return '#52c41a';
+                        case '一般': return '#faad14';
+                        case '异常': case '较差': case '较高': return '#ff4d4f';
+                        default: return '#999';
+                    }
+                };
+                
+                let html = `
+                    <div style="text-align:left;">
+                        <div style="margin-bottom:20px;padding:15px;background:linear-gradient(135deg,var(--brand-orange),var(--brand-blue));border-radius:10px;color:#fff;text-align:center;">
+                            <div style="font-size:36px;font-weight:bold;">${report.score}</div>
+                            <div style="font-size:14px;">系统健康评分</div>
+                        </div>
+                        <div style="margin-bottom:15px;font-size:14px;color:var(--text-secondary);">
+                            <strong>诊断时间:</strong> ${report.timestamp}
+                        </div>
+                        <div style="margin-bottom:15px;font-weight:600;color:var(--text-primary);">
+                            📊 ${report.summary}
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                            <thead>
+                                <tr style="background:rgba(255,255,255,0.1);">
+                                    <th style="padding:10px;text-align:left;border-bottom:1px solid var(--border-color);">检查项</th>
+                                    <th style="padding:10px;text-align:center;border-bottom:1px solid var(--border-color);">状态</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:1px solid var(--border-color);">详情</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${report.diagnostics.map(d => `
+                                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding:8px;">${d.category}</td>
+                                        <td style="padding:8px;text-align:center;">
+                                            <span style="display:inline-block;padding:4px 12px;border-radius:12px;background:${statusColor(d.status)}20;color:${statusColor(d.status)};">
+                                                ${d.status}
+                                            </span>
+                                        </td>
+                                        <td style="padding:8px;color:var(--text-secondary);">${d.message}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                showTipModal('系统诊断报告', html);
+            }
+        };
+
+        // ==================== 性能监控模块 v8.1 ====================
+        const PerformanceMonitor = {
+            metrics: [],
+            maxMetrics: 100,
+            isMonitoring: false,
+            monitorInterval: null,
+            
+            startMonitoring() {
+                if (this.isMonitoring) return;
+                
+                this.isMonitoring = true;
+                this.captureMetric('init', '性能监控已启动');
+                
+                this.monitorInterval = setInterval(() => {
+                    this.capturePerformanceSnapshot();
+                }, 5000);
+                
+                console.log('[性能监控] 已启动');
+            },
+            
+            stopMonitoring() {
+                if (this.monitorInterval) {
+                    clearInterval(this.monitorInterval);
+                    this.monitorInterval = null;
+                }
+                this.isMonitoring = false;
+                console.log('[性能监控] 已停止');
+            },
+            
+            captureMetric(type, data) {
+                const metric = {
+                    id: Date.now() + Math.random(),
+                    type,
+                    data,
+                    timestamp: new Date().toISOString()
+                };
+                
+                this.metrics.push(metric);
+                
+                if (this.metrics.length > this.maxMetrics) {
+                    this.metrics.shift();
+                }
+                
+                return metric;
+            },
+            
+            capturePerformanceSnapshot() {
+                const snapshot = {};
+                
+                if (performance.memory) {
+                    snapshot.memory = {
+                        used: (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2),
+                        total: (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2),
+                        usage: ((performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit) * 100).toFixed(1)
+                    };
+                }
+                
+                snapshot.timestamp = performance.now();
+                this.captureMetric('snapshot', snapshot);
+            },
+            
+            getMetrics(type = null) {
+                if (type) {
+                    return this.metrics.filter(m => m.type === type);
+                }
+                return this.metrics;
+            },
+            
+            getSummary() {
+                const metrics = this.metrics;
+                const snapshots = metrics.filter(m => m.type === 'snapshot');
+                
+                return {
+                    totalMetrics: metrics.length,
+                    totalSnapshots: snapshots.length,
+                    monitoringDuration: snapshots.length > 1 
+                        ? ((snapshots[snapshots.length - 1].id - snapshots[0].id) / 1000).toFixed(0) + '秒'
+                        : 'N/A',
+                    averageMemory: snapshots.length > 0 && snapshots[0].data.memory
+                        ? snapshots.map(s => parseFloat(s.data.memory.used)).reduce((a, b) => a + b, 0) / snapshots.length
+                        : null
+                };
+            },
+            
+            exportMetrics() {
+                const data = {
+                    summary: this.getSummary(),
+                    metrics: this.metrics,
+                    exportTime: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `performance_metrics_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            
+            showPerformanceModal() {
+                const summary = this.getSummary();
+                const recentMetrics = this.getMetrics('snapshot').slice(-10);
+                
+                let html = `
+                    <div style="text-align:left;">
+                        <div style="margin-bottom:20px;display:flex;gap:15px;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:150px;padding:15px;background:rgba(82,196,26,0.1);border-radius:10px;border:1px solid rgba(82,196,26,0.3);text-align:center;">
+                                <div style="font-size:28px;font-weight:bold;color:#52c41a;">${summary.totalMetrics}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">总指标数</div>
+                            </div>
+                            <div style="flex:1;min-width:150px;padding:15px;background:rgba(22,93,255,0.1);border-radius:10px;border:1px solid rgba(22,93,255,0.3);text-align:center;">
+                                <div style="font-size:28px;font-weight:bold;color:#165dff;">${summary.totalSnapshots}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">快照数</div>
+                            </div>
+                            <div style="flex:1;min-width:150px;padding:15px;background:rgba(250,173,20,0.1);border-radius:10px;border:1px solid rgba(250,173,20,0.3);text-align:center;">
+                                <div style="font-size:20px;font-weight:bold;color:#faad14;">${summary.monitoringDuration}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">监控时长</div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <h4 style="margin-bottom:10px;color:var(--text-primary);">📈 操作按钮</h4>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                                <button class="modal-btn confirm-btn" onclick="PerformanceMonitor.startMonitoring()">▶️ 开始监控</button>
+                                <button class="modal-btn cancel-btn" onclick="PerformanceMonitor.stopMonitoring()">⏹️ 停止监控</button>
+                                <button class="modal-btn confirm-btn" style="background:linear-gradient(135deg,#165dff,#0e4cc7);" onclick="PerformanceMonitor.exportMetrics()">📥 导出数据</button>
+                            </div>
+                        </div>
+                        ${recentMetrics.length > 0 ? `
+                        <div>
+                            <h4 style="margin-bottom:10px;color:var(--text-primary);">🕐 最近10个快照</h4>
+                            <div style="max-height:200px;overflow-y:auto;background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;">
+                                ${recentMetrics.map((m, i) => `
+                                    <div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;">
+                                        <span style="color:var(--text-muted);">#${recentMetrics.length - i}</span>
+                                        ${m.data.memory ? ` <span style="color:#52c41a;">内存: ${m.data.memory.used}MB</span>` : ''}
+                                        <span style="color:var(--text-muted);float:right;">${new Date(m.timestamp).toLocaleTimeString()}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                showTipModal('性能监控', html);
+            }
+        };
+
+        // ==================== 系统测试模块 v8.1 ====================
+        const SystemTester = {
+            testResults: [],
+            
+            runAllTests() {
+                console.log('[系统测试] 开始运行所有测试...');
+                this.testResults = [];
+                
+                this.testLocalStorage();
+                this.testCommonUtils();
+                this.testDOMElements();
+                this.testGradeSystem();
+                this.testSecurityFeatures();
+                
+                return this.generateTestReport();
+            },
+            
+            testLocalStorage() {
+                try {
+                    const testKey = 'test_localstorage_' + Date.now();
+                    const testValue = { test: 'data', number: 123 };
+                    
+                    localStorage.setItem(testKey, JSON.stringify(testValue));
+                    const retrieved = JSON.parse(localStorage.getItem(testKey) || '');
+                    localStorage.removeItem(testKey);
+                    
+                    if (retrieved.test === testValue.test && retrieved.number === testValue.number) {
+                        this.addTestResult('localStorage', '通过', '读写操作正常');
+                    } else {
+                        this.addTestResult('localStorage', '失败', '数据不匹配');
+                    }
+                } catch (e) {
+                    this.addTestResult('localStorage', '失败', `异常: ${e.message}`);
+                }
+            },
+            
+            testCommonUtils() {
+                try {
+                    if (typeof CommonUtils === 'undefined') {
+                        this.addTestResult('CommonUtils', '失败', '模块未定义');
+                        return;
+                    }
+                    
+                    let passed = 0;
+                    let total = 0;
+                    
+                    if (CommonUtils.generateId) {
+                        total++;
+                        const id1 = CommonUtils.generateId();
+                        const id2 = CommonUtils.generateId();
+                        if (id1 && id2 && id1 !== id2) passed++;
+                    }
+                    
+                    if (CommonUtils.deepClone) {
+                        total++;
+                        const obj = { a: 1, b: { c: 2 } };
+                        const clone = CommonUtils.deepClone(obj);
+                        if (clone && clone.a === obj.a && clone.b && clone.b.c === obj.b.c) passed++;
+                    }
+                    
+                    if (CommonUtils.formatDate) {
+                        total++;
+                        const dateStr = CommonUtils.formatDate(new Date());
+                        if (dateStr) passed++;
+                    }
+                    
+                    this.addTestResult('CommonUtils', passed === total ? '通过' : '部分通过', `${passed}/${total} 个测试通过`);
+                } catch (e) {
+                    this.addTestResult('CommonUtils', '失败', `异常: ${e.message}`);
+                }
+            },
+            
+            testDOMElements() {
+                try {
+                    const elements = [
+                        { id: 'loginContainer', name: '登录容器' },
+                        { id: 'examContainer', name: '考试容器' },
+                        { id: 'adminContainer', name: '管理员容器' },
+                        { id: 'loginBtn', name: '登录按钮' },
+                        { id: 'submitBtn', name: '提交按钮' },
+                        { id: 'tipModal', name: '提示弹窗' }
+                    ];
+                    
+                    let found = 0;
+                    let missing = [];
+                    
+                    elements.forEach(el => {
+                        if (document.getElementById(el.id)) {
+                            found++;
+                        } else {
+                            missing.push(el.name);
+                        }
+                    });
+                    
+                    if (missing.length === 0) {
+                        this.addTestResult('DOM元素', '通过', `所有 ${found} 个核心元素都存在`);
+                    } else {
+                        this.addTestResult('DOM元素', '失败', `缺少元素: ${missing.join(', ')}`);
+                    }
+                } catch (e) {
+                    this.addTestResult('DOM元素', '失败', `异常: ${e.message}`);
+                }
+            },
+            
+            testGradeSystem() {
+                try {
+                    if (typeof GradeSystem === 'undefined') {
+                        this.addTestResult('等级系统', '跳过', '模块未加载');
+                        return;
+                    }
+                    
+                    const testPhone = 'test_' + Date.now();
+                    const initialData = GradeSystem.getUserGradeData(testPhone);
+                    
+                    if (initialData && initialData.grade === 'intern') {
+                        this.addTestResult('等级系统', '通过', '初始等级正确');
+                    } else {
+                        this.addTestResult('等级系统', '失败', '初始数据异常');
+                    }
+                } catch (e) {
+                    this.addTestResult('等级系统', '失败', `异常: ${e.message}`);
+                }
+            },
+            
+            testSecurityFeatures() {
+                try {
+                    const features = [
+                        { name: 'XSS防护', check: typeof CommonUtils !== 'undefined' && CommonUtils.escapeHtml },
+                        { name: 'MD5加密', check: typeof md5 !== 'undefined' },
+                        { name: '安全日志', check: typeof SecurityLogger !== 'undefined' }
+                    ];
+                    
+                    let available = 0;
+                    features.forEach(f => {
+                        if (f.check) available++;
+                    });
+                    
+                    this.addTestResult('安全功能', available === features.length ? '通过' : '部分通过', `${available}/${features.length} 个安全功能可用`);
+                } catch (e) {
+                    this.addTestResult('安全功能', '失败', `异常: ${e.message}`);
+                }
+            },
+            
+            addTestResult(test, status, message) {
+                this.testResults.push({
+                    test,
+                    status,
+                    message,
+                    timestamp: new Date().toISOString()
+                });
+            },
+            
+            generateTestReport() {
+                const passed = this.testResults.filter(r => r.status === '通过').length;
+                const failed = this.testResults.filter(r => r.status === '失败').length;
+                const total = this.testResults.length;
+                const score = Math.round((passed / total) * 100);
+                
+                return {
+                    score,
+                    passed,
+                    failed,
+                    total,
+                    results: this.testResults,
+                    timestamp: new Date().toLocaleString()
+                };
+            },
+            
+            showTestModal() {
+                const report = this.runAllTests();
+                const statusColor = (status) => {
+                    switch(status) {
+                        case '通过': return '#52c41a';
+                        case '失败': return '#ff4d4f';
+                        default: return '#faad14';
+                    }
+                };
+                
+                let html = `
+                    <div style="text-align:left;">
+                        <div style="margin-bottom:20px;display:flex;gap:15px;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:100px;padding:15px;background:rgba(82,196,26,0.1);border-radius:10px;border:1px solid rgba(82,196,26,0.3);text-align:center;">
+                                <div style="font-size:32px;font-weight:bold;color:#52c41a;">${report.passed}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">通过</div>
+                            </div>
+                            <div style="flex:1;min-width:100px;padding:15px;background:rgba(255,77,79,0.1);border-radius:10px;border:1px solid rgba(255,77,79,0.3);text-align:center;">
+                                <div style="font-size:32px;font-weight:bold;color:#ff4d4f;">${report.failed}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">失败</div>
+                            </div>
+                            <div style="flex:1;min-width:100px;padding:15px;background:rgba(22,93,255,0.1);border-radius:10px;border:1px solid rgba(22,93,255,0.3);text-align:center;">
+                                <div style="font-size:32px;font-weight:bold;color:#165dff;">${report.score}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);">分数</div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:15px;font-size:14px;color:var(--text-secondary);">
+                            <strong>测试时间:</strong> ${report.timestamp}
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                            <thead>
+                                <tr style="background:rgba(255,255,255,0.1);">
+                                    <th style="padding:10px;text-align:left;border-bottom:1px solid var(--border-color);">测试项</th>
+                                    <th style="padding:10px;text-align:center;border-bottom:1px solid var(--border-color);">结果</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:1px solid var(--border-color);">详情</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${report.results.map(r => `
+                                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                        <td style="padding:8px;">${r.test}</td>
+                                        <td style="padding:8px;text-align:center;">
+                                            <span style="display:inline-block;padding:4px 12px;border-radius:12px;background:${statusColor(r.status)}20;color:${statusColor(r.status)};">
+                                                ${r.status}
+                                            </span>
+                                        </td>
+                                        <td style="padding:8px;color:var(--text-secondary);">${r.message}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div style="margin-top:15px;text-align:center;">
+                            <button class="modal-btn confirm-btn" onclick="SystemTester.showTestModal()">🔄 重新测试</button>
+                        </div>
+                    </div>
+                `;
+                
+                showTipModal('系统测试报告', html);
+            }
+        };
+
+        // ==================== 性能优化文档 v8.1 ====================
+        const PerformanceDoc = {
+            showOptimizationGuide() {
+                let html = `
+                    <div style="text-align:left;max-height:60vh;overflow-y:auto;">
+                        <h3 style="margin-bottom:15px;color:var(--brand-orange);">📚 系统优化指南</h3>
+                        
+                        <div style="margin-bottom:20px;">
+                            <h4 style="margin-bottom:10px;color:var(--text-primary);">🔧 localStorage 优化建议</h4>
+                            <ul style="color:var(--text-secondary);line-height:1.8;">
+                                <li><strong>定期清理:</strong> 定期清除旧的考试记录和临时数据</li>
+                                <li><strong>数据压缩:</strong> 对于大量数据，考虑使用压缩算法</li>
+                                <li><strong>分片存储:</strong> 大数据量建议分多个key存储</li>
+                                <li><strong>备份策略:</strong> 重要数据建议定期导出备份</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-bottom:20px;">
+                            <h4 style="margin-bottom:10px;color:var(--text-primary);">⚡ 性能优化技巧</h4>
+                            <ul style="color:var(--text-secondary);line-height:1.8;">
+                                <li><strong>避免频繁DOM操作:</strong> 批量更新DOM元素</li>
+                                <li><strong>使用防抖节流:</strong> 对于频繁触发的事件使用debounce/throttle</li>
+                                <li><strong>图片懒加载:</strong> 论坛图片使用懒加载</li>
+                                <li><strong>虚拟滚动:</strong> 大量数据列表使用虚拟滚动</li>
+                                <li><strong>内存管理:</strong> 及时清理不再使用的事件监听器</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-bottom:20px;">
+                            <h4 style="margin-bottom:10px;color:var(--text-primary);">🔒 安全最佳实践</h4>
+                            <ul style="color:var(--text-secondary);line-height:1.8;">
+                                <li><strong>XSS防护:</strong> 所有用户输入使用CommonUtils.escapeHtml</li>
+                                <li><strong>密码安全:</strong> 密码使用MD5加密后存储</li>
+                                <li><strong>敏感词过滤:</strong> 论坛内容启用敏感词检测</li>
+                                <li><strong>操作日志:</strong> 重要操作都有安全日志记录</li>
+                                <li><strong>定期审计:</strong> 定期检查安全日志和系统状态</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-bottom:20px;">
+                            <h4 style="margin-bottom:10px;color:var(--text-primary);">📋 常见问题排查</h4>
+                            <ul style="color:var(--text-secondary);line-height:1.8;">
+                                <li><strong>同步失败:</strong> 检查JSONBin.io API Key是否正确</li>
+                                <li><strong>数据丢失:</strong> 检查localStorage是否被清除</li>
+                                <li><strong>界面卡顿:</strong> 尝试清除浏览器缓存和localStorage</li>
+                                <li><strong>登录问题:</strong> 确认密码正确，首次登录会自动绑定</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="padding:15px;background:rgba(255,122,69,0.1);border-radius:8px;border-left:4px solid var(--brand-orange);">
+                            <strong style="color:var(--brand-orange);">💡 提示:</strong> 
+                            <span style="color:var(--text-secondary);">使用系统诊断功能定期检查系统健康状态，发现问题及时处理。</span>
+                        </div>
+                    </div>
+                `;
+                
+                showTipModal('系统优化指南', html);
+            }
+        };
+
+        // ==================== 在管理员后台添加诊断/测试/监控按钮 ====================
+        // 先找到管理员标签区域，然后添加新标签
+        function addAdminToolsTab() {
+            const adminNavTabs = document.querySelector('.admin-nav-tabs');
+            if (adminNavTabs && !document.getElementById('diagnosticsTab')) {
+                const toolsTab = document.createElement('div');
+                toolsTab.className = 'admin-tab';
+                toolsTab.dataset.tab = 'diagnostics';
+                toolsTab.id = 'diagnosticsTab';
+                toolsTab.innerHTML = '🛠️ 系统工具';
+                
+                adminNavTabs.appendChild(toolsTab);
+                
+                const diagnosticsContent = document.createElement('div');
+                diagnosticsContent.className = 'admin-tab-content';
+                diagnosticsContent.id = 'diagnosticsTab';
+                diagnosticsContent.style.display = 'none';
+                diagnosticsContent.innerHTML = `
+                    <div class="function-section">
+                        <div class="function-header">
+                            <div class="function-title">系统管理工具</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:20px;">
+                            <div class="card" style="cursor:pointer;" onclick="SystemDiagnostics.showDiagnosticsModal()">
+                                <div class="card-body">
+                                    <div style="font-size:24px;margin-bottom:10px;">🔍</div>
+                                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:5px;">系统诊断</div>
+                                    <div style="font-size:13px;color:var(--text-secondary);">全面检查系统健康状态</div>
+                                </div>
+                            </div>
+                            <div class="card" style="cursor:pointer;" onclick="PerformanceMonitor.showPerformanceModal()">
+                                <div class="card-body">
+                                    <div style="font-size:24px;margin-bottom:10px;">📈</div>
+                                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:5px;">性能监控</div>
+                                    <div style="font-size:13px;color:var(--text-secondary);">实时监控系统性能指标</div>
+                                </div>
+                            </div>
+                            <div class="card" style="cursor:pointer;" onclick="SystemTester.showTestModal()">
+                                <div class="card-body">
+                                    <div style="font-size:24px;margin-bottom:10px;">✅</div>
+                                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:5px;">系统测试</div>
+                                    <div style="font-size:13px;color:var(--text-secondary);">运行自动化系统测试</div>
+                                </div>
+                            </div>
+                            <div class="card" style="cursor:pointer;" onclick="PerformanceDoc.showOptimizationGuide()">
+                                <div class="card-body">
+                                    <div style="font-size:24px;margin-bottom:10px;">📚</div>
+                                    <div style="font-weight:600;color:var(--text-primary);margin-bottom:5px;">优化指南</div>
+                                    <div style="font-size:13px;color:var(--text-secondary);">查看系统优化和使用文档</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="function-header" style="margin-top:30px;">
+                            <div class="function-title">快捷操作</div>
+                        </div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button class="action-btn import" onclick="clearTempData()">🗑️ 清除临时数据</button>
+                            <button class="action-btn export" onclick="exportAllData()">📥 导出全部数据</button>
+                            <button class="action-btn enable" onclick="PerformanceMonitor.startMonitoring()">▶️ 启动监控</button>
+                            <button class="action-btn disable" onclick="PerformanceMonitor.stopMonitoring()">⏹️ 停止监控</button>
+                        </div>
+                    </div>
+                `;
+                
+                const tabContentsContainer = document.querySelector('.admin-nav-tabs').parentElement;
+                if (tabContentsContainer) {
+                    tabContentsContainer.appendChild(diagnosticsContent);
+                }
+            }
+        }
+
+        // ==================== 数据管理辅助函数 ====================
+        function clearTempData() {
+            showConfirmModal('确认清除', '确定要清除所有临时数据吗？这不会影响考试记录和用户数据。', () => {
+                const tempKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('hht_temp_')) {
+                        tempKeys.push(key);
+                    }
+                }
+                tempKeys.forEach(key => localStorage.removeItem(key));
+                showTipModal('清除成功', `已清除 ${tempKeys.length} 个临时数据项`);
+            });
+        }
+
+        function exportAllData() {
+            const allData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key) {
+                    try {
+                        allData[key] = JSON.parse(localStorage.getItem(key) || '');
+                    } catch (e) {
+                        allData[key] = localStorage.getItem(key);
+                    }
+                }
+            }
+            
+            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hht_exam_system_full_backup_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showTipModal('导出成功', '全部数据已导出，请妥善保管备份文件');
+        }
+
+        // ==================== 修改初始化，添加系统工具标签 ====================
+        // 在DOMContentLoaded事件中添加系统工具标签
+        const originalInit = function() {
+            setTimeout(() => {
+                addAdminToolsTab();
+                PerformanceMonitor.startMonitoring();
+                console.log('[系统工具] 已加载');
+            }, 1000);
+        };
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', originalInit);
+        } else {
+            originalInit();
+        }
     </script>
 </body>
 </html>
