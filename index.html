@@ -4578,10 +4578,6 @@ D|选项D"></textarea>
             <div class="admin-tab" data-tab="record">学员记录</div>
             <div class="admin-tab" data-tab="stat">成绩统计</div>
             <div class="admin-tab" data-tab="user">👥 用户管理</div>
-            <div class="admin-tab" data-tab="rank" id="superAdminRankTab" style="display: none;">🏆 排行榜管理</div>
-            <div class="admin-tab" data-tab="forum" id="superAdminForumTab" style="display: none;">💬 论坛管理</div>
-            <div class="admin-tab" data-tab="grade" id="superAdminGradeTab" style="display: none;">⭐ 等级管理</div>
-            <div class="admin-tab" data-tab="announcement" id="superAdminAnnouncementTab" style="display: none;">📢 公告管理</div>
             <div class="admin-tab" data-tab="security" id="superAdminSecurityTab" style="display: none;">安全日志</div>
             <div class="admin-tab" data-tab="config" id="superAdminConfigTab" style="display: none;">系统设置</div>
         </div>
@@ -4887,60 +4883,6 @@ D|选项D"></textarea>
                 <button class="reset-btn" id="resetConfigBtn">恢复默认设置</button>
             </div>
         </div>
-
-        <!-- 排行榜管理 -->
-        <div class="admin-tab-content" id="rankTab" style="display: none;">
-            <div class="btn-group" style="margin-bottom: 20px;">
-                <button class="confirm-btn" id="refreshRankBtn">🔄 刷新榜单</button>
-                <button class="export-btn" id="exportRankBtn">📥 导出榜单数据</button>
-            </div>
-            <div id="rankManagementContent">
-                <h3 style="margin-bottom: 15px;">排行榜管理</h3>
-                <div id="rankManagementList"></div>
-            </div>
-        </div>
-
-        <!-- 论坛管理 -->
-        <div class="admin-tab-content" id="forumTab" style="display: none;">
-            <div class="btn-group" style="margin-bottom: 20px;">
-                <button class="confirm-btn" id="refreshForumBtn">🔄 刷新帖子</button>
-                <select id="forumBoardFilter" style="padding: 8px 12px;border-radius: 8px;border: 1px solid #ddd;">
-                    <option value="">全部板块</option>
-                    <option value="1">烤肉技巧交流</option>
-                    <option value="2">培训考试专区</option>
-                    <option value="3">门店通知公告</option>
-                    <option value="4">员工生活闲聊</option>
-                </select>
-            </div>
-            <div id="forumManagementContent">
-                <h3 style="margin-bottom: 15px;">论坛管理</h3>
-                <div id="forumManagementList"></div>
-            </div>
-        </div>
-
-        <!-- 等级管理 -->
-        <div class="admin-tab-content" id="gradeTab" style="display: none;">
-            <div class="btn-group" style="margin-bottom: 20px;">
-                <button class="confirm-btn" id="refreshGradeBtn">🔄 刷新等级数据</button>
-                <button class="export-btn" id="exportGradeBtn">📥 导出等级数据</button>
-            </div>
-            <div id="gradeManagementContent">
-                <h3 style="margin-bottom: 15px;">全量用户等级管理</h3>
-                <div id="gradeManagementList"></div>
-            </div>
-        </div>
-
-        <!-- 公告管理 -->
-        <div class="admin-tab-content" id="announcementTab" style="display: none;">
-            <div class="btn-group" style="margin-bottom: 20px;">
-                <button class="confirm-btn" id="addAnnouncementBtn">➕ 发布新公告</button>
-                <button class="success-btn" id="refreshAnnouncementBtn">🔄 刷新公告</button>
-            </div>
-            <div id="announcementManagementContent">
-                <h3 style="margin-bottom: 15px;">全端公告管理</h3>
-                <div id="announcementManagementList"></div>
-            </div>
-        </div>
     </div>
 
     <!-- 历史记录界面 -->
@@ -5196,8 +5138,14 @@ D|选项D"></textarea>
         </div>
         
         <div class="tab-content" id="friendSearchTab">
-            <div class="friend-search-bar">
-                <input type="text" id="friendSearchInput" placeholder="搜索账号/用户名/所属门店...">
+            <div class="friend-search-bar" style="flex-wrap:wrap;gap:10px;">
+                <select id="friendSearchType" style="flex:0 0 auto;padding:8px 12px;border:1px solid #ddd;border-radius:8px;outline:none;">
+                    <option value="all">全部</option>
+                    <option value="phone">按账号</option>
+                    <option value="name">按用户名</option>
+                    <option value="shop">按所属门店</option>
+                </select>
+                <input type="text" id="friendSearchInput" placeholder="请输入搜索内容..." style="flex:1;min-width:150px;">
                 <button class="confirm-btn" id="friendSearchBtn">搜索</button>
             </div>
             <div class="friend-list" id="friendSearchResults"></div>
@@ -5741,28 +5689,6 @@ D|选项D"></textarea>
         const UserManager = {
             currentUsers: [],
             currentTab: 'pending',
-            
-            getAllUsers() {
-                const storedData = localStorage.getItem('hht_users');
-                if (!storedData) {
-                    const defaultUsers = [
-                        {
-                            id: '17780772198',
-                            name: '王博通',
-                            phone: '17780772198',
-                            shop: '韩花亭烤肉一店',
-                            password: 'admin@hht2024'
-                        }
-                    ];
-                    localStorage.setItem('hht_users', JSON.stringify(defaultUsers));
-                    return defaultUsers;
-                }
-                try {
-                    return JSON.parse(storedData);
-                } catch (e) {
-                    return [];
-                }
-            },
 
             getDeviceId() {
                 let deviceId = localStorage.getItem('hht_device_id');
@@ -8562,6 +8488,83 @@ D|选项D"></textarea>
                 'subjective': '问答题'
             },
             
+            currentExamId: null,
+            preventCopyEnabled: false,
+            
+            setCurrentExamId(examId) {
+                this.currentExamId = examId;
+            },
+            
+            enablePreventCopy() {
+                this.preventCopyEnabled = true;
+                document.addEventListener('copy', this.preventCopyHandler);
+                document.addEventListener('cut', this.preventCopyHandler);
+                document.addEventListener('contextmenu', this.preventContextMenuHandler);
+            },
+            
+            disablePreventCopy() {
+                this.preventCopyEnabled = false;
+                document.removeEventListener('copy', this.preventCopyHandler);
+                document.removeEventListener('cut', this.preventCopyHandler);
+                document.removeEventListener('contextmenu', this.preventContextMenuHandler);
+            },
+            
+            preventCopyHandler(e) {
+                e.preventDefault();
+                SafeSync.showToast('warning', '考试期间禁止复制');
+            },
+            
+            preventContextMenuHandler(e) {
+                e.preventDefault();
+            },
+            
+            enterFullScreen(containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error('[ExamEnhancement] 全屏容器不存在:', containerId);
+                    return;
+                }
+                
+                try {
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    } else if (container.mozRequestFullScreen) {
+                        container.mozRequestFullScreen();
+                    }
+                    
+                    container.classList.add('fullscreen-mode');
+                    SafeSync.showToast('success', '已进入全屏答题模式');
+                } catch (e) {
+                    console.error('[ExamEnhancement] 进入全屏失败:', e);
+                    SafeSync.showToast('danger', '进入全屏失败，请手动切换');
+                }
+            },
+            
+            exitFullScreen() {
+                try {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    }
+                    
+                    const container = document.getElementById('examContainer');
+                    if (container) {
+                        container.classList.remove('fullscreen-mode');
+                    }
+                } catch (e) {
+                    console.error('[ExamEnhancement] 退出全屏失败:', e);
+                }
+            },
+            
             // ========== Excel导入导出模块 ==========
             ExcelManager: {
                 getTemplateData() {
@@ -9680,7 +9683,7 @@ D|选项D"></textarea>
                 return blocked.includes(phone);
             },
 
-            searchUsers(keyword) {
+            searchUsers(keyword, searchType = 'all') {
                 const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
                 const users = {};
                 
@@ -9692,16 +9695,28 @@ D|选项D"></textarea>
 
                 const userList = Object.values(users);
                 if (!currentUser.phone) return userList;
+                if (!keyword) return userList.filter(u => u.phone !== currentUser.phone);
 
                 const filtered = userList.filter(u => {
                     if (u.phone === currentUser.phone) return false;
                     
                     const lowerKeyword = keyword.toLowerCase();
-                    return (
-                        u.phone?.toLowerCase().includes(lowerKeyword) ||
-                        u.name?.toLowerCase().includes(lowerKeyword) ||
-                        u.shop?.toLowerCase().includes(lowerKeyword)
-                    );
+                    
+                    switch (searchType) {
+                        case 'phone':
+                            return u.phone?.toLowerCase().includes(lowerKeyword);
+                        case 'name':
+                            return u.name?.toLowerCase().includes(lowerKeyword);
+                        case 'shop':
+                            return u.shop?.toLowerCase().includes(lowerKeyword);
+                        case 'all':
+                        default:
+                            return (
+                                u.phone?.toLowerCase().includes(lowerKeyword) ||
+                                u.name?.toLowerCase().includes(lowerKeyword) ||
+                                u.shop?.toLowerCase().includes(lowerKeyword)
+                            );
+                    }
                 });
 
                 return filtered;
@@ -10439,355 +10454,6 @@ D|选项D"></textarea>
             }
         };
 
-        // ==================== 公告管理模块 ====================
-        const AnnouncementSystem = {
-            STORAGE_KEY: 'hht_announcements',
-
-            init() {
-                console.log('[公告] 模块初始化完成');
-                this.checkForcedAnnouncement();
-            },
-
-            getAnnouncements() {
-                try {
-                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
-                } catch (e) {
-                    return [];
-                }
-            },
-
-            saveAnnouncements(announcements) {
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(announcements));
-            },
-
-            createAnnouncement(data) {
-                const announcements = this.getAnnouncements();
-                const newAnnouncement = {
-                    id: Date.now(),
-                    title: data.title,
-                    content: data.content,
-                    attachment: data.attachment || '',
-                    publishTime: data.publishTime || new Date().toISOString(),
-                    effectiveTime: data.effectiveTime || null,
-                    expireTime: data.expireTime || null,
-                    isTop: data.isTop || false,
-                    forcePopup: data.forcePopup || false,
-                    createTime: new Date().toISOString(),
-                    updateTime: new Date().toISOString(),
-                    createdBy: currentUser,
-                    readCount: 0,
-                    reachCount: 0,
-                    isDeleted: false
-                };
-
-                announcements.unshift(newAnnouncement);
-                this.saveAnnouncements(announcements);
-
-                if (newAnnouncement.forcePopup) {
-                    this.triggerForcedPopup(newAnnouncement);
-                }
-
-                return newAnnouncement;
-            },
-
-            updateAnnouncement(id, data) {
-                const announcements = this.getAnnouncements();
-                const index = announcements.findIndex(a => a.id === parseInt(id));
-                
-                if (index === -1) {
-                    throw new Error('公告不存在');
-                }
-
-                announcements[index] = {
-                    ...announcements[index],
-                    ...data,
-                    updateTime: new Date().toISOString()
-                };
-
-                this.saveAnnouncements(announcements);
-                return announcements[index];
-            },
-
-            deleteAnnouncement(id, permanent = false) {
-                const announcements = this.getAnnouncements();
-                
-                if (permanent) {
-                    const filtered = announcements.filter(a => a.id !== parseInt(id));
-                    this.saveAnnouncements(filtered);
-                } else {
-                    const index = announcements.findIndex(a => a.id === parseInt(id));
-                    if (index !== -1) {
-                        announcements[index].isDeleted = true;
-                        announcements[index].deleteTime = new Date().toISOString();
-                        this.saveAnnouncements(announcements);
-                    }
-                }
-            },
-
-            getActiveAnnouncements() {
-                const now = new Date();
-                return this.getAnnouncements().filter(a => {
-                    if (a.isDeleted) return false;
-                    
-                    if (a.effectiveTime && new Date(a.effectiveTime) > now) return false;
-                    if (a.expireTime && new Date(a.expireTime) < now) return false;
-                    
-                    return true;
-                }).sort((a, b) => {
-                    if (a.isTop && !b.isTop) return -1;
-                    if (!a.isTop && b.isTop) return 1;
-                    return new Date(b.publishTime) - new Date(a.publishTime);
-                });
-            },
-
-            checkForcedAnnouncement() {
-                const active = this.getActiveAnnouncements();
-                const forced = active.find(a => a.forcePopup);
-                
-                if (forced) {
-                    const shownKey = `hht_announcement_shown_${forced.id}`;
-                    if (!localStorage.getItem(shownKey)) {
-                        this.showAnnouncementModal(forced);
-                        localStorage.setItem(shownKey, 'true');
-                    }
-                }
-            },
-
-            showAnnouncementModal(announcement) {
-                elements.modalTitle.textContent = '📢 ' + announcement.title;
-                elements.modalContent.innerHTML = `
-                    <div style="text-align:left;max-height:400px;overflow-y:auto;">
-                        <div style="margin-bottom:10px;color:#999;font-size:14px;">
-                            发布时间：${new Date(announcement.publishTime).toLocaleString()}
-                        </div>
-                        <div style="line-height:1.8;">${announcement.content}</div>
-                    </div>
-                `;
-                elements.modalCancelBtn.style.display = 'none';
-                elements.modalConfirmBtn.style.display = 'inline-block';
-                elements.modalConfirmBtn.textContent = '我知道了';
-                elements.tipModal.style.display = 'flex';
-                
-                announcement.reachCount = (announcement.reachCount || 0) + 1;
-                const announcements = this.getAnnouncements();
-                const index = announcements.findIndex(a => a.id === announcement.id);
-                if (index !== -1) {
-                    announcements[index].reachCount = announcement.reachCount;
-                    this.saveAnnouncements(announcements);
-                }
-            },
-
-            renderManagementList() {
-                const announcements = this.getAnnouncements();
-                const listEl = document.getElementById('announcementManagementList');
-                
-                if (announcements.length === 0) {
-                    listEl.innerHTML = '<p style="text-align:center;color:#666;padding:40px;">暂无公告</p>';
-                    return;
-                }
-
-                listEl.innerHTML = announcements.map(a => `
-                    <div class="paper-card" style="margin-bottom:15px;padding:15px;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                            <div style="flex:1;">
-                                <div style="font-weight:600;font-size:16px;margin-bottom:5px;">
-                                    ${a.isTop ? '📌 ' : ''}${a.forcePopup ? '🔔 ' : ''}${a.title}
-                                    ${a.isDeleted ? '<span style="color:#dc3545;font-size:12px;">(已撤回)</span>' : ''}
-                                </div>
-                                <div style="font-size:14px;color:#999;margin-bottom:8px;">
-                                    发布时间：${new Date(a.publishTime).toLocaleString()}
-                                    ${a.effectiveTime ? ` | 生效时间：${new Date(a.effectiveTime).toLocaleString()}` : ''}
-                                    ${a.expireTime ? ` | 失效时间：${new Date(a.expireTime).toLocaleString()}` : ''}
-                                </div>
-                                <div style="font-size:14px;color:#666;line-height:1.6;">
-                                    ${a.content.substring(0, 100)}${a.content.length > 100 ? '...' : ''}
-                                </div>
-                                <div style="margin-top:10px;font-size:12px;color:#999;">
-                                    触达人数：${a.reachCount || 0} | 已读人数：${a.readCount || 0}
-                                </div>
-                            </div>
-                            <div style="display:flex;flex-direction:column;gap:8px;margin-left:15px;">
-                                <button class="text-btn" onclick="AnnouncementSystem.editAnnouncement(${a.id})">编辑</button>
-                                <button class="text-btn" onclick="AnnouncementSystem.toggleTop(${a.id})">${a.isTop ? '取消置顶' : '置顶'}</button>
-                                <button class="text-btn" onclick="AnnouncementSystem.withdrawAnnouncement(${a.id})" style="color:#ff9800;">撤回</button>
-                                <button class="text-btn" onclick="AnnouncementSystem.deleteAnnouncement(${a.id}, true)" style="color:#dc3545;">永久删除</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            toggleTop(id) {
-                const announcements = this.getAnnouncements();
-                const index = announcements.findIndex(a => a.id === parseInt(id));
-                
-                if (index !== -1) {
-                    announcements[index].isTop = !announcements[index].isTop;
-                    this.saveAnnouncements(announcements);
-                    this.renderManagementList();
-                }
-            },
-
-            withdrawAnnouncement(id) {
-                this.deleteAnnouncement(id, false);
-                this.renderManagementList();
-                showTipModal('成功', '公告已撤回');
-            },
-
-            editAnnouncement(id) {
-                const announcements = this.getAnnouncements();
-                const announcement = announcements.find(a => a.id === parseInt(id));
-                
-                if (!announcement) return;
-
-                elements.modalTitle.textContent = '编辑公告';
-                elements.modalContent.innerHTML = `
-                    <div style="text-align:left;">
-                        <div class="form-group">
-                            <label>公告标题</label>
-                            <input type="text" id="editAnnouncementTitle" value="${announcement.title}">
-                        </div>
-                        <div class="form-group">
-                            <label>公告内容</label>
-                            <textarea id="editAnnouncementContent" rows="6">${announcement.content}</textarea>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>生效时间（可选）</label>
-                                <input type="datetime-local" id="editAnnouncementEffective">
-                            </div>
-                            <div class="form-group">
-                                <label>失效时间（可选）</label>
-                                <input type="datetime-local" id="editAnnouncementExpire">
-                            </div>
-                        </div>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="editAnnouncementTop" ${announcement.isTop ? 'checked' : ''}>
-                                <label for="editAnnouncementTop">全端置顶</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="editAnnouncementForcePopup" ${announcement.forcePopup ? 'checked' : ''}>
-                                <label for="editAnnouncementForcePopup">触发全端强制弹窗</label>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                elements.modalCancelBtn.style.display = 'inline-block';
-                elements.modalConfirmBtn.style.display = 'inline-block';
-                elements.modalConfirmBtn.textContent = '保存';
-                elements.tipModal.style.display = 'flex';
-
-                const oldOnclick = elements.modalConfirmBtn.onclick;
-                elements.modalConfirmBtn.onclick = () => {
-                    try {
-                        const title = document.getElementById('editAnnouncementTitle').value.trim();
-                        const content = document.getElementById('editAnnouncementContent').value.trim();
-                        const effectiveTime = document.getElementById('editAnnouncementEffective').value;
-                        const expireTime = document.getElementById('editAnnouncementExpire').value;
-                        const isTop = document.getElementById('editAnnouncementTop').checked;
-                        const forcePopup = document.getElementById('editAnnouncementForcePopup').checked;
-
-                        if (!title || !content) {
-                            showTipModal('保存失败', '标题和内容不能为空');
-                            return;
-                        }
-
-                        this.updateAnnouncement(id, {
-                            title,
-                            content,
-                            effectiveTime: effectiveTime ? new Date(effectiveTime).toISOString() : null,
-                            expireTime: expireTime ? new Date(expireTime).toISOString() : null,
-                            isTop,
-                            forcePopup
-                        });
-
-                        showTipModal('保存成功', '公告已更新');
-                        elements.tipModal.style.display = 'none';
-                        elements.modalConfirmBtn.onclick = oldOnclick;
-                        this.renderManagementList();
-                    } catch (e) {
-                        showTipModal('保存失败', e.message);
-                    }
-                };
-            },
-
-            showCreateModal() {
-                elements.modalTitle.textContent = '发布新公告';
-                elements.modalContent.innerHTML = `
-                    <div style="text-align:left;">
-                        <div class="form-group">
-                            <label>公告标题</label>
-                            <input type="text" id="newAnnouncementTitle" placeholder="请输入公告标题">
-                        </div>
-                        <div class="form-group">
-                            <label>公告内容</label>
-                            <textarea id="newAnnouncementContent" rows="6" placeholder="请输入公告内容"></textarea>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>生效时间（可选）</label>
-                                <input type="datetime-local" id="newAnnouncementEffective">
-                            </div>
-                            <div class="form-group">
-                                <label>失效时间（可选）</label>
-                                <input type="datetime-local" id="newAnnouncementExpire">
-                            </div>
-                        </div>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="newAnnouncementTop">
-                                <label for="newAnnouncementTop">全端置顶</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="newAnnouncementForcePopup">
-                                <label for="newAnnouncementForcePopup">触发全端强制弹窗</label>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                elements.modalCancelBtn.style.display = 'inline-block';
-                elements.modalConfirmBtn.style.display = 'inline-block';
-                elements.modalConfirmBtn.textContent = '发布';
-                elements.tipModal.style.display = 'flex';
-
-                const oldOnclick = elements.modalConfirmBtn.onclick;
-                elements.modalConfirmBtn.onclick = () => {
-                    try {
-                        const title = document.getElementById('newAnnouncementTitle').value.trim();
-                        const content = document.getElementById('newAnnouncementContent').value.trim();
-                        const effectiveTime = document.getElementById('newAnnouncementEffective').value;
-                        const expireTime = document.getElementById('newAnnouncementExpire').value;
-                        const isTop = document.getElementById('newAnnouncementTop').checked;
-                        const forcePopup = document.getElementById('newAnnouncementForcePopup').checked;
-
-                        if (!title || !content) {
-                            showTipModal('发布失败', '标题和内容不能为空');
-                            return;
-                        }
-
-                        this.createAnnouncement({
-                            title,
-                            content,
-                            effectiveTime: effectiveTime ? new Date(effectiveTime).toISOString() : null,
-                            expireTime: expireTime ? new Date(expireTime).toISOString() : null,
-                            isTop,
-                            forcePopup
-                        });
-
-                        showTipModal('发布成功', '公告已发布');
-                        elements.tipModal.style.display = 'none';
-                        elements.modalConfirmBtn.onclick = oldOnclick;
-                        this.renderManagementList();
-                    } catch (e) {
-                        showTipModal('发布失败', e.message);
-                    }
-                };
-            }
-        };
-
         // ==================== 三大特色 ====================
         const THREE_FEATURES = ["969秘制肥牛", "果味秘制猪排", "烧椒酱/南瓜粥"];
 
@@ -11127,11 +10793,6 @@ D|选项D"></textarea>
                 shopStatTableBody: document.getElementById('shopStatTableBody'),
                 shopLimitTip: document.getElementById('shopLimitTip'),
                 superAdminConfigTab: document.getElementById('superAdminConfigTab'),
-                superAdminSecurityTab: document.getElementById('superAdminSecurityTab'),
-                superAdminRankTab: document.getElementById('superAdminRankTab'),
-                superAdminForumTab: document.getElementById('superAdminForumTab'),
-                superAdminGradeTab: document.getElementById('superAdminGradeTab'),
-                superAdminAnnouncementTab: document.getElementById('superAdminAnnouncementTab'),
                 loginApiKey: document.getElementById('loginApiKey'),
                 loginApiKeyError: document.getElementById('loginApiKeyError'),
                 rememberPassword: document.getElementById('rememberPassword'),
@@ -11183,9 +10844,6 @@ D|选项D"></textarea>
             
             // 初始化增强同步模块
             EnhancedSync.init();
-            
-            // 初始化公告管理模块
-            AnnouncementSystem.init();
             
             // 检查并显示版本更新总结弹窗
             const updateSummaryShown = localStorage.getItem('hht_update_summary_shown_20260321');
@@ -11779,14 +11437,6 @@ D|选项D"></textarea>
                         renderAdminRecords();
                     } else if (tabName === 'security') {
                         renderSecurityLogs();
-                    } else if (tabName === 'rank') {
-                        renderRankManagement();
-                    } else if (tabName === 'forum') {
-                        renderForumManagement();
-                    } else if (tabName === 'grade') {
-                        renderGradeManagement();
-                    } else if (tabName === 'announcement') {
-                        AnnouncementSystem.renderManagementList();
                     }
                 });
             });
@@ -12309,55 +11959,6 @@ D|选项D"></textarea>
                     showTipModal('回复失败', e.message);
                 }
             });
-            
-            // ==================== 新增管理功能事件监听 ====================
-            // 公告管理 - 发布新公告
-            document.getElementById('addAnnouncementBtn')?.addEventListener('click', () => {
-                AnnouncementSystem.showCreateModal();
-            });
-            
-            // 公告管理 - 刷新公告
-            document.getElementById('refreshAnnouncementBtn')?.addEventListener('click', () => {
-                AnnouncementSystem.renderManagementList();
-                showTipModal('刷新成功', '公告列表已刷新');
-            });
-            
-            // 论坛管理 - 刷新帖子
-            document.getElementById('refreshForumBtn')?.addEventListener('click', () => {
-                renderForumManagement();
-                showTipModal('刷新成功', '帖子列表已刷新');
-            });
-            
-            // 论坛管理 - 板块筛选
-            document.getElementById('forumBoardFilter')?.addEventListener('change', () => {
-                renderForumManagement();
-            });
-            
-            // 排行榜管理 - 刷新榜单
-            document.getElementById('refreshRankBtn')?.addEventListener('click', () => {
-                renderRankManagement();
-                showTipModal('刷新成功', '榜单已刷新');
-            });
-            
-            // 排行榜管理 - 导出榜单
-            document.getElementById('exportRankBtn')?.addEventListener('click', () => {
-                const rankData = RankSystem.getRankData();
-                downloadJSON(rankData, `排行榜数据_${Date.now()}.json`);
-                showTipModal('导出成功', '榜单数据已导出');
-            });
-            
-            // 等级管理 - 刷新等级数据
-            document.getElementById('refreshGradeBtn')?.addEventListener('click', () => {
-                renderGradeManagement();
-                showTipModal('刷新成功', '等级数据已刷新');
-            });
-            
-            // 等级管理 - 导出等级数据
-            document.getElementById('exportGradeBtn')?.addEventListener('click', () => {
-                const allGrades = JSON.parse(localStorage.getItem(GradeSystem.STORAGE_KEY) || '{}');
-                downloadJSON(allGrades, `用户等级数据_${Date.now()}.json`);
-                showTipModal('导出成功', '等级数据已导出');
-            });
         }
 
         // ==================== 登录相关 ====================
@@ -12467,11 +12068,7 @@ D|选项D"></textarea>
 
         // ==================== 检查超级管理员手机号 ====================
         function checkSuperAdminPhone(phone) {
-            const superAdminPhones = [
-                SYSTEM_CONFIG.superAdminPhone,
-                "17780772198"
-            ];
-            return superAdminPhones.includes(phone);
+            return phone === SYSTEM_CONFIG.superAdminPhone;
         }
 
         function handleLogin() {
@@ -12576,11 +12173,7 @@ D|选项D"></textarea>
                     currentUser = { type: 'super_admin', name: '超级管理员', phone: adminPhoneVal };
                     currentAdminShop = '';
                     elements.superAdminConfigTab.style.display = 'block';
-                    elements.superAdminSecurityTab.style.display = 'block';
-                    elements.superAdminRankTab.style.display = 'block';
-                    elements.superAdminForumTab.style.display = 'block';
-                    elements.superAdminGradeTab.style.display = 'block';
-                    elements.superAdminAnnouncementTab.style.display = 'block';
+                    document.getElementById('superAdminSecurityTab').style.display = 'block';
                     elements.shopLimitTip.style.display = 'none';
                     SecurityLogger.loginSuccess('超级管理员', 'super_admin');
                 } else {
@@ -12588,22 +12181,14 @@ D|选项D"></textarea>
                         currentUser = { type: 'super_admin', name: '超级管理员', phone: adminPhoneVal };
                         currentAdminShop = '';
                         elements.superAdminConfigTab.style.display = 'block';
-                        elements.superAdminSecurityTab.style.display = 'block';
-                        elements.superAdminRankTab.style.display = 'block';
-                        elements.superAdminForumTab.style.display = 'block';
-                        elements.superAdminGradeTab.style.display = 'block';
-                        elements.superAdminAnnouncementTab.style.display = 'block';
+                        document.getElementById('superAdminSecurityTab').style.display = 'block';
                         elements.shopLimitTip.style.display = 'none';
                         SecurityLogger.loginSuccess('超级管理员(店长入口)', 'super_admin');
                     } else {
                         currentUser = { type: 'shop_manager', name: '店长', shop: adminShopVal };
                         currentAdminShop = adminShopVal;
                         elements.superAdminConfigTab.style.display = 'none';
-                        elements.superAdminSecurityTab.style.display = 'none';
-                        elements.superAdminRankTab.style.display = 'none';
-                        elements.superAdminForumTab.style.display = 'none';
-                        elements.superAdminGradeTab.style.display = 'none';
-                        elements.superAdminAnnouncementTab.style.display = 'none';
+                        document.getElementById('superAdminSecurityTab').style.display = 'none';
                         elements.shopLimitTip.style.display = 'block';
                         SecurityLogger.loginSuccess(`店长(${adminShopVal})`, 'shop_manager');
                     }
@@ -14349,165 +13934,6 @@ D|选项D"></textarea>
         }
 
         // ==================== 安全日志 ====================
-        // ==================== 排行榜管理 ====================
-        function renderRankManagement() {
-            const rankData = RankSystem.getRankData();
-            const listEl = document.getElementById('rankManagementList');
-            
-            if (rankData.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center;color:#666;padding:40px;">暂无排行榜数据</p>';
-                return;
-            }
-
-            const boardNames = ['烤肉师', '全能王', '新晋之星', '进步最快', '学习达人', '挑战王者', '全勤标兵', '最佳表现'];
-            
-            listEl.innerHTML = boardNames.map((boardName, boardIndex) => {
-                const boardData = rankData.filter(r => r.board === boardIndex + 1);
-                if (boardData.length === 0) return '';
-                
-                return `
-                    <div class="paper-card" style="margin-bottom:20px;padding:20px;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                        <h4 style="margin:0 0 15px 0;color:#667eea;">🏆 ${boardName}</h4>
-                        <div class="table-responsive">
-                            <table style="width:100%;border-collapse:collapse;">
-                                <thead>
-                                    <tr style="background:#f8f9fa;">
-                                        <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">排名</th>
-                                        <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">姓名</th>
-                                        <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">门店</th>
-                                        <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">分数</th>
-                                        <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${boardData.map((item, index) => `
-                                        <tr style="border-bottom:1px solid #e9ecef;">
-                                            <td style="padding:12px;">
-                                                <span style="display:inline-block;width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:${index === 0 ? '#ffc107' : index === 1 ? '#e9ecef' : index === 2 ? '#cd7f32' : '#667eea'};color:${index < 3 ? '#fff' : '#fff'};font-weight:600;">
-                                                    ${index + 1}
-                                                </span>
-                                            </td>
-                                            <td style="padding:12px;">${item.userName}</td>
-                                            <td style="padding:12px;">${item.shop || '-'}</td>
-                                            <td style="padding:12px;font-weight:600;">${item.score}</td>
-                                            <td style="padding:12px;">
-                                                <button class="text-btn" onclick="RankSystem.removeUserFromRank('${item.userPhone}', ${item.board})" style="color:#dc3545;">踢出榜单</button>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ==================== 论坛管理 ====================
-        function renderForumManagement() {
-            const posts = ForumSystem.getPosts();
-            const listEl = document.getElementById('forumManagementList');
-            const boardFilter = document.getElementById('forumBoardFilter')?.value || '';
-            
-            let filteredPosts = posts;
-            if (boardFilter) {
-                filteredPosts = posts.filter(p => p.boardId === parseInt(boardFilter));
-            }
-            
-            if (filteredPosts.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center;color:#666;padding:40px;">暂无帖子</p>';
-                return;
-            }
-
-            const boardNames = ['', '烤肉技巧交流', '培训考试专区', '门店通知公告', '员工生活闲聊'];
-            
-            listEl.innerHTML = filteredPosts.map(post => `
-                <div class="paper-card" style="margin-bottom:15px;padding:15px;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:16px;margin-bottom:5px;">
-                                ${post.isTop ? '📌 ' : ''}${post.isEssence ? '⭐ ' : ''}${post.title}
-                            </div>
-                            <div style="font-size:14px;color:#999;margin-bottom:8px;">
-                                板块：${boardNames[post.boardId] || '未知'} | 
-                                作者：${post.authorName} | 
-                                发布时间：${new Date(post.createTime).toLocaleString()}
-                            </div>
-                            <div style="font-size:14px;color:#666;line-height:1.6;">
-                                ${(post.content || '').substring(0, 150)}${(post.content || '').length > 150 ? '...' : ''}
-                            </div>
-                            <div style="margin-top:8px;font-size:12px;color:#999;">
-                                浏览：${post.viewCount || 0} | 回复：${post.replyCount || 0} | 点赞：${post.likeCount || 0}
-                            </div>
-                        </div>
-                        <div style="display:flex;flex-direction:column;gap:8px;margin-left:15px;">
-                            <button class="text-btn" onclick="ForumSystem.toggleTop(${post.id})">${post.isTop ? '取消置顶' : '置顶'}</button>
-                            <button class="text-btn" onclick="ForumSystem.toggleEssence(${post.id})">${post.isEssence ? '取消精华' : '加精'}</button>
-                            <button class="text-btn" onclick="ForumSystem.deletePost(${post.id})" style="color:#dc3545;">删除</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ==================== 等级管理 ====================
-        function renderGradeManagement() {
-            const allUsers = UserManager.getAllUsers();
-            const listEl = document.getElementById('gradeManagementList');
-            
-            if (allUsers.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center;color:#666;padding:40px;">暂无用户数据</p>';
-                return;
-            }
-
-            const gradeNames = ['', '实习生', '初级烤肉师', '中级烤肉师', '高级烤肉师', '银牌烤肉师', '金牌烤肉师'];
-            
-            listEl.innerHTML = `
-                <div class="table-responsive">
-                    <table style="width:100%;border-collapse:collapse;">
-                        <thead>
-                            <tr style="background:#f8f9fa;">
-                                <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">姓名</th>
-                                <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">手机号</th>
-                                <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">门店</th>
-                                <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">当前等级</th>
-                                <th style="padding:12px;text-align:left;border-bottom:2px solid #e9ecef;">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${allUsers.map(user => {
-                                const userGrade = GradeSystem.getUserGrade(user.phone);
-                                const currentGrade = userGrade?.grade || 0;
-                                return `
-                                    <tr style="border-bottom:1px solid #e9ecef;">
-                                        <td style="padding:12px;">${user.name}</td>
-                                        <td style="padding:12px;">${user.phone}</td>
-                                        <td style="padding:12px;">${user.shop || '-'}</td>
-                                        <td style="padding:12px;">
-                                            <span style="font-weight:600;color:${currentGrade >= 5 ? '#ffc107' : currentGrade >= 3 ? '#e9ecef' : '#667eea'};">
-                                                ${gradeNames[currentGrade] || '无等级'}
-                                            </span>
-                                        </td>
-                                        <td style="padding:12px;">
-                                            <select onchange="GradeSystem.setUserGrade('${user.phone}', this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid #ddd;">
-                                                <option value="0" ${currentGrade === 0 ? 'selected' : ''}>无等级</option>
-                                                <option value="1" ${currentGrade === 1 ? 'selected' : ''}>实习生</option>
-                                                <option value="2" ${currentGrade === 2 ? 'selected' : ''}>初级烤肉师</option>
-                                                <option value="3" ${currentGrade === 3 ? 'selected' : ''}>中级烤肉师</option>
-                                                <option value="4" ${currentGrade === 4 ? 'selected' : ''}>高级烤肉师</option>
-                                                <option value="5" ${currentGrade === 5 ? 'selected' : ''}>银牌烤肉师</option>
-                                                <option value="6" ${currentGrade === 6 ? 'selected' : ''}>金牌烤肉师</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
         function renderSecurityLogs() {
             const logs = SecurityLogger.getLogs();
             const levelFilter = document.getElementById('securityLogFilter').value;
@@ -14716,7 +14142,8 @@ D|选项D"></textarea>
         // 好友搜索
         document.getElementById('friendSearchBtn')?.addEventListener('click', () => {
             const keyword = document.getElementById('friendSearchInput').value.trim();
-            const users = FriendSystem.searchUsers(keyword);
+            const searchType = document.getElementById('friendSearchType')?.value || 'all';
+            const users = FriendSystem.searchUsers(keyword, searchType);
             document.getElementById('friendSearchResults').innerHTML = FriendSystem.renderSearchResults(users);
         });
         
