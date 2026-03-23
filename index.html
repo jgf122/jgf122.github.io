@@ -4578,6 +4578,8 @@ D|选项D"></textarea>
             <div class="admin-tab" data-tab="record">学员记录</div>
             <div class="admin-tab" data-tab="stat">成绩统计</div>
             <div class="admin-tab" data-tab="user">👥 用户管理</div>
+            <div class="admin-tab" data-tab="rank" id="superAdminRankTab" style="display: none;">🏆 榜单管理</div>
+            <div class="admin-tab" data-tab="forum" id="superAdminForumTab" style="display: none;">📢 论坛管理</div>
             <div class="admin-tab" data-tab="security" id="superAdminSecurityTab" style="display: none;">安全日志</div>
             <div class="admin-tab" data-tab="config" id="superAdminConfigTab" style="display: none;">系统设置</div>
         </div>
@@ -4882,6 +4884,75 @@ D|选项D"></textarea>
                 <button class="success-btn" id="testSyncBtn">测试同步</button>
                 <button class="reset-btn" id="resetConfigBtn">恢复默认设置</button>
             </div>
+        </div>
+
+        <!-- 榜单管理 -->
+        <div class="admin-tab-content" id="rankTab" style="display: none;">
+            <div class="btn-group" style="margin-bottom: 20px;">
+                <button class="confirm-btn" id="adminRefreshRankBtn">🔄 刷新榜单</button>
+                <button class="reset-btn" id="adminClearRankBtn">⚠️ 清空榜单数据</button>
+            </div>
+            <div class="form-row" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>榜单类型</label>
+                    <select id="adminRankTypeSelect">
+                        <option value="score">🏅 单场成绩榜</option>
+                        <option value="count">📊 考试场数榜</option>
+                        <option value="avg">🎯 平均分榜</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>门店筛选</label>
+                    <select id="adminRankShopSelect">
+                        <option value="">全部门店</option>
+                        <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
+                        <option value="韩花亭烤肉两店">韩花亭烤肉两店</option>
+                        <option value="韩花亭烤肉三店">韩花亭烤肉三店</option>
+                        <option value="韩花亭烤肉四店">韩花亭烤肉四店</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>时间筛选</label>
+                    <select id="adminRankTimeSelect">
+                        <option value="all">全部时间</option>
+                        <option value="week">本周</option>
+                        <option value="month">本月</option>
+                        <option value="quarter">本季度</option>
+                    </select>
+                </div>
+            </div>
+            <div id="adminRankList"></div>
+        </div>
+
+        <!-- 论坛管理 -->
+        <div class="admin-tab-content" id="forumTab" style="display: none;">
+            <div class="btn-group" style="margin-bottom: 20px;">
+                <button class="confirm-btn" id="adminRefreshForumBtn">🔄 刷新论坛</button>
+                <button class="reset-btn" id="adminClearDeletedPostsBtn">🗑️ 清理已删除帖子</button>
+            </div>
+            <div class="form-row" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>板块筛选</label>
+                    <select id="adminForumBoardSelect">
+                        <option value="">全部板块</option>
+                        <option value="1">🔥 烤肉技巧交流</option>
+                        <option value="2">📚 培训考试专区</option>
+                        <option value="3">📋 门店通知公告</option>
+                        <option value="4">☕ 员工生活闲聊</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>帖子状态</label>
+                    <select id="adminForumStatusSelect">
+                        <option value="">全部状态</option>
+                        <option value="normal">正常帖子</option>
+                        <option value="top">置顶帖子</option>
+                        <option value="essence">精华帖子</option>
+                        <option value="deleted">已删除帖子</option>
+                    </select>
+                </div>
+            </div>
+            <div id="adminForumList"></div>
         </div>
     </div>
 
@@ -12174,6 +12245,8 @@ D|选项D"></textarea>
                     currentAdminShop = '';
                     elements.superAdminConfigTab.style.display = 'block';
                     document.getElementById('superAdminSecurityTab').style.display = 'block';
+                    document.getElementById('superAdminRankTab').style.display = 'block';
+                    document.getElementById('superAdminForumTab').style.display = 'block';
                     elements.shopLimitTip.style.display = 'none';
                     SecurityLogger.loginSuccess('超级管理员', 'super_admin');
                 } else {
@@ -12182,6 +12255,8 @@ D|选项D"></textarea>
                         currentAdminShop = '';
                         elements.superAdminConfigTab.style.display = 'block';
                         document.getElementById('superAdminSecurityTab').style.display = 'block';
+                        document.getElementById('superAdminRankTab').style.display = 'block';
+                        document.getElementById('superAdminForumTab').style.display = 'block';
                         elements.shopLimitTip.style.display = 'none';
                         SecurityLogger.loginSuccess('超级管理员(店长入口)', 'super_admin');
                     } else {
@@ -14395,10 +14470,167 @@ D|选项D"></textarea>
                     renderSecurityLog();
                 } else if (tab === 'config') {
                     renderConfigPanel();
+                } else if (tab === 'rank') {
+                    renderAdminRankTab();
+                } else if (tab === 'forum') {
+                    renderAdminForumTab();
                 }
             }
         });
 
+        // ==================== 管理员榜单管理 ====================
+        async function renderAdminRankTab() {
+            const type = document.getElementById('adminRankTypeSelect')?.value || 'score';
+            const shop = document.getElementById('adminRankShopSelect')?.value || '';
+            const time = document.getElementById('adminRankTimeSelect')?.value || 'all';
+            
+            RankSystem.currentRankType = type;
+            RankSystem.currentShop = shop;
+            RankSystem.currentTimeRange = time;
+            RankSystem.updateRankList();
+            
+            const rankList = document.getElementById('adminRankList');
+            const originalList = document.getElementById('rankList');
+            if (originalList && rankList) {
+                rankList.innerHTML = originalList.innerHTML;
+            }
+        }
+        
+        document.getElementById('adminRankTypeSelect')?.addEventListener('change', renderAdminRankTab);
+        document.getElementById('adminRankShopSelect')?.addEventListener('change', renderAdminRankTab);
+        document.getElementById('adminRankTimeSelect')?.addEventListener('change', renderAdminRankTab);
+        
+        document.getElementById('adminRefreshRankBtn')?.addEventListener('click', () => {
+            RankSystem.updateRankList();
+            renderAdminRankTab();
+            showTipModal('刷新成功', '榜单数据已刷新');
+        });
+        
+        document.getElementById('adminClearRankBtn')?.addEventListener('click', () => {
+            if (confirm('确定要清空所有榜单数据吗？此操作不可恢复！')) {
+                localStorage.removeItem('hht_exam_records');
+                RankSystem.updateRankList();
+                renderAdminRankTab();
+                showTipModal('清空成功', '所有榜单数据已清空');
+            }
+        });
+        
+        // ==================== 管理员论坛管理 ====================
+        async function renderAdminForumTab() {
+            const board = document.getElementById('adminForumBoardSelect')?.value || '';
+            const status = document.getElementById('adminForumStatusSelect')?.value || '';
+            
+            let posts = ForumSystem.posts || [];
+            
+            if (board) {
+                posts = posts.filter(p => p.board === board);
+            }
+            
+            if (status) {
+                if (status === 'top') {
+                    posts = posts.filter(p => p.isTop);
+                } else if (status === 'essence') {
+                    posts = posts.filter(p => p.isEssence);
+                } else if (status === 'deleted') {
+                    posts = posts.filter(p => p.deleted);
+                } else if (status === 'normal') {
+                    posts = posts.filter(p => !p.deleted);
+                }
+            }
+            
+            const listContainer = document.getElementById('adminForumList');
+            if (!listContainer) return;
+            
+            if (posts.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px;">暂无帖子</div>';
+                return;
+            }
+            
+            listContainer.innerHTML = posts.map(post => {
+                const author = UserManager.getUserInfo(post.author) || { name: '未知用户' };
+                const boardNames = {
+                    '1': '🔥 烤肉技巧交流',
+                    '2': '📚 培训考试专区',
+                    '3': '📋 门店通知公告',
+                    '4': '☕ 员工生活闲聊'
+                };
+                
+                let statusTags = '';
+                if (post.isTop) statusTags += '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px;">置顶</span>';
+                if (post.isEssence) statusTags += '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px;">精华</span>';
+                if (post.deleted) statusTags += '<span style="background: #95a5a6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px;">已删除</span>';
+                
+                return `
+                    <div class="post-item" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${statusTags}${post.title}</div>
+                                <div style="color: #666; font-size: 13px; margin-bottom: 5px;">
+                                    ${boardNames[post.board]} | 作者: ${author.name || author.username} | ${new Date(post.createdAt).toLocaleString()}
+                                </div>
+                                <div style="color: #888; font-size: 14px; line-height: 1.5;">
+                                    ${post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content}
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                ${!post.deleted ? `
+                                    <button class="success-btn" style="padding: 5px 10px; font-size: 12px;" onclick="ForumSystem.toggleTop('${post.id}'); renderAdminForumTab();">
+                                        ${post.isTop ? '取消置顶' : '置顶'}
+                                    </button>
+                                    <button class="confirm-btn" style="padding: 5px 10px; font-size: 12px;" onclick="ForumSystem.toggleEssence('${post.id}'); renderAdminForumTab();">
+                                        ${post.isEssence ? '取消精华' : '加精'}
+                                    </button>
+                                    <button class="delete-btn" style="padding: 5px 10px; font-size: 12px;" onclick="if(confirm('确定删除此帖子？')){ForumSystem.deletePost('${post.id}'); renderAdminForumTab();}">
+                                        删除
+                                    </button>
+                                ` : `
+                                    <button class="confirm-btn" style="padding: 5px 10px; font-size: 12px;" onclick="ForumSystem.restorePost('${post.id}'); renderAdminForumTab();">
+                                        恢复
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                        <div style="color: #999; font-size: 12px;">
+                            💬 ${post.replies?.length || 0} 回复 | ❤️ ${post.likes?.length || 0} 点赞
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        document.getElementById('adminForumBoardSelect')?.addEventListener('change', renderAdminForumTab);
+        document.getElementById('adminForumStatusSelect')?.addEventListener('change', renderAdminForumTab);
+        
+        document.getElementById('adminRefreshForumBtn')?.addEventListener('click', () => {
+            ForumSystem.loadPosts();
+            renderAdminForumTab();
+            showTipModal('刷新成功', '论坛数据已刷新');
+        });
+        
+        document.getElementById('adminClearDeletedPostsBtn')?.addEventListener('click', () => {
+            if (confirm('确定要永久删除所有已标记删除的帖子吗？此操作不可恢复！')) {
+                ForumSystem.posts = ForumSystem.posts.filter(p => !p.deleted);
+                ForumSystem.savePosts();
+                renderAdminForumTab();
+                showTipModal('清理成功', '已删除的帖子已永久清理');
+            }
+        });
+        
+        // 给ForumSystem添加恢复帖子的方法
+        if (!ForumSystem.restorePost) {
+            ForumSystem.restorePost = function(postId) {
+                const post = ForumSystem.posts.find(p => p.id === postId);
+                if (post) {
+                    post.deleted = false;
+                    post.deletedBy = null;
+                    post.deletedAt = null;
+                    ForumSystem.savePosts();
+                    return true;
+                }
+                return false;
+            };
+        }
+        
         // 初始化时添加用户管理模块初始化
         const originalInit = () => {};
 
