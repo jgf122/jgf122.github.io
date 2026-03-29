@@ -3,7 +3,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#121228">
     <title>韩花亭烤肉考试系统 v2.19.0</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
@@ -4290,6 +4295,168 @@
                 min-height: 44px !important;
             }
         }
+        
+        /* ==================== 通用移动端优化 ==================== */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 8px !important;
+            }
+            
+            .btn {
+                padding: 10px 18px !important;
+                font-size: 14px !important;
+            }
+            
+            .btn-group {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px !important;
+                padding: 10px 12px !important;
+            }
+            
+            .modal-content {
+                margin: 10px !important;
+                max-width: calc(100vw - 20px) !important;
+                max-height: calc(100vh - 20px) !important;
+            }
+            
+            .modal-title {
+                font-size: 18px !important;
+                padding: 15px !important;
+            }
+            
+            .admin-tab {
+                padding: 10px 12px !important;
+                font-size: 13px !important;
+            }
+            
+            .board-card {
+                padding: 15px !important;
+            }
+            
+            .friend-item,
+            .request-item,
+            .recommend-item {
+                padding: 12px !important;
+            }
+            
+            .post-item {
+                padding: 15px !important;
+            }
+            
+            .chat-header {
+                padding: 10px 15px !important;
+            }
+            
+            .chat-input-wrapper input {
+                font-size: 16px !important;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 5px !important;
+            }
+            
+            h1, h2, h3 {
+                font-size: 1.2em !important;
+            }
+            
+            .btn {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+            
+            .form-row {
+                flex-direction: column !important;
+            }
+            
+            .form-row .form-group {
+                width: 100% !important;
+            }
+            
+            .admin-nav-tabs {
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+            }
+            
+            .admin-nav-tabs::-webkit-scrollbar {
+                display: none !important;
+            }
+            
+            .friend-search-bar {
+                flex-direction: column !important;
+            }
+            
+            .friend-search-bar select,
+            .friend-search-bar input {
+                width: 100% !important;
+            }
+        }
+        
+        /* 防止iOS上的点击延迟 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* 更好的触摸反馈 */
+        button,
+        .option-item,
+        .board-card,
+        .admin-tab,
+        .friend-item,
+        .request-item,
+        .recommend-item,
+        .post-item,
+        .profile-setting-item {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease;
+        }
+        
+        button:active,
+        .option-item:active,
+        .board-card:active,
+        .admin-tab:active,
+        .friend-item:active,
+        .request-item:active,
+        .recommend-item:active,
+        .post-item:active,
+        .profile-setting-item:active {
+            transform: scale(0.98);
+        }
+        
+        /* 安全区域适配（iPhone X及以上） */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(10px, env(safe-area-inset-left));
+                padding-right: max(10px, env(safe-area-inset-right));
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* 横屏优化 */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .exam-header {
+                padding: 8px !important;
+            }
+            
+            .question-card {
+                margin: 8px 0 !important;
+                padding: 12px !important;
+            }
+            
+            .option-item {
+                padding: 8px 12px !important;
+                margin: 5px 0 !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -4311,11 +4478,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- 人脸检测预览（已禁用） -->
-    <!-- <div class="camera-preview" id="cameraPreview">
-        <video id="proctoringVideo" autoplay muted playsinline></video>
-    </div> -->
 
     <!-- 自动保存提示 -->
     <div class="auto-save-tip" id="autoSaveTip">💾 答题进度已自动保存</div>
@@ -4379,11 +4541,11 @@
         <div class="modal-content">
             <div class="modal-title" id="editModalTitle">编辑题目</div>
             <div class="form-group">
-                <label>所属试卷</label>
+                <label for="editPaperId">所属试卷</label>
                 <select id="editPaperId"></select>
             </div>
             <div class="form-group">
-                <label>题目类型</label>
+                <label for="editQuestionType">题目类型</label>
                 <select id="editQuestionType">
                     <option value="single">单选题</option>
                     <option value="multi">多选题</option>
@@ -4393,27 +4555,27 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>题目内容</label>
+                <label for="editQuestionContent">题目内容</label>
                 <textarea id="editQuestionContent" rows="3" placeholder="请输入题目内容"></textarea>
             </div>
             <div class="form-group" id="editOptionsContainer">
-                <label>选项（每行一个选项，格式：值|内容，如A|选项A）</label>
+                <label for="editQuestionOptions">选项（每行一个选项，格式：值|内容，如A|选项A）</label>
                 <textarea id="editQuestionOptions" rows="4" placeholder="A|选项A
 B|选项B
 C|选项C
 D|选项D"></textarea>
             </div>
             <div class="form-group">
-                <label>标准答案</label>
+                <label for="editQuestionAnswer">标准答案</label>
                 <input type="text" id="editQuestionAnswer" placeholder="单选题填选项值，多选题用逗号分隔，判断题填√/×，填空题用逗号分隔">
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>题目分值</label>
+                    <label for="editQuestionScore">题目分值</label>
                     <input type="number" id="editQuestionScore" min="1" max="100" value="3">
                 </div>
                 <div class="form-group">
-                    <label>题目排序</label>
+                    <label for="editQuestionSort">题目排序</label>
                     <input type="number" id="editQuestionSort" min="1" value="1">
                 </div>
             </div>
@@ -4429,38 +4591,38 @@ D|选项D"></textarea>
         <div class="modal-content">
             <div class="modal-title" id="paperEditTitle">编辑试卷</div>
             <div class="form-group">
-                <label>试卷名称</label>
+                <label for="editPaperName">试卷名称</label>
                 <input type="text" id="editPaperName" placeholder="请输入试卷名称">
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>考试时长（分钟）</label>
+                    <label for="editPaperDuration">考试时长（分钟）</label>
                     <input type="number" id="editPaperDuration" min="10" max="300" value="90">
                 </div>
                 <div class="form-group">
-                    <label>试卷满分</label>
+                    <label for="editPaperTotalScore">试卷满分</label>
                     <input type="number" id="editPaperTotalScore" min="10" max="500" value="150">
                 </div>
                 <div class="form-group">
-                    <label>及格分数线</label>
+                    <label for="editPaperPassScore">及格分数线</label>
                     <input type="number" id="editPaperPassScore" min="0" max="500" value="90">
                 </div>
             </div>
             <div class="form-group">
-                <label>考试有效期</label>
+                <div class="form-group-label">考试有效期</div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>开始时间</label>
+                        <label for="editPaperStartTime">开始时间</label>
                         <input type="datetime-local" id="editPaperStartTime">
                     </div>
                     <div class="form-group">
-                        <label>结束时间</label>
+                        <label for="editPaperEndTime">结束时间</label>
                         <input type="datetime-local" id="editPaperEndTime">
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <label>适用门店</label>
+                <div class="form-group-label">适用门店</div>
                 <div class="checkbox-group" id="editPaperShop">
                     <div class="checkbox-item">
                         <input type="checkbox" id="shop1" value="韩花亭烤肉一店" checked="">
@@ -4481,7 +4643,7 @@ D|选项D"></textarea>
                 </div>
             </div>
             <div class="form-group">
-                <label>试卷状态</label>
+                <label for="editPaperStatus">试卷状态</label>
                 <select id="editPaperStatus">
                     <option value="active">发布启用</option>
                     <option value="inactive">停用草稿</option>
@@ -4504,7 +4666,7 @@ D|选项D"></textarea>
                 <input type="file" id="paperFileInput" accept=".json">
             </div>
             <div class="form-group">
-                <label>或粘贴试卷JSON代码</label>
+                <label for="paperJsonCode">或粘贴试卷JSON代码</label>
                 <textarea id="paperJsonCode" rows="10" placeholder="请粘贴标准JSON格式的试卷代码"></textarea>
             </div>
             <div class="modal-btn-group">
@@ -4592,7 +4754,7 @@ D|选项D"></textarea>
                 <input type="checkbox" id="rememberPassword">
                 <span>记住密码</span>
             </label>
-            <a href="#" class="forgot-password" onclick="event.preventDefault();alert('请联系管理员重置密码')">忘记密码？</a>
+            <button type="button" class="forgot-password" onclick="alert('请联系管理员重置密码')" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">忘记密码？</button>
         </div>
         <!-- 管理员登录表单 -->
         <div id="adminLoginForm" style="display: none;">
@@ -4627,8 +4789,23 @@ D|选项D"></textarea>
                 <input type="checkbox" id="adminRememberPassword">
                 <span>记住密码</span>
             </label>
-            <a href="#" class="forgot-password" onclick="event.preventDefault();alert('请联系超级管理员重置密码')">忘记密码？</a>
+            <button type="button" class="forgot-password" onclick="alert('请联系超级管理员重置密码')" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">忘记密码？</button>
         </div>
+        
+        <!-- 拼图验证模块 -->
+        <div id="captchaContainer" class="captcha-container" style="margin-bottom:20px;">
+            <div style="font-size:14px;color:#666;margin-bottom:10px;text-align:left;">安全验证</div>
+            <div class="captcha-wrapper" style="position:relative;width:300px;height:150px;margin:0 auto;border-radius:8px;overflow:hidden;border:2px solid #ddd;">
+                <canvas id="captchaCanvas" width="300" height="150" style="display:block;"></canvas>
+                <canvas id="captchaSliderCanvas" width="50" height="50" style="position:absolute;top:0;left:0;display:none;border:2px dashed #fff;box-shadow:0 0 10px rgba(0,0,0,0.3);"></canvas>
+            </div>
+            <div style="margin-top:10px;">
+                <input type="range" id="captchaSlider" min="0" max="250" value="0" style="width:300px;cursor:pointer;">
+                <div style="text-align:center;font-size:12px;color:#999;margin-top:5px;">← 拖动滑块完成验证 →</div>
+            </div>
+            <div id="captchaResult" style="text-align:center;font-size:14px;margin-top:5px;"></div>
+        </div>
+        
         <button class="login-btn" id="loginBtn">登录</button>
         <div style="text-align:center;margin-top:15px;">
             <button class="text-btn" id="registerLinkBtn" style="color:var(--brand-blue);">📝 新用户注册</button>
@@ -4643,7 +4820,7 @@ D|选项D"></textarea>
         <div id="syncDetailInfo" style="text-align:center;font-size:12px;color:#666;margin-top:5px;">
             <span id="syncRecordCount">本地记录: 0条</span> | 
             <span id="syncLastTime">上次同步: 未同步</span> |
-            <span id="syncBinId" style="cursor:pointer;color:#3498db;" onclick="showBinIdModal()">Bin ID: 未设置</span>
+            <button type="button" id="syncBinId" style="background:none;border:none;color:#3498db;cursor:pointer;font-size:12px;padding:0;" onclick="showBinIdModal()">Bin ID: 未设置</button>
         </div>
     </div>
 
@@ -4738,7 +4915,7 @@ D|选项D"></textarea>
         <!-- 题库管理 -->
         <div class="admin-tab-content" id="questionTab" style="display: none;">
             <div class="form-group">
-                <label>选择试卷</label>
+                <label for="questionPaperSelect">选择试卷</label>
                 <select id="questionPaperSelect"></select>
             </div>
             <div class="btn-group" style="margin-bottom: 20px;">
@@ -4780,7 +4957,7 @@ D|选项D"></textarea>
         <!-- 成绩统计 -->
         <div class="admin-tab-content" id="statTab" style="display: none;">
             <div class="form-group">
-                <label>选择试卷</label>
+                <label for="statPaperSelect">选择试卷</label>
                 <select id="statPaperSelect"></select>
             </div>
             <div class="stat-cards">
@@ -4898,9 +5075,10 @@ D|选项D"></textarea>
                 <button class="reset-btn" id="refreshSecurityLogBtn">刷新日志</button>
             </div>
             <div class="form-group">
-                <label>日志筛选</label>
+                <div class="form-group-label">日志筛选</div>
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="securityLogFilter" style="display: none;">日志级别</label>
                         <select id="securityLogFilter">
                             <option value="all">全部日志</option>
                             <option value="info">信息 (info)</option>
@@ -4909,6 +5087,7 @@ D|选项D"></textarea>
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="securityEventTypeFilter" style="display: none;">事件类型</label>
                         <select id="securityEventTypeFilter">
                             <option value="all">全部类型</option>
                             <option value="LOGIN_SUCCESS">登录成功</option>
@@ -4942,11 +5121,11 @@ D|选项D"></textarea>
         <!-- 系统设置 -->
         <div class="admin-tab-content" id="configTab" style="display: none;">
             <div class="form-group">
-                <label>系统公告</label>
+                <label for="configNotice">系统公告</label>
                 <textarea id="configNotice" rows="3" placeholder="输入系统公告，将展示在登录页"></textarea>
             </div>
             <div class="form-group">
-                <label>防作弊设置</label>
+                <div class="form-group-label">防作弊设置</div>
                 <div class="checkbox-group">
                     <div class="checkbox-item">
                         <input type="checkbox" id="configScreenCheck" checked="">
@@ -4968,47 +5147,47 @@ D|选项D"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>多选题评分规则</label>
+                    <label for="configMultiRule">多选题评分规则</label>
                     <select id="configMultiRule">
                         <option value="strict">全对得分，错选/少选不得分</option>
                         <option value="loose" selected="">全对得满分，少选得部分分，错选不得分</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>超级管理员密码</label>
+                    <label for="configAdminPwd">超级管理员密码</label>
                     <input type="password" id="configAdminPwd" placeholder="修改超级管理员登录密码">
                 </div>
             </div>
             <div class="form-group">
-                <label>店长密码管理</label>
+                <div class="form-group-label">店长密码管理</div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>一店店长密码</label>
+                        <label for="configShopPwd1">一店店长密码</label>
                         <input type="password" id="configShopPwd1" placeholder="一店店长密码">
                     </div>
                     <div class="form-group">
-                        <label>二店店长密码</label>
+                        <label for="configShopPwd2">二店店长密码</label>
                         <input type="password" id="configShopPwd2" placeholder="二店店长密码">
                     </div>
                     <div class="form-group">
-                        <label>三店店长密码</label>
+                        <label for="configShopPwd3">三店店长密码</label>
                         <input type="password" id="configShopPwd3" placeholder="三店店长密码">
                     </div>
                     <div class="form-group">
-                        <label>四店店长密码</label>
+                        <label for="configShopPwd4">四店店长密码</label>
                         <input type="password" id="configShopPwd4" placeholder="四店店长密码">
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <label>☁️ JSONBin.io 云端同步配置</label>
+                <div class="form-group-label">☁️ JSONBin.io 云端同步配置</div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>API Master Key</label>
+                        <label for="configJsonBinApiKey">API Master Key</label>
                         <input type="password" id="configJsonBinApiKey" placeholder="$2a$10$... 格式的密钥">
                     </div>
                     <div class="form-group">
-                        <label>Bin ID (首次同步后自动生成)</label>
+                        <label for="configJsonBinId">Bin ID (首次同步后自动生成)</label>
                         <input type="text" id="configJsonBinId" placeholder="自动生成，无需填写">
                     </div>
                 </div>
@@ -5034,7 +5213,7 @@ D|选项D"></textarea>
             </div>
             <div class="form-row" style="margin-bottom: 20px;">
                 <div class="form-group">
-                    <label>榜单类型</label>
+                    <label for="adminRankTypeSelect">榜单类型</label>
                     <select id="adminRankTypeSelect">
                         <option value="score">🏅 单场成绩榜</option>
                         <option value="count">📊 考试场数榜</option>
@@ -5042,7 +5221,7 @@ D|选项D"></textarea>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>门店筛选</label>
+                    <label for="adminRankShopSelect">门店筛选</label>
                     <select id="adminRankShopSelect">
                         <option value="">全部门店</option>
                         <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
@@ -5052,7 +5231,7 @@ D|选项D"></textarea>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>时间筛选</label>
+                    <label for="adminRankTimeSelect">时间筛选</label>
                     <select id="adminRankTimeSelect">
                         <option value="all">全部时间</option>
                         <option value="week">本周</option>
@@ -5072,7 +5251,7 @@ D|选项D"></textarea>
             </div>
             <div class="form-row" style="margin-bottom: 20px;">
                 <div class="form-group">
-                    <label>板块筛选</label>
+                    <label for="adminForumBoardSelect">板块筛选</label>
                     <select id="adminForumBoardSelect">
                         <option value="">全部板块</option>
                         <option value="1">🔥 烤肉技巧交流</option>
@@ -5082,7 +5261,7 @@ D|选项D"></textarea>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>帖子状态</label>
+                    <label for="adminForumStatusSelect">帖子状态</label>
                     <select id="adminForumStatusSelect">
                         <option value="">全部状态</option>
                         <option value="normal">正常帖子</option>
@@ -5162,22 +5341,22 @@ D|选项D"></textarea>
 
         <div class="profile-section">
             <h3>✏️ 个人信息编辑</h3>
-            <div class="profile-setting-item" onclick="showEditProfileModal()">
+            <button type="button" class="profile-setting-item" onclick="showEditProfileModal()" style="width:100%;background:none;border:none;padding:0;text-align:left;cursor:pointer;">
                 <span>📝 修改个人信息</span>
                 <span class="setting-arrow">></span>
-            </div>
+            </button>
         </div>
 
         <div class="profile-section">
             <h3>⚙️ 账号设置</h3>
-            <div class="profile-setting-item" onclick="showChangeApiKeyModal()">
+            <button type="button" class="profile-setting-item" onclick="showChangeApiKeyModal()" style="width:100%;background:none;border:none;padding:0;text-align:left;cursor:pointer;">
                 <span>🔑 修改云端同步密钥</span>
                 <span class="setting-arrow">></span>
-            </div>
-            <div class="profile-setting-item" onclick="logout()">
+            </button>
+            <button type="button" class="profile-setting-item" onclick="logout()" style="width:100%;background:none;border:none;padding:0;text-align:left;cursor:pointer;">
                 <span>🚪 退出登录</span>
                 <span class="setting-arrow">></span>
-            </div>
+            </button>
         </div>
 
         <div class="btn-group" style="margin-top: 20px;">
@@ -5251,7 +5430,7 @@ D|选项D"></textarea>
         </div>
         
         <div class="form-group">
-            <label>选择板块</label>
+            <label for="publishBoardSelect">选择板块</label>
             <select id="publishBoardSelect">
                 <option value="1">🔥 烤肉技巧交流</option>
                 <option value="2">📚 培训考试专区</option>
@@ -5261,12 +5440,12 @@ D|选项D"></textarea>
         </div>
         
         <div class="form-group">
-            <label>帖子标题</label>
+            <label for="publishTitle">帖子标题</label>
             <input type="text" id="publishTitle" placeholder="请输入帖子标题">
         </div>
         
         <div class="form-group">
-            <label>关联知识点（可选）</label>
+            <label for="publishKnowledgeSelect">关联知识点（可选）</label>
             <select id="publishKnowledgeSelect">
                 <option value="">不关联知识点</option>
                 <option value="烤肉技巧">烤肉技巧</option>
@@ -5278,12 +5457,12 @@ D|选项D"></textarea>
         </div>
         
         <div class="form-group">
-            <label>话题标签（可选，多个用空格分隔</label>
+            <label for="publishTags">话题标签（可选，多个用空格分隔</label>
             <input type="text" id="publishTags" placeholder="#五花肉烤制 #牛肉烤制 #食材配比...">
         </div>
         
         <div class="form-group">
-            <label>帖子内容</label>
+            <div class="form-group-label">帖子内容</div>
             <div id="publishEditor"></div>
         </div>
     </div>
@@ -5433,10 +5612,10 @@ D|选项D"></textarea>
         <div class="modal-content" style="max-width: 500px;">
             <h2>✏️ 编辑个人信息</h2>
             <div class="form-group">
-                <label>头像</label>
+                <div class="form-group-label">头像</div>
                 <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                     <div id="avatarPreview" class="avatar-preview" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-blue), #764ba2); display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; overflow: hidden;">
-                        <img id="avatarPreviewImg" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                        <img id="avatarPreviewImg" alt="用户头像预览" style="display: none; width: 100%; height: 100%; object-fit: cover;">
                         <span id="avatarPreviewText">👤</span>
                     </div>
                     <div style="flex: 1;">
@@ -5446,11 +5625,11 @@ D|选项D"></textarea>
                 </div>
             </div>
             <div class="form-group">
-                <label>姓名 *</label>
+                <label for="editProfileName">姓名 *</label>
                 <input type="text" id="editProfileName" placeholder="请输入姓名">
             </div>
             <div class="form-group">
-                <label>所属门店 *</label>
+                <label for="editProfileShop">所属门店 *</label>
                 <select id="editProfileShop">
                     <option value="">请选择门店</option>
                     <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
@@ -5460,7 +5639,7 @@ D|选项D"></textarea>
                 </select>
             </div>
             <div class="form-group">
-                <label>联系方式</label>
+                <label for="editProfilePhone">联系方式</label>
                 <input type="text" id="editProfilePhone" placeholder="请输入手机号">
             </div>
             <div class="btn-group">
@@ -5481,7 +5660,7 @@ D|选项D"></textarea>
 
         <div class="forum-search-bar">
             <div class="form-group">
-                <label>榜单类型</label>
+                <label for="rankTypeSelect">榜单类型</label>
                 <select id="rankTypeSelect">
                     <option value="score">单场成绩</option>
                     <option value="count">考试场数</option>
@@ -5489,7 +5668,7 @@ D|选项D"></textarea>
                 </select>
             </div>
             <div class="form-group">
-                <label>筛选门店</label>
+                <label for="rankShopSelect">筛选门店</label>
                 <select id="rankShopSelect">
                     <option value="">全部门店</option>
                     <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
@@ -5499,7 +5678,7 @@ D|选项D"></textarea>
                 </select>
             </div>
             <div class="form-group">
-                <label>筛选时间</label>
+                <label for="rankTimeSelect">筛选时间</label>
                 <select id="rankTimeSelect">
                     <option value="all">全部时间</option>
                     <option value="week">最近一周</option>
@@ -5522,23 +5701,23 @@ D|选项D"></textarea>
         </div>
         <div class="forum-post-list">
             <div class="form-group">
-                <label>用户名 *</label>
+                <label for="regUsername">用户名 *</label>
                 <input type="text" id="regUsername" placeholder="请输入用户名">
             </div>
             <div class="form-group">
-                <label>密码 *</label>
+                <label for="regPassword">密码 *</label>
                 <input type="password" id="regPassword" placeholder="请输入密码">
             </div>
             <div class="form-group">
-                <label>确认密码 *</label>
+                <label for="regConfirmPassword">确认密码 *</label>
                 <input type="password" id="regConfirmPassword" placeholder="请再次输入密码">
             </div>
             <div class="form-group">
-                <label>姓名 *</label>
+                <label for="regName">姓名 *</label>
                 <input type="text" id="regName" placeholder="请输入真实姓名">
             </div>
             <div class="form-group">
-                <label>所属门店 *</label>
+                <label for="regShop">所属门店 *</label>
                 <select id="regShop">
                     <option value="">请选择门店</option>
                     <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
@@ -5548,7 +5727,7 @@ D|选项D"></textarea>
                 </select>
             </div>
             <div class="form-group">
-                <label>联系方式</label>
+                <label for="regPhone">联系方式</label>
                 <input type="text" id="regPhone" placeholder="请输入手机号">
             </div>
             <div class="btn-group" style="margin-top: 20px;">
@@ -5896,6 +6075,82 @@ D|选项D"></textarea>
             }
         };
 
+        // ==================== 性能优化工具模块 ====================
+        const PerformanceOptimizer = {
+            debounceCache: new Map(),
+            throttleCache: new Map(),
+            memoCache: new Map(),
+            
+            debounce(func, wait = 300) {
+                const key = func.toString() + wait;
+                if (this.debounceCache.has(key)) {
+                    return this.debounceCache.get(key);
+                }
+                
+                let timeout;
+                const debounced = (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+                
+                this.debounceCache.set(key, debounced);
+                return debounced;
+            },
+            
+            throttle(func, limit = 100) {
+                const key = func.toString() + limit;
+                if (this.throttleCache.has(key)) {
+                    return this.throttleCache.get(key);
+                }
+                
+                let inThrottle;
+                const throttled = (...args) => {
+                    if (!inThrottle) {
+                        func.apply(this, args);
+                        inThrottle = true;
+                        setTimeout(() => inThrottle = false, limit);
+                    }
+                };
+                
+                this.throttleCache.set(key, throttled);
+                return throttled;
+            },
+            
+            memoize(func) {
+                const key = func.toString();
+                if (this.memoCache.has(key)) {
+                    return this.memoCache.get(key);
+                }
+                
+                const cache = new Map();
+                const memoized = (...args) => {
+                    const cacheKey = JSON.stringify(args);
+                    if (cache.has(cacheKey)) {
+                        return cache.get(cacheKey);
+                    }
+                    const result = func.apply(this, args);
+                    cache.set(cacheKey, result);
+                    return result;
+                };
+                
+                this.memoCache.set(key, memoized);
+                return memoized;
+            },
+            
+            requestIdleCallback(callback) {
+                if (window.requestIdleCallback) {
+                    return window.requestIdleCallback(callback);
+                }
+                return setTimeout(callback, 1);
+            },
+            
+            clearAllCaches() {
+                this.debounceCache.clear();
+                this.throttleCache.clear();
+                this.memoCache.clear();
+            }
+        };
+
         // ==================== 用户管理模块 ====================
         const UserManager = {
             currentUsers: [],
@@ -5951,11 +6206,20 @@ D|选项D"></textarea>
                         throw new Error('请填写必填字段');
                     }
 
+                    if (!phone || phone.length !== 11) {
+                        throw new Error('请填写11位手机号');
+                    }
+
                     const users = await this.getUsers();
-                    const existingUser = users.find(u => u.username === username);
+                    const existingUser = users.find(u => u.username === username || u.phone === phone);
                     
                     if (existingUser) {
-                        throw new Error('用户名已存在');
+                        if (existingUser.username === username) {
+                            throw new Error('用户名已存在');
+                        }
+                        if (existingUser.phone === phone) {
+                            throw new Error('手机号已被注册');
+                        }
                     }
 
                     const newUser = {
@@ -5964,18 +6228,32 @@ D|选项D"></textarea>
                         password: md5(password),
                         name: name,
                         shop: shop,
-                        phone: phone || '',
-                        status: 'pending',
+                        phone: phone,
+                        status: 'approved',
                         role: 'employee',
+                        type: 'employee',
                         loginDevices: [],
-                        auditTime: null,
-                        auditRemark: '',
+                        auditTime: new Date().toISOString(),
+                        auditRemark: '自动注册通过',
                         createTime: new Date().toISOString(),
                         updateTime: new Date().toISOString()
                     };
 
                     users.push(newUser);
                     await this.saveUsers(users);
+
+                    const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                    phoneBindings[phone] = {
+                        id: newUser.id,
+                        username: newUser.username,
+                        name: newUser.name,
+                        shop: newUser.shop,
+                        role: newUser.role,
+                        type: newUser.type,
+                        status: newUser.status,
+                        bindTime: new Date().toISOString()
+                    };
+                    localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(phoneBindings));
 
                     console.log('[用户管理] 注册成功:', username);
                     return newUser;
@@ -6478,18 +6756,15 @@ D|选项D"></textarea>
             currentRankType: 'score',
             currentShopFilter: '',
             currentTimeFilter: 'all',
+            STORAGE_KEY: {
+                SCORES: 'hht_rank_scores',
+                RANK_DATA: 'hht_rank_data'
+            },
 
             async syncScore(examResult) {
                 try {
-                    const scoreBinId = jsonbinRequest.getBinId('score');
-                    if (!scoreBinId) {
-                        console.log('[排行榜] 未配置 score Bin ID');
-                        return;
-                    }
-
-                    const scoreData = await jsonbinRequest.get(scoreBinId) || {};
-                    const scores = scoreData.scores || [];
-
+                    const scores = this.getLocalScores();
+                    
                     const newScore = {
                         id: Date.now() + Math.random(),
                         userId: examResult.phone,
@@ -6502,28 +6777,59 @@ D|选项D"></textarea>
                     };
 
                     scores.push(newScore);
-                    scoreData.scores = scores;
-
-                    await jsonbinRequest.put(scoreBinId, scoreData);
-
+                    this.saveLocalScores(scores);
+                    
                     await this.updateRankList();
-
+                    
                     console.log('[排行榜] 成绩同步成功');
                 } catch (error) {
                     console.error('[排行榜] 成绩同步失败:', error);
                 }
             },
 
+            getLocalScores() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY.SCORES) || '[]');
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            saveLocalScores(scores) {
+                localStorage.setItem(this.STORAGE_KEY.SCORES, JSON.stringify(scores));
+            },
+
+            getLocalRankData() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY.RANK_DATA) || '{}');
+                } catch (e) {
+                    return {};
+                }
+            },
+
+            saveLocalRankData(data) {
+                localStorage.setItem(this.STORAGE_KEY.RANK_DATA, JSON.stringify(data));
+            },
+
             async getScores() {
                 try {
                     const scoreBinId = jsonbinRequest.getBinId('score');
-                    if (!scoreBinId) return [];
+                    if (!scoreBinId) {
+                        return this.getLocalScores();
+                    }
 
                     const data = await jsonbinRequest.get(scoreBinId) || {};
-                    return data.scores || [];
+                    const cloudScores = data.scores || [];
+                    
+                    if (cloudScores.length > 0) {
+                        this.saveLocalScores(cloudScores);
+                        return cloudScores;
+                    }
+                    
+                    return this.getLocalScores();
                 } catch (error) {
-                    console.error('[排行榜] 获取成绩失败:', error);
-                    return [];
+                    console.log('[排行榜] 使用本地数据:', error.message);
+                    return this.getLocalScores();
                 }
             },
 
@@ -6551,12 +6857,6 @@ D|选项D"></textarea>
 
             async updateRankList() {
                 try {
-                    const rankBinId = jsonbinRequest.getBinId('rank');
-                    if (!rankBinId) {
-                        console.log('[排行榜] 未配置 rank Bin ID');
-                        return;
-                    }
-
                     const scores = await this.getScores();
                     const filtered = this.filterScores(scores);
 
@@ -6606,8 +6906,17 @@ D|选项D"></textarea>
                         updateTime: new Date().toISOString()
                     };
 
-                    await jsonbinRequest.put(rankBinId, rankData);
+                    try {
+                        const rankBinId = jsonbinRequest.getBinId('rank');
+                        if (rankBinId) {
+                            await jsonbinRequest.put(rankBinId, rankData);
+                        }
+                    } catch (e) {
+                        console.log('[排行榜] 云端同步跳过，使用本地存储');
+                    }
 
+                    this.saveLocalRankData(rankData);
+                    
                     console.log('[排行榜] 榜单更新成功');
                 } catch (error) {
                     console.error('[排行榜] 榜单更新失败:', error);
@@ -6617,29 +6926,40 @@ D|选项D"></textarea>
             async getRankData() {
                 try {
                     const rankBinId = jsonbinRequest.getBinId('rank');
-                    if (!rankBinId) return null;
-
-                    return await jsonbinRequest.get(rankBinId) || {};
+                    if (rankBinId) {
+                        try {
+                            const data = await jsonbinRequest.get(rankBinId) || {};
+                            if (data.scoreRank) {
+                                this.saveLocalRankData(data);
+                                return data;
+                            }
+                        } catch (e) {
+                            console.log('[排行榜] 云端获取失败，使用本地数据');
+                        }
+                    }
+                    return this.getLocalRankData();
                 } catch (error) {
                     console.error('[排行榜] 获取榜单失败:', error);
-                    return {};
+                    return this.getLocalRankData();
                 }
             },
 
             async removeUserFromRank(userId) {
                 try {
-                    const scoreBinId = jsonbinRequest.getBinId('score');
-                    if (!scoreBinId) {
-                        console.log('[排行榜] 未配置 score Bin ID');
-                        return false;
+                    const scores = this.getLocalScores();
+                    const filteredScores = scores.filter(s => s.userId !== userId);
+                    this.saveLocalScores(filteredScores);
+                    
+                    try {
+                        const scoreBinId = jsonbinRequest.getBinId('score');
+                        if (scoreBinId) {
+                            const scoreData = await jsonbinRequest.get(scoreBinId) || {};
+                            scoreData.scores = filteredScores;
+                            await jsonbinRequest.put(scoreBinId, scoreData);
+                        }
+                    } catch (e) {
+                        console.log('[排行榜] 云端同步跳过');
                     }
-
-                    const scoreData = await jsonbinRequest.get(scoreBinId) || {};
-                    const scores = scoreData.scores || [];
-                    
-                    scoreData.scores = scores.filter(s => s.userId !== userId);
-                    
-                    await jsonbinRequest.put(scoreBinId, scoreData);
                     
                     await this.updateRankList();
                     await this.renderRankList();
@@ -8681,6 +9001,10 @@ D|选项D"></textarea>
 
         // ==================== 考试能力增强模块 v8.3 ====================
         const ExamEnhancement = {
+            init() {
+                console.log('[考试增强] 模块初始化完成');
+            },
+            
             KNOWLEDGE_AREAS: [
                 '烤肉技巧',
                 '食材配比',
@@ -9817,6 +10141,271 @@ D|选项D"></textarea>
                         card.classList.add('active');
                     }
                 });
+            }
+        };
+
+        // ==================== 全局数据同步管理模块 v1.0 ====================
+        const GlobalSyncManager = {
+            isEnabled: true,
+            syncThrottle: null,
+            syncDelay: 500,
+
+            init() {
+                this.setupGlobalSyncTrigger();
+                console.log('[全局同步] 数据同步管理器初始化完成');
+            },
+
+            setupGlobalSyncTrigger() {
+                if (!this.isEnabled) return;
+
+                document.addEventListener('click', (e) => {
+                    const target = e.target;
+                    
+                    if (target.tagName === 'BUTTON' || 
+                        target.closest('button') ||
+                        target.classList.contains('nav-btn') ||
+                        target.closest('.nav-btn') ||
+                        target.classList.contains('admin-tab') ||
+                        target.closest('.admin-tab') ||
+                        target.classList.contains('profile-setting-item') ||
+                        target.closest('.profile-setting-item') ||
+                        target.classList.contains('post-item') ||
+                        target.closest('.post-item')) {
+                        
+                        this.triggerLightweightSync();
+                    }
+                }, true);
+            },
+
+            triggerLightweightSync() {
+                if (this.syncThrottle) {
+                    clearTimeout(this.syncThrottle);
+                }
+
+                this.syncThrottle = setTimeout(() => {
+                    this.performLightweightSync();
+                }, this.syncDelay);
+            },
+
+            performLightweightSync() {
+                try {
+                    if (SYSTEM_CONFIG.cloudEnabled && SYSTEM_CONFIG.jsonBinApiKey) {
+                        CloudSync.syncFromCloud().catch(e => {
+                            console.log('[全局同步] 轻量同步跳过:', e.message);
+                        });
+                    }
+                    
+                    if (currentUser) {
+                        RankSystem.updateRankList();
+                    }
+                    
+                    console.log('[全局同步] 轻量数据同步完成');
+                } catch (e) {
+                    console.warn('[全局同步] 同步异常:', e);
+                }
+            },
+
+            forceFullSync() {
+                if (SYSTEM_CONFIG.cloudEnabled && SYSTEM_CONFIG.jsonBinApiKey) {
+                    CloudSync.syncToCloud();
+                }
+                RankSystem.updateRankList();
+                if (typeof ForumSystem.renderForum === 'function') {
+                    ForumSystem.renderForum();
+                }
+                console.log('[全局同步] 全量数据同步完成');
+            }
+        };
+
+        // ==================== 拼图验证模块 v1.0 ====================
+        const CaptchaSystem = {
+            targetX: 0,
+            targetY: 0,
+            puzzleWidth: 50,
+            puzzleHeight: 50,
+            isVerified: false,
+            canvas: null,
+            sliderCanvas: null,
+            slider: null,
+            
+            init() {
+                this.canvas = document.getElementById('captchaCanvas');
+                this.sliderCanvas = document.getElementById('captchaSliderCanvas');
+                this.slider = document.getElementById('captchaSlider');
+                
+                if (!this.canvas || !this.sliderCanvas || !this.slider) {
+                    console.log('[拼图验证] 元素未找到，跳过初始化');
+                    return;
+                }
+                
+                this.generateCaptcha();
+                this.bindEvents();
+                console.log('[拼图验证] 模块初始化完成');
+            },
+            
+            generateCaptcha() {
+                const ctx = this.canvas.getContext('2d');
+                const width = 300;
+                const height = 150;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.font = 'bold 80px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('✓', width / 2, height / 2);
+                
+                this.targetX = 100 + Math.random() * 150;
+                this.targetY = 30 + Math.random() * 70;
+                
+                ctx.save();
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                this.drawPuzzlePiece(ctx, this.targetX, this.targetY);
+                ctx.restore();
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                this.drawPuzzleOutline(ctx, this.targetX, this.targetY);
+                
+                this.drawSliderPuzzle();
+                this.isVerified = false;
+                this.slider.value = 0;
+                
+                document.getElementById('captchaResult').innerHTML = '';
+                document.getElementById('captchaResult').style.color = '#666';
+            },
+            
+            drawPuzzlePiece(ctx, x, y) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + this.puzzleWidth, y);
+                ctx.lineTo(x + this.puzzleWidth, y + this.puzzleHeight / 2);
+                ctx.arc(x + this.puzzleWidth + 8, y + this.puzzleHeight / 2, 8, Math.PI, 0, false);
+                ctx.lineTo(x + this.puzzleWidth, y + this.puzzleHeight / 2);
+                ctx.lineTo(x + this.puzzleWidth, y + this.puzzleHeight);
+                ctx.lineTo(x, y + this.puzzleHeight);
+                ctx.lineTo(x, y + this.puzzleHeight / 2);
+                ctx.arc(x - 8, y + this.puzzleHeight / 2, 8, 0, Math.PI, false);
+                ctx.lineTo(x, y + this.puzzleHeight / 2);
+                ctx.closePath();
+                ctx.fill();
+            },
+            
+            drawPuzzleOutline(ctx, x, y) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + this.puzzleWidth, y);
+                ctx.lineTo(x + this.puzzleWidth, y + this.puzzleHeight / 2);
+                ctx.arc(x + this.puzzleWidth + 8, y + this.puzzleHeight / 2, 8, Math.PI, 0, false);
+                ctx.lineTo(x + this.puzzleWidth, y + this.puzzleHeight / 2);
+                ctx.lineTo(x + this.puzzleWidth, y + this.puzzleHeight);
+                ctx.lineTo(x, y + this.puzzleHeight);
+                ctx.lineTo(x, y + this.puzzleHeight / 2);
+                ctx.arc(x - 8, y + this.puzzleHeight / 2, 8, 0, Math.PI, false);
+                ctx.lineTo(x, y + this.puzzleHeight / 2);
+                ctx.closePath();
+                ctx.stroke();
+            },
+            
+            drawSliderPuzzle() {
+                const ctx = this.sliderCanvas.getContext('2d');
+                ctx.clearRect(0, 0, this.puzzleWidth + 16, this.puzzleHeight + 16);
+                
+                const gradient = ctx.createLinearGradient(0, 0, this.puzzleWidth, this.puzzleHeight);
+                gradient.addColorStop(0, '#f093fb');
+                gradient.addColorStop(1, '#f5576c');
+                ctx.fillStyle = gradient;
+                
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(8, 8);
+                ctx.lineTo(8 + this.puzzleWidth, 8);
+                ctx.lineTo(8 + this.puzzleWidth, 8 + this.puzzleHeight / 2);
+                ctx.arc(8 + this.puzzleWidth + 8, 8 + this.puzzleHeight / 2, 8, Math.PI, 0, false);
+                ctx.lineTo(8 + this.puzzleWidth, 8 + this.puzzleHeight / 2);
+                ctx.lineTo(8 + this.puzzleWidth, 8 + this.puzzleHeight);
+                ctx.lineTo(8, 8 + this.puzzleHeight);
+                ctx.lineTo(8, 8 + this.puzzleHeight / 2);
+                ctx.arc(8 - 8, 8 + this.puzzleHeight / 2, 8, 0, Math.PI, false);
+                ctx.lineTo(8, 8 + this.puzzleHeight / 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            },
+            
+            bindEvents() {
+                let isDragging = false;
+                let startX = 0;
+                
+                this.slider.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = parseInt(this.slider.value);
+                    this.sliderCanvas.style.display = 'block';
+                    this.sliderCanvas.style.left = '0px';
+                    this.sliderCanvas.style.top = this.targetY + 'px';
+                });
+                
+                this.slider.addEventListener('input', (e) => {
+                    if (isDragging) {
+                        const value = parseInt(e.target.value);
+                        this.sliderCanvas.style.left = value + 'px';
+                    }
+                });
+                
+                this.slider.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        this.verify();
+                    }
+                    isDragging = false;
+                });
+                
+                this.slider.addEventListener('mouseleave', () => {
+                    if (isDragging) {
+                        this.verify();
+                    }
+                    isDragging = false;
+                });
+            },
+            
+            verify() {
+                const value = parseInt(this.slider.value);
+                const tolerance = 10;
+                
+                if (Math.abs(value - this.targetX) <= tolerance) {
+                    this.isVerified = true;
+                    this.sliderCanvas.style.left = this.targetX + 'px';
+                    this.slider.value = this.targetX;
+                    
+                    document.getElementById('captchaResult').innerHTML = '✅ 验证成功！';
+                    document.getElementById('captchaResult').style.color = '#28a745';
+                    
+                    setTimeout(() => {
+                        this.generateCaptcha();
+                    }, 2000);
+                } else {
+                    document.getElementById('captchaResult').innerHTML = '❌ 验证失败，请重试';
+                    document.getElementById('captchaResult').style.color = '#dc3545';
+                    
+                    setTimeout(() => {
+                        this.generateCaptcha();
+                    }, 1000);
+                }
+            },
+            
+            reset() {
+                this.generateCaptcha();
             }
         };
 
@@ -11056,6 +11645,12 @@ D|选项D"></textarea>
             // 初始化增强同步模块
             EnhancedSync.init();
             
+            // 初始化全局数据同步管理器
+            GlobalSyncManager.init();
+            
+            // 初始化拼图验证模块
+            CaptchaSystem.init();
+            
             // 检查并显示版本更新总结弹窗
             const updateSummaryShown = localStorage.getItem('hht_update_summary_shown_20260321');
             if (!updateSummaryShown) {
@@ -12258,15 +12853,17 @@ D|选项D"></textarea>
         // ==================== 手机号绑定验证 ====================
         function checkPhoneBinding(phone, name, shop, password) {
             const bindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
-            if (bindings[phone]) {
-                const binding = bindings[phone];
-                if (binding.name !== name || binding.shop !== shop) {
-                    return { valid: false, message: `该手机号已绑定账号：${binding.name}（${binding.shop}），如需修改请联系管理员` };
-                }
-                if (binding.password && binding.password !== md5(password)) {
-                    return { valid: false, message: '密码错误' };
-                }
-                return { valid: true, message: '' };
+            
+            if (!bindings[phone]) {
+                return { valid: false, message: '该手机号尚未注册，请先完成注册' };
+            }
+            
+            const binding = bindings[phone];
+            if (binding.name !== name || binding.shop !== shop) {
+                return { valid: false, message: `该手机号已绑定账号：${binding.name}（${binding.shop}），如需修改请联系管理员` };
+            }
+            if (binding.password && binding.password !== md5(password)) {
+                return { valid: false, message: '密码错误' };
             }
             return { valid: true, message: '' };
         }
@@ -12284,6 +12881,12 @@ D|选项D"></textarea>
 
         function handleLogin() {
             console.log('[handleLogin] 开始登录，当前角色:', currentRole);
+            
+            // 验证拼图验证是否通过
+            if (currentRole === 'employee' && !CaptchaSystem.isVerified) {
+                showTipModal('验证失败', '请先完成拼图验证');
+                return;
+            }
             
             if (!validateLoginForm()) {
                 const phoneVal = elements.phone.value.trim();
@@ -14482,8 +15085,8 @@ D|选项D"></textarea>
             const shop = document.getElementById('regShop').value;
             const phone = document.getElementById('regPhone').value.trim();
 
-            if (!username || !password || !name || !shop) {
-                showTipModal('注册失败', '请填写必填字段');
+            if (!username || !password || !name || !shop || !phone) {
+                showTipModal('注册失败', '请填写所有必填字段');
                 return;
             }
 
@@ -14492,11 +15095,41 @@ D|选项D"></textarea>
                 return;
             }
 
+            if (password.length < 6) {
+                showTipModal('注册失败', '密码长度不能少于6位');
+                return;
+            }
+
             try {
-                await UserManager.userRegister({ username, password, name, shop, phone });
-                showTipModal('注册成功', '您的账号已提交，等待管理员审核');
-                document.getElementById('registerContainer').style.display = 'none';
-                document.getElementById('loginContainer').style.display = 'block';
+                const newUser = await UserManager.userRegister({ username, password, name, shop, phone });
+                
+                currentUser = {
+                    phone: newUser.phone,
+                    name: newUser.name,
+                    shop: newUser.shop,
+                    type: newUser.type,
+                    role: newUser.role
+                };
+                localStorage.setItem(STORAGE_KEY.CURRENT_USER, JSON.stringify(currentUser));
+                
+                showTipModal('注册成功', '注册成功！即将进入系统...');
+                
+                setTimeout(() => {
+                    document.getElementById('registerContainer').style.display = 'none';
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('examContainer').style.display = 'block';
+                    initExamContainer();
+                    showHistory();
+                    
+                    if (SYSTEM_CONFIG.cloudEnabled && SYSTEM_CONFIG.jsonBinApiKey) {
+                        CloudSync.syncToCloud().catch(e => {
+                            console.log('[数据同步] 注册同步:', e.message);
+                        });
+                    }
+                    
+                    GlobalSyncManager.forceFullSync();
+                }, 1500);
+                
             } catch (e) {
                 showTipModal('注册失败', e.message);
             }
@@ -14772,7 +15405,7 @@ D|选项D"></textarea>
         }
         
         // 初始化时添加用户管理模块初始化
-        const originalInit = () => {};
+        let originalInit = () => {};
 
         // ==================== 编辑个人信息事件监听 ====================
         function showEditProfileModal() {
