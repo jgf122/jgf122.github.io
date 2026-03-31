@@ -9,11 +9,25 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#121228">
+    <meta name="description" content="韩花亭烤肉员工培训考试系统">
+    <meta name="keywords" content="韩花亭,烤肉,培训,考试">
+    <meta name="author" content="韩花亭">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <title>韩花亭烤肉考试系统 v2.19.0</title>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    
+    <!-- CDN预连接 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.sheetjs.com">
+    <link rel="dns-prefetch" href="https://cdn.sheetjs.com">
+    
+    <!-- 第三方库（版本锁定 + 异步加载） -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
     <style>
         * {
@@ -574,65 +588,7 @@
             .card:hover { transform: translateY(-6px); }
         }
         /* ==================== 核心复用组件结束 ==================== */
-        /* 通用弹窗样式 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            animation: modalFadeIn 0.3s ease-out;
-        }
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .modal-content {
-            background: var(--bg-card);
-            backdrop-filter: var(--glass-blur);
-            padding: 30px;
-            border-radius: 16px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--neon-glow);
-            border: 1px solid var(--border-color);
-            animation: modalSlideUp 0.3s ease-out;
-            position: relative;
-            z-index: 1;
-        }
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .modal-content:hover {
-            border-color: var(--border-color-hover);
-            box-shadow: 0 0 15px rgba(255, 122, 69, 0.6), 0 0 30px rgba(22, 93, 255, 0.4);
-        }
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 0 0 20px rgba(255, 122, 69, 0.3);
-        }
+        /* 通用弹窗按钮样式 */
         .modal-btn-group {
             display: flex;
             gap: 10px;
@@ -955,7 +911,6 @@
             color: #fff;
             box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
             margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
         }
         .admin-switch:hover {
             background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
@@ -1038,65 +993,6 @@
         @keyframes pulse {
             from { opacity: 1; }
             to { opacity: 0.8; }
-        }
-        /* 通用卡片样式 */
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: var(--glass-blur);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            z-index: 1;
-        }
-        .card:hover {
-            border-color: var(--border-color-hover);
-            box-shadow: var(--neon-glow);
-            transform: translateY(-4px);
-        }
-        /* 通用按钮样式 */
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        .btn:hover::before {
-            left: 100%;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-orange-dark) 100%);
-            color: #fff;
-            box-shadow: var(--neon-orange);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(255, 122, 69, 0.7);
-        }
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
-            color: #fff;
-            box-shadow: var(--neon-blue);
-        }
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(22, 93, 255, 0.7);
         }
         /* 通用输入框样式 */
         .input {
@@ -1903,30 +1799,6 @@
             transform: translateY(-2px);
             box-shadow: 0 0 25px rgba(255, 77, 79, 0.7);
         }
-        .record-item {
-            padding: 20px;
-            border-bottom: 1px solid #f0f0f0;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background: #f9f9f9;
-        }
-        .record-item h4 {
-            color: var(--brand-red);
-            margin-bottom: 10px;
-            font-size: 16px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .record-item .record-meta {
-            color: var(--text-gray);
-            font-size: 14px;
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 5px;
-        }
         .score-edit {
             margin-top: 15px;
             display: flex;
@@ -2010,7 +1882,6 @@
             margin-bottom: 25px;
             border-bottom: 2px solid #e8e8e8;
             flex-wrap: wrap;
-            padding-bottom: 0;
             background: linear-gradient(135deg, #fafbfc 0%, #f0f2f5 100%);
             border-radius: 12px 12px 0 0;
             padding: 15px 15px 0 15px;
@@ -2476,55 +2347,6 @@
                 align-items: stretch;
             }
         }
-        /* 店长权限提示 */
-        .shop-limit-tip {
-            background: #f3e8ff;
-            color: var(--brand-purple);
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--brand-purple);
-        }
-        /* 表单组样式 */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-dark);
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--brand-red);
-        }
-        .form-row {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .form-row .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        .checkbox-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
         /* 响应式适配 */
         @media (max-width: 768px) {
             body {
@@ -2708,16 +2530,6 @@
         }
         .upload-area input {
             display: none;
-        }
-        /* 云端预留接口提示 */
-        .cloud-reserve-tip {
-            background: #e8f4ff;
-            color: var(--brand-blue);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px dashed var(--brand-blue);
-            text-align: center;
         }
         /* 自动保存提示 */
         .auto-save-tip {
@@ -3459,270 +3271,6 @@
         .sensitive-tip-text {
             color: var(--danger);
             font-weight: 500;
-        }
-        
-        .forum-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--brand-blue);
-        }
-        
-        .forum-header h2 {
-            color: var(--brand-blue);
-            font-size: 24px;
-        }
-        
-        .forum-search-bar {
-            margin-bottom: 20px;
-        }
-        
-        .forum-search-bar .form-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .forum-search-bar input {
-            flex: 1;
-        }
-        
-        .forum-boards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .board-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-        
-        .board-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-        }
-        
-        .board-card.active {
-            border-color: var(--brand-blue);
-            background: linear-gradient(135deg, rgba(22,93,255,0.05), rgba(22,93,255,0.1));
-        }
-        
-        .board-card h3 {
-            color: var(--brand-blue);
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-        
-        .board-card p {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        
-        .board-stats {
-            display: flex;
-            gap: 15px;
-            font-size: 13px;
-            color: #999;
-        }
-        
-        .forum-post-list {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .post-item {
-            padding: 20px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.2s;
-        }
-        
-        .post-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .post-item:last-child {
-            border-bottom: none;
-        }
-        
-        .post-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        
-        .post-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            cursor: pointer;
-            flex: 1;
-        }
-        
-        .post-title:hover {
-            color: var(--brand-blue);
-        }
-        
-        .post-tags {
-            display: flex;
-            gap: 8px;
-            margin: 8px 0;
-            flex-wrap: wrap;
-        }
-        
-        .post-tag {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        
-        .post-meta {
-            display: flex;
-            gap: 15px;
-            color: #999;
-            font-size: 13px;
-            align-items: center;
-        }
-        
-        .post-meta .grade-tag {
-            display: inline-block;
-        }
-        
-        .detail-post {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-        }
-        
-        .detail-post .detail-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .detail-post .detail-content {
-            color: #444;
-            line-height: 1.8;
-            font-size: 16px;
-            margin: 20px 0;
-        }
-        
-        .detail-actions {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .like-btn, .bookmark-btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .like-btn {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .like-btn:hover {
-            background: #ffeaa7;
-        }
-        
-        .like-btn.liked {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        
-        .bookmark-btn {
-            background: #e3f2fd;
-            color: #0d47a1;
-        }
-        
-        .bookmark-btn:hover {
-            background: #bbdefb;
-        }
-        
-        .bookmark-btn.bookmarked {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            color: white;
-        }
-        
-        .replies-section {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .replies-section h3 {
-            margin-bottom: 20px;
-            color: var(--brand-blue);
-        }
-        
-        .reply-form {
-            margin-bottom: 30px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .reply-item {
-            padding: 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .reply-item:last-child {
-            border-bottom: none;
-        }
-        
-        .reply-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .reply-author {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .reply-time {
-            color: #999;
-            font-size: 13px;
-        }
-        
-        .reply-content {
-            color: #444;
-            line-height: 1.6;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
         }
         
         @media (max-width: 768px) {
@@ -4678,6 +4226,12 @@ D|选项D"></textarea>
 
     <!-- 登录界面 -->
     <div class="login-container" id="loginContainer">
+        <!-- 统一身份验证提示 -->
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(22, 93, 255, 0.1); border-radius: 10px; border: 1px solid rgba(22, 93, 255, 0.3);">
+            <p style="color: var(--brand-blue); font-size: 14px; margin-bottom: 15px; font-weight: 500;">请通过公司统一身份验证站登录</p>
+            <button class="btn btn-secondary" onclick="AuthManager.redirectToAuthServer()" style="padding: 10px 20px; font-size: 14px;">🔐 前往统一身份验证站</button>
+        </div>
+        
         <!-- 品牌Logo与标题区域 -->
         <div class="brand-logo">
             <svg viewBox="0 0 100 100" width="80" height="80">
@@ -5793,7 +5347,139 @@ D|选项D"></textarea>
             TEMP_ANSWER: "hht_temp_answer_",
             PHONE_BINDINGS: "hht_phone_bindings",
             EXAM_SESSIONS: "hht_exam_sessions",
-            SECURITY_LOGS: "hht_security_logs"
+            SECURITY_LOGS: "hht_security_logs",
+            JWT_TOKEN: "hht_jwt_token",
+            AUTH_USER: "hht_auth_user"
+        };
+
+        // ==================== JWT Token 身份验证配置 ====================
+        const AUTH_CONFIG = {
+            // 前置身份验证站地址（可修改）
+            AUTH_SERVER_URL: "https://jgf122.github.io/turbo-octo-chainsaw/",
+            // Token在URL中的参数名
+            TOKEN_URL_PARAM: "token",
+            // Token在localStorage中的存储键名
+            TOKEN_STORAGE_KEY: STORAGE_KEY.JWT_TOKEN,
+            // 用户信息存储键名
+            USER_STORAGE_KEY: STORAGE_KEY.AUTH_USER,
+            // API请求时Token的Header名称
+            TOKEN_HEADER_NAME: "Authorization",
+            // Token前缀
+            TOKEN_PREFIX: "Bearer ",
+            // 401错误时的跳转地址
+            UNAUTHORIZED_REDIRECT_URL: "https://jgf122.github.io/turbo-octo-chainsaw/"
+        };
+
+        // ==================== JWT Token 工具函数 ====================
+        const AuthManager = {
+            // 从URL获取Token
+            getTokenFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(AUTH_CONFIG.TOKEN_URL_PARAM);
+            },
+
+            // 从localStorage获取Token
+            getTokenFromStorage() {
+                return localStorage.getItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
+            },
+
+            // 保存Token到localStorage
+            saveTokenToStorage(token) {
+                localStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, token);
+            },
+
+            // 从localStorage获取用户信息
+            getUserFromStorage() {
+                const userStr = localStorage.getItem(AUTH_CONFIG.USER_STORAGE_KEY);
+                return userStr ? JSON.parse(userStr) : null;
+            },
+
+            // 保存用户信息到localStorage
+            saveUserToStorage(user) {
+                localStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, JSON.stringify(user));
+            },
+
+            // 清除所有认证信息
+            clearAuth() {
+                localStorage.removeItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
+                localStorage.removeItem(AUTH_CONFIG.USER_STORAGE_KEY);
+            },
+
+            // 验证Token是否有效（基础验证）
+            isTokenValid(token) {
+                if (!token) return false;
+                try {
+                    // 简单验证Token格式（JWT格式: xxx.yyy.zzz）
+                    const parts = token.split('.');
+                    if (parts.length !== 3) return false;
+                    // 可以在这里添加更复杂的验证逻辑，如过期时间检查等
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            // 解码JWT Token（获取payload）
+            decodeToken(token) {
+                if (!token) return null;
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(jsonPayload);
+                } catch (e) {
+                    console.error('[Auth] Token解码失败:', e);
+                    return null;
+                }
+            },
+
+            // 获取当前有效的Token
+            getCurrentToken() {
+                // 优先从URL获取
+                let token = this.getTokenFromUrl();
+                if (this.isTokenValid(token)) {
+                    this.saveTokenToStorage(token);
+                    // 清除URL中的token参数（可选，保持URL整洁）
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete(AUTH_CONFIG.TOKEN_URL_PARAM);
+                    window.history.replaceState({}, '', url.toString());
+                    return token;
+                }
+                // 其次从localStorage获取
+                token = this.getTokenFromStorage();
+                if (this.isTokenValid(token)) {
+                    return token;
+                }
+                return null;
+            },
+
+            // 检查是否已认证
+            isAuthenticated() {
+                const token = this.getCurrentToken();
+                return this.isTokenValid(token);
+            },
+
+            // 跳转到身份验证站
+            redirectToAuthServer() {
+                window.location.href = AUTH_CONFIG.AUTH_SERVER_URL;
+            },
+
+            // 处理401未授权错误
+            handleUnauthorized() {
+                this.clearAuth();
+                window.location.href = AUTH_CONFIG.UNAUTHORIZED_REDIRECT_URL;
+            },
+
+            // 为API请求添加Token Header
+            addAuthHeaders(headers = {}) {
+                const token = this.getCurrentToken();
+                if (token) {
+                    headers[AUTH_CONFIG.TOKEN_HEADER_NAME] = AUTH_CONFIG.TOKEN_PREFIX + token;
+                }
+                return headers;
+            }
         };
 
         // ==================== 系统配置 ====================
@@ -5884,11 +5570,21 @@ D|选项D"></textarea>
                         signal: AbortSignal.timeout(JSONBIN_CONFIG.REQUEST_TIMEOUT)
                     };
 
+                    // 自动添加JWT Token到请求头
+                    options.headers = AuthManager.addAuthHeaders(options.headers);
+
                     if (data && (method.toUpperCase() === 'PUT' || method.toUpperCase() === 'PATCH')) {
                         options.body = JSON.stringify(data);
                     }
 
                     const response = await fetch(url, options);
+                    
+                    // 处理401未授权错误
+                    if (response.status === 401) {
+                        console.error('[JSONBin] 收到401未授权响应，跳转至身份验证站');
+                        AuthManager.handleUnauthorized();
+                        return null;
+                    }
                     
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -11527,8 +11223,30 @@ D|选项D"></textarea>
         // 当前试卷列表
         let PAPERS = [];
 
+        // ==================== 全局路由守卫 ====================
+        function authGuard() {
+            console.log('[AuthGuard] 启动身份验证检查...');
+            
+            // 检查是否已认证
+            if (AuthManager.isAuthenticated()) {
+                console.log('[AuthGuard] 身份验证通过，放行进入系统');
+                return true;
+            }
+            
+            console.log('[AuthGuard] 未检测到有效Token，跳转至身份验证站');
+            // 未认证，跳转到身份验证站
+            AuthManager.redirectToAuthServer();
+            return false;
+        }
+
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', function() {
+            // 【核心】首先执行全局路由守卫检查
+            if (!authGuard()) {
+                console.log('[Init] 路由守卫拦截，停止初始化');
+                return;
+            }
+            
             // 【核心修复】优先获取DOM元素，确保事件绑定正常
             elements = {
                 loginContainer: document.getElementById('loginContainer'),
