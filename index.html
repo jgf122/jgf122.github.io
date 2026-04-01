@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
@@ -24,7 +24,9 @@
     <link rel="dns-prefetch" href="https://cdn.sheetjs.com">
     
     <!-- 第三方库（版本锁定 + 异步加载） -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- ==================== SSO数据备份：使用指定的BootCDN ==================== -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- ==================== SSO数据备份代码结束 ==================== -->
     <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
@@ -4005,6 +4007,645 @@
                 margin: 5px 0 !important;
             }
         }
+        
+        /* ==================== 全响应式移动端标准化适配 - 考试系统 ==================== */
+        
+        /* 全局根字体设置 */
+        html {
+            font-size: 16px;
+        }
+        
+        /* 按钮最小尺寸48px，间距不小于8px */
+        .btn,
+        .login-btn,
+        .modal-btn,
+        .action-btn,
+        .tab-btn,
+        .admin-tab,
+        .admin-tab-content button,
+        .profile-setting-item {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        
+        /* 按钮间距 */
+        .btn-group {
+            gap: 8px;
+        }
+        
+        /* 输入框高度不小于44px，字体不小于14px */
+        input,
+        select,
+        textarea,
+        .form-input {
+            min-height: 44px;
+            font-size: 14px;
+        }
+        
+        /* 表格支持横向滚动 */
+        .data-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .data-table {
+            min-width: 800px;
+        }
+        
+        /* 适配区间：320px - 430px 手机竖屏（重点优化） */
+        @media screen and (max-width: 430px) {
+            html {
+                font-size: 15px;
+            }
+            
+            /* 登录页面适配 */
+            .login-container {
+                width: 90% !important;
+                max-width: 400px !important;
+                padding: 24px 20px !important;
+            }
+            
+            .brand-logo svg {
+                width: 60px !important;
+                height: 60px !important;
+            }
+            
+            .brand-title {
+                font-size: 20px !important;
+            }
+            
+            .brand-subtitle {
+                font-size: 12px !important;
+            }
+            
+            .login-input label {
+                font-size: 14px !important;
+            }
+            
+            .login-input input,
+            .login-input select {
+                font-size: 15px !important;
+                padding: 12px 16px !important;
+                min-height: 50px !important;
+            }
+            
+            .login-btn {
+                font-size: 15px !important;
+                padding: 14px 24px !important;
+                min-height: 52px !important;
+            }
+            
+            /* 考试答题页适配 */
+            .exam-container {
+                padding: 10px !important;
+            }
+            
+            .header {
+                padding: 15px !important;
+            }
+            
+            .header h1 {
+                font-size: 18px !important;
+            }
+            
+            .header p {
+                font-size: 13px !important;
+            }
+            
+            .countdown {
+                font-size: 14px !important;
+                padding: 8px 16px !important;
+            }
+            
+            /* 题目导航栏横向滚动 */
+            .anchor-nav {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                white-space: nowrap !important;
+                scrollbar-width: none !important;
+            }
+            
+            .anchor-nav::-webkit-scrollbar {
+                display: none !important;
+            }
+            
+            .anchor-nav a {
+                display: inline-block !important;
+                padding: 10px 16px !important;
+                font-size: 13px !important;
+            }
+            
+            /* 题目卡片适配 */
+            .question-card {
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+            }
+            
+            .question-title {
+                font-size: 15px !important;
+                line-height: 1.6 !important;
+            }
+            
+            .option-item {
+                padding: 12px 14px !important;
+                font-size: 14px !important;
+                min-height: 48px !important;
+            }
+            
+            /* 提交按钮固定底部 */
+            .exam-container .btn-group {
+                position: sticky !important;
+                bottom: 0 !important;
+                background: var(--bg-color) !important;
+                padding: 15px 0 !important;
+                z-index: 100 !important;
+            }
+            
+            /* 管理面板适配 */
+            .admin-container {
+                padding: 15px !important;
+            }
+            
+            .admin-nav-tabs {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                white-space: nowrap !important;
+                scrollbar-width: none !important;
+            }
+            
+            .admin-nav-tabs::-webkit-scrollbar {
+                display: none !important;
+            }
+            
+            .admin-tab {
+                padding: 12px 16px !important;
+                font-size: 13px !important;
+                min-height: 48px !important;
+            }
+            
+            /* 表格适配 */
+            .data-table-wrapper {
+                margin: 0 -10px !important;
+                padding: 0 10px !important;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 10px 8px !important;
+                font-size: 12px !important;
+            }
+            
+            /* 弹窗适配 */
+            .modal-content {
+                width: 90% !important;
+                max-width: 380px !important;
+                margin: 5vh auto !important;
+            }
+            
+            .modal-title {
+                font-size: 17px !important;
+                padding: 16px !important;
+            }
+            
+            .modal-content .form-group {
+                padding: 0 16px !important;
+            }
+            
+            .modal-btn {
+                min-height: 48px !important;
+                font-size: 14px !important;
+            }
+            
+            /* 学习/培训页适配 */
+            .forum-header,
+            .friend-header,
+            .chat-header {
+                padding: 15px !important;
+            }
+            
+            .forum-header h2,
+            .friend-header h2,
+            .chat-header h2 {
+                font-size: 18px !important;
+            }
+            
+            .board-card,
+            .friend-item,
+            .post-item {
+                padding: 14px !important;
+            }
+            
+            .board-card h3,
+            .friend-item .name,
+            .post-item .title {
+                font-size: 15px !important;
+            }
+            
+            /* 系统设置页适配 */
+            .config-panel {
+                padding: 15px !important;
+            }
+            
+            .config-panel .section {
+                padding: 15px !important;
+            }
+            
+            .config-panel h3 {
+                font-size: 17px !important;
+            }
+            
+            .config-panel h4 {
+                font-size: 15px !important;
+            }
+            
+            .config-panel .btn {
+                width: 100% !important;
+                margin-bottom: 8px !important;
+            }
+            
+            .config-panel .btn-full {
+                min-height: 48px !important;
+            }
+            
+            /* 隐藏非必要装饰性元素 */
+            .decorative-element,
+            .bg-particles,
+            .animated-bg {
+                display: none !important;
+            }
+        }
+        
+        /* 适配区间：431px - 768px 平板竖屏 */
+        @media screen and (min-width: 431px) and (max-width: 768px) {
+            html {
+                font-size: 15.5px;
+            }
+            
+            .login-container {
+                width: 85% !important;
+                max-width: 450px !important;
+            }
+            
+            .modal-content {
+                width: 80% !important;
+                max-width: 450px !important;
+            }
+            
+            .admin-container {
+                padding: 20px !important;
+            }
+        }
+        
+        /* 适配区间：769px - 1024px 平板横屏 */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            html {
+                font-size: 16px;
+            }
+        }
+        
+        /* 适配区间：1025px - 1920px PC端 */
+        @media screen and (min-width: 1025px) and (max-width: 1920px) {
+            html {
+                font-size: 16px;
+            }
+        }
+        
+        /* 优化手机端点击反馈 */
+        .btn:active,
+        .login-btn:active,
+        .modal-btn:active,
+        .action-btn:active,
+        .tab-btn:active,
+        .admin-tab:active,
+        .option-item:active,
+        .board-card:active,
+        .friend-item:active,
+        .post-item:active,
+        .profile-setting-item:active {
+            transform: scale(0.98);
+            opacity: 0.85;
+        }
+        
+        /* 防止手机端缩放和内容溢出 */
+        body {
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        
+        /* 优化输入框在手机键盘弹出时的表现 */
+        input, select, textarea {
+            -webkit-appearance: none;
+            border-radius: 8px;
+        }
+        
+        /* 视频嵌入框16:9比例 */
+        .video-embed {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-embed iframe,
+        .video-embed video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* ==================== 岗位培训模块CSS样式（已暂时关闭） ==================== */
+        /*
+        .training-container,
+        .training-learning-container,
+        .training-records-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .training-header,
+        .learning-header,
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .training-header h2,
+        .learning-header h2,
+        .records-header h2 {
+            color: var(--brand-red);
+            font-size: 24px;
+        }
+        
+        .training-course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .course-cover {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--brand-orange), var(--brand-red));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            color: white;
+        }
+        
+        .course-info {
+            padding: 16px;
+        }
+        
+        .course-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .course-meta {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        
+        .course-progress {
+            margin-bottom: 12px;
+        }
+        
+        .course-progress .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        
+        .course-progress .progress-bar {
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .course-progress .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-orange), var(--brand-red));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .course-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .course-status.completed {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+        
+        .course-status.in-progress {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .course-status.not-started {
+            background: var(--bg-color);
+            color: var(--text-light);
+        }
+        
+        .course-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .course-actions .btn {
+            flex: 1;
+            min-height: 44px;
+        }
+        
+        .learning-progress-bar {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .learning-progress-bar .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .learning-progress-bar .progress-bar {
+            height: 12px;
+            background: var(--bg-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .learning-progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-orange), var(--brand-red));
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        
+        .learning-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .learning-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+        
+        .learning-footer {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .rich-content {
+            font-size: 15px;
+            color: var(--text-color);
+        }
+        
+        .rich-content h1, .rich-content h2, .rich-content h3 {
+            margin: 20px 0 12px;
+            color: var(--brand-red);
+        }
+        
+        .rich-content p {
+            margin: 12px 0;
+        }
+        
+        .rich-content ul, .rich-content ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+        
+        .rich-content li {
+            margin: 6px 0;
+        }
+        
+        .training-record-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        
+        .training-record-item .record-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .training-record-item .record-meta {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        /* 岗位培训管理面板 */
+        .training-course-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        
+        .training-course-item .course-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .training-course-item .course-detail {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        
+        .training-course-item .course-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 课程编辑弹窗 */
+        .training-modal-content {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .training-modal-content .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .training-modal-content label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .training-modal-content input,
+        .training-modal-content select,
+        .training-modal-content textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 44px;
+        }
+        
+        .training-modal-content textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        */
+        /* ==================== 岗位培训模块CSS样式 结束 ==================== */
+        
+        /* ==================== 全响应式移动端标准化适配 - 考试系统 结束 ==================== */
     </style>
 </head>
 <body>
@@ -4308,7 +4949,7 @@ D|选项D"></textarea>
                 <input type="checkbox" id="rememberPassword">
                 <span>记住密码</span>
             </label>
-            <button type="button" class="forgot-password" onclick="alert('请联系管理员重置密码')" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">忘记密码？</button>
+            <button type="button" class="forgot-password" onclick="PasswordResetManager.showResetPage()" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">忘记密码？</button>
         </div>
         <!-- 管理员登录表单 -->
         <div id="adminLoginForm" style="display: none;">
@@ -4343,7 +4984,7 @@ D|选项D"></textarea>
                 <input type="checkbox" id="adminRememberPassword">
                 <span>记住密码</span>
             </label>
-            <button type="button" class="forgot-password" onclick="alert('请联系超级管理员重置密码')" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">忘记密码？</button>
+            <button type="button" class="forgot-password" onclick="PasswordResetManager.showResetPage()" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">忘记密码？</button>
         </div>
         
         <!-- 拼图验证模块 -->
@@ -4377,6 +5018,87 @@ D|选项D"></textarea>
             <button type="button" id="syncBinId" style="background:none;border:none;color:#3498db;cursor:pointer;font-size:12px;padding:0;" onclick="showBinIdModal()">Bin ID: 未设置</button>
         </div>
     </div>
+
+    <!-- ==================== 密码自助重置页面 ==================== -->
+    <div class="login-container" id="passwordResetContainer" style="display: none;">
+        <!-- 品牌Logo与标题区域 -->
+        <div class="brand-logo">
+            <svg viewBox="0 0 100 100" width="80" height="80">
+                <defs>
+                    <linearGradient id="fireGradientReset" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#c0392b"></stop>
+                        <stop offset="100%" stop-color="#f39c12"></stop>
+                    </linearGradient>
+                </defs>
+                <line x1="15" y1="75" x2="85" y2="75" stroke="#e0e0e0" stroke-width="3" stroke-linecap="round"></line>
+                <line x1="25" y1="70" x2="75" y2="70" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"></line>
+                <path d="M50 20 C35 40, 25 55, 30 70 C35 60, 45 55, 50 65 C55 55, 65 60, 70 70 C75 55, 65 40, 50 20" fill="url(#fireGradientReset)"></path>
+                <circle cx="40" cy="60" r="6" fill="#fff" opacity="0.8"></circle>
+                <circle cx="60" cy="58" r="5" fill="#fff" opacity="0.7"></circle>
+            </svg>
+        </div>
+        <div class="brand-title-wrap">
+            <div class="brand-title">密码自助重置</div>
+            <span class="version-tag">安全认证</span>
+        </div>
+        <p class="brand-subtitle">请输入您的身份信息验证</p>
+        
+        <h2 style="font-size:20px;color:var(--text-primary);text-align:center;margin-bottom:25px;">验证身份</h2>
+        
+        <!-- 密码重置表单 -->
+        <div id="passwordResetForm">
+            <div class="login-input">
+                <label for="resetEmployeeId">工号</label>
+                <input type="text" id="resetEmployeeId" placeholder="请输入您的工号" required>
+                <div class="error-tip" id="resetEmployeeIdError">工号不能为空</div>
+            </div>
+            <div class="login-input">
+                <label for="resetShop">所属门店</label>
+                <select id="resetShop" required>
+                    <option value="">请选择所属门店</option>
+                    <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
+                    <option value="韩花亭烤肉两店">韩花亭烤肉两店</option>
+                    <option value="韩花亭烤肉三店">韩花亭烤肉三店</option>
+                    <option value="韩花亭烤肉四店">韩花亭烤肉四店</option>
+                </select>
+                <div class="error-tip" id="resetShopError">请选择所属门店</div>
+            </div>
+            <div class="login-input">
+                <label for="resetCode">门店重置码（6位数字）</label>
+                <input type="text" id="resetCode" placeholder="请输入6位数字重置码" maxlength="6" required>
+                <div class="error-tip" id="resetCodeError">请输入6位数字重置码</div>
+            </div>
+        </div>
+        
+        <!-- 新密码设置（验证通过后显示） -->
+        <div id="newPasswordSection" style="display: none;">
+            <h2 style="font-size:20px;color:var(--text-primary);text-align:center;margin-bottom:25px;">设置新密码</h2>
+            <div class="login-input">
+                <label for="newPassword">新密码</label>
+                <input type="password" id="newPassword" placeholder="6位以上，包含数字+字母" required>
+                <div class="error-tip" id="newPasswordError">密码必须6位以上，包含数字+字母</div>
+            </div>
+            <div class="login-input">
+                <label for="confirmNewPassword">确认新密码</label>
+                <input type="password" id="confirmNewPassword" placeholder="请再次输入新密码" required>
+                <div class="error-tip" id="confirmNewPasswordError">两次密码输入不一致</div>
+            </div>
+        </div>
+        
+        <button class="login-btn" id="resetPasswordBtn" style="width: 100%;" onclick="PasswordResetManager.handleResetStep()">验证身份</button>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="button" class="forgot-password" onclick="PasswordResetManager.backToLogin()" style="background:none;border:none;color:var(--brand-blue);cursor:pointer;font-size:14px;">
+                ← 返回登录页
+            </button>
+        </div>
+        
+        <!-- 锁定状态提示 -->
+        <div id="resetLockTip" class="locked-tip" style="display: none; margin-top: 20px; text-align: center; color: var(--danger); font-size: 14px;">
+            <span id="resetLockCountdown"></span>
+        </div>
+    </div>
+    <!-- ==================== 密码自助重置页面结束 ==================== -->
 
     <!-- 考试界面 -->
     <div class="exam-container" id="examContainer">
@@ -4449,6 +5171,9 @@ D|选项D"></textarea>
             <div class="admin-tab" data-tab="record">学员记录</div>
             <div class="admin-tab" data-tab="stat">成绩统计</div>
             <div class="admin-tab" data-tab="user">👥 用户管理</div>
+            <!-- ==================== 岗位培训：管理面板入口（已暂时关闭） ==================== -->
+            <!-- <div class="admin-tab" data-tab="training" id="trainingTab">📚 岗位培训</div> -->
+            <!-- ==================== 岗位培训入口结束 ==================== -->
             <div class="admin-tab" data-tab="rank" id="superAdminRankTab" style="display: none;">🏆 榜单管理</div>
             <div class="admin-tab" data-tab="forum" id="superAdminForumTab" style="display: none;">📢 论坛管理</div>
             <div class="admin-tab" data-tab="security" id="superAdminSecurityTab" style="display: none;">安全日志</div>
@@ -4757,6 +5482,93 @@ D|选项D"></textarea>
                 <button class="success-btn" id="testSyncBtn">测试同步</button>
                 <button class="reset-btn" id="resetConfigBtn">恢复默认设置</button>
             </div>
+            
+            <!-- ==================== 全量数据备份与恢复功能模块（仅超级管理员） ==================== -->
+            <div class="divider" style="margin: 30px 0; border-top: 2px dashed var(--border-color);"></div>
+            <h3 style="color: var(--brand-orange); margin-bottom: 20px; border-left: 4px solid var(--brand-orange); padding-left: 15px;">
+                💾 全量数据备份与恢复
+            </h3>
+            
+            <!-- 全量JSON备份 -->
+            <div class="section" style="padding: 20px; margin-bottom: 15px;">
+                <h4 style="color: var(--text-primary); margin-bottom: 15px;">📦 全量JSON备份</h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+                    导出系统所有数据为JSON文件，用于数据恢复和迁移
+                </p>
+                <button class="btn btn-primary btn-full" id="backupAllJsonBtn">
+                    🔄 一键全量备份
+                </button>
+            </div>
+            
+            <!-- 分类Excel导出 -->
+            <div class="section" style="padding: 20px; margin-bottom: 15px;">
+                <h4 style="color: var(--text-primary); margin-bottom: 15px;">📊 分类Excel导出</h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+                    按数据类型分别导出为Excel文件，方便查看和统计
+                </p>
+                <div class="btn-group" style="margin-top: 0;">
+                    <button class="btn btn-secondary" id="exportEmployeesExcelBtn">
+                        👥 员工数据
+                    </button>
+                    <button class="btn btn-secondary" id="exportRecordsExcelBtn">
+                        📝 成绩数据
+                    </button>
+                    <button class="btn btn-secondary" id="exportQuestionsExcelBtn">
+                        📚 题库数据
+                    </button>
+                    <button class="btn btn-secondary" id="exportPapersExcelBtn">
+                        📋 试卷数据
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 数据恢复 -->
+            <div class="section" style="padding: 20px; margin-bottom: 15px; border: 2px solid var(--danger);">
+                <h4 style="color: var(--danger); margin-bottom: 15px;">⚠️ 数据恢复</h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+                    上传JSON备份文件恢复全量数据（将覆盖现有所有数据，请谨慎操作）
+                </p>
+                <input type="file" id="restoreJsonInput" accept=".json" style="display: none;">
+                <button class="btn btn-danger btn-full" id="restoreAllJsonBtn">
+                    🔧 选择备份文件并恢复
+                </button>
+            </div>
+            
+            <!-- 数据一键清零 -->
+            <div class="section" style="padding: 20px; margin-bottom: 15px;">
+                <h4 style="color: var(--warning); margin-bottom: 15px;">🗑️ 数据一键清零</h4>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+                    可选择清零指定类型的数据（操作前会自动备份当前数据）
+                </p>
+                <div class="form-group">
+                    <label>选择要清零的数据类型</label>
+                    <select id="clearDataTypeSelect" class="form-input">
+                        <option value="">请选择...</option>
+                        <option value="records">📝 仅清零成绩数据</option>
+                        <option value="exam_sessions">⏰ 仅清零考试会话</option>
+                        <option value="temp_answers">💾 仅清零临时答案</option>
+                        <option value="security_logs">📋 仅清零安全日志</option>
+                    </select>
+                </div>
+                <button class="btn btn-warning btn-full" id="clearDataBtn">
+                    🗑️ 执行清零
+                </button>
+            </div>
+            
+            <!-- ==================== 门店重置码管理功能模块 ==================== -->
+            <div class="divider" style="margin: 30px 0; border-top: 2px dashed var(--border-color);"></div>
+            <h3 style="color: var(--brand-orange); margin-bottom: 20px; border-left: 4px solid var(--brand-orange); padding-left: 15px;">
+                🔐 门店重置码管理
+            </h3>
+            <div id="resetCodeManagementSection" class="section" style="padding: 20px; margin-bottom: 15px;">
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+                    管理各门店的密码重置码，用于员工自助重置密码
+                </p>
+                <div id="resetCodeList">
+                    <!-- 动态生成重置码列表 -->
+                </div>
+            </div>
+            <!-- ==================== 门店重置码管理功能模块结束 ==================== -->
         </div>
 
         <!-- 榜单管理 -->
@@ -4827,6 +5639,68 @@ D|选项D"></textarea>
             </div>
             <div id="adminForumList"></div>
         </div>
+        
+        <!-- ==================== 岗位培训管理（已暂时关闭） ==================== -->
+        <!--
+        <div class="admin-tab-content" id="trainingTabContent" style="display: none;">
+            <div class="btn-group" style="margin-bottom: 20px;">
+                <button class="confirm-btn" id="addTrainingCourseBtn">📚 新增课程</button>
+                <button class="success-btn" id="trainingStatBtn">📊 学习数据统计</button>
+                <button class="export-btn" id="exportTrainingDataBtn">📥 导出统计数据</button>
+            </div>
+            
+            <!-- 筛选条件 -->
+            <div class="form-row" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="trainingShopFilter">门店筛选</label>
+                    <select id="trainingShopFilter">
+                        <option value="">全部门店</option>
+                        <option value="韩花亭烤肉一店">韩花亭烤肉一店</option>
+                        <option value="韩花亭烤肉两店">韩花亭烤肉两店</option>
+                        <option value="韩花亭烤肉三店">韩花亭烤肉三店</option>
+                        <option value="韩花亭烤肉四店">韩花亭烤肉四店</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="trainingPostFilter">岗位筛选</label>
+                    <select id="trainingPostFilter">
+                        <option value="">全部岗位</option>
+                        <option value="后厨烤师">后厨烤师</option>
+                        <option value="前厅服务员">前厅服务员</option>
+                        <option value="收银">收银</option>
+                        <option value="店长">店长</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 课程列表 -->
+            <div id="trainingCourseList"></div>
+            
+            <!-- 学习数据统计面板 -->
+            <div id="trainingStatPanel" style="display: none; margin-top: 30px; padding-top: 20px; border-top: 2px dashed var(--border-color);">
+                <h3 style="margin-bottom: 20px; color: var(--brand-orange);">📊 学习数据统计</h3>
+                <div class="table-responsive">
+                    <table id="trainingStatTable">
+                        <thead>
+                            <tr>
+                                <th>员工姓名</th>
+                                <th>工号</th>
+                                <th>门店</th>
+                                <th>岗位</th>
+                                <th>已完成课程</th>
+                                <th>总课程</th>
+                                <th>完成率</th>
+                                <th>总学习时长</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trainingStatTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        -->
+        <!-- ==================== 岗位培训管理结束 ==================== -->
     </div>
 
     <!-- 历史记录界面 -->
@@ -4838,6 +5712,74 @@ D|选项D"></textarea>
         </div>
         <div id="historyList"></div>
     </div>
+
+    <!-- ==================== 岗位培训学习界面（已暂时关闭） ==================== -->
+    <!--
+    <div class="training-container" id="trainingContainer" style="display: none;">
+        <div class="training-header">
+            <h2>📚 岗位培训学习</h2>
+            <div class="btn-group">
+                <button class="back-btn" id="trainingBackBtn">返回考试</button>
+                <button class="confirm-btn" id="trainingMyRecordsBtn">📋 我的学习记录</button>
+            </div>
+        </div>
+        
+        <!-- 课程列表区域 -->
+        <div id="trainingCourseList" class="training-course-list"></div>
+    </div>
+
+    <!-- ==================== 课程学习详情界面 ==================== -->
+    <div class="training-learning-container" id="trainingLearningContainer" style="display: none;">
+        <div class="learning-header">
+            <button class="back-btn" id="learningBackBtn">← 返回课程列表</button>
+            <h2 id="learningCourseTitle">课程名称</h2>
+        </div>
+        
+        <!-- 学习进度条 -->
+        <div class="learning-progress-bar">
+            <div class="progress-text">
+                <span>学习进度</span>
+                <span id="learningProgressText">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="learningProgressFill" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <!-- 课程内容区域 -->
+        <div class="learning-content" id="learningContent">
+            <!-- 视频嵌入 -->
+            <div id="learningVideoSection" style="display: none; margin-bottom: 20px;">
+                <div class="video-embed">
+                    <iframe id="learningVideoFrame" src="" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; border-radius: 8px;"></iframe>
+                </div>
+            </div>
+            
+            <!-- 课程图文内容 -->
+            <div id="learningRichContent" class="rich-content"></div>
+        </div>
+        
+        <!-- 底部操作按钮 -->
+        <div class="learning-footer">
+            <div id="learningExamBtnContainer" style="display: none;">
+                <button class="confirm-btn" id="learningGoToExamBtn" style="width: 100%;">🎯 前往考试</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 我的学习记录界面 ==================== -->
+    <div class="training-records-container" id="trainingRecordsContainer" style="display: none;">
+        <div class="records-header">
+            <h2>📋 我的学习记录</h2>
+            <div class="btn-group">
+                <button class="back-btn" id="recordsBackBtn">← 返回课程列表</button>
+            </div>
+        </div>
+        
+        <div id="trainingRecordsList"></div>
+    </div>
+    -->
+    <!-- ==================== 岗位培训学习界面结束 ==================== -->
 
     <!-- 个人中心界面 -->
     <div class="profile-container" id="profileContainer" style="display: none;">
@@ -5351,11 +6293,104 @@ D|选项D"></textarea>
             JWT_TOKEN: "hht_jwt_token",
             AUTH_USER: "hht_auth_user"
         };
+        
+        // ==================== 安全增强：工具函数 ====================
+        const SecurityUtils = {
+            // 安全的JSON解析
+            safeParseJSON(str, fallback = null) {
+                try {
+                    return JSON.parse(str);
+                } catch (e) {
+                    console.warn('[Security] JSON解析失败:', e);
+                    return fallback;
+                }
+            },
+            
+            // HTML转义防止XSS
+            escapeHTML(str) {
+                if (typeof str !== 'string') return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            },
+            
+            // 生成简单HMAC
+            generateHMAC(data, key) {
+                return md5(data + key);
+            }
+        };
+        
+        // ==================== 安全增强：带验证的localStorage操作 ====================
+        const StorageManager = {
+            // JWT密钥（用于数据完整性验证）
+            JWT_SECRET: 'hht_exam_system_secret_key_2024',
+            
+            // 安全读取localStorage
+            safeGet(key) {
+                try {
+                    const dataStr = localStorage.getItem(key);
+                    if (!dataStr) return null;
+                    
+                    // 如果是带HMAC的数据，验证完整性
+                    if (dataStr && dataStr.startsWith('{') && dataStr.includes('"hmac"')) {
+                        try {
+                            const data = SecurityUtils.safeParseJSON(dataStr, null);
+                            if (data && data.hmac && data.value) {
+                                const expectedHmac = SecurityUtils.generateHMAC(data.value, this.JWT_SECRET);
+                                if (data.hmac !== expectedHmac) {
+                                    console.warn('[Security] localStorage数据被篡改，已清除:', key);
+                                    this.safeRemove(key);
+                                    return null;
+                                }
+                                return data.value;
+                            }
+                        } catch (e) {
+                            // 非HMAC格式，直接返回
+                        }
+                    }
+                    
+                    return dataStr;
+                } catch (e) {
+                    console.warn('[Storage] 读取失败:', e);
+                    return null;
+                }
+            },
+            
+            // 安全写入localStorage（带HMAC）
+            safeSet(key, value) {
+                try {
+                    const hmac = SecurityUtils.generateHMAC(value, this.JWT_SECRET);
+                    const dataWithHMAC = {
+                        value: value,
+                        hmac: hmac,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem(key, JSON.stringify(dataWithHMAC));
+                    return true;
+                } catch (e) {
+                    console.warn('[Storage] 写入失败:', e);
+                    return false;
+                }
+            },
+            
+            // 安全删除
+            safeRemove(key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (e) {
+                    console.warn('[Storage] 删除失败:', e);
+                    return false;
+                }
+            }
+        };
+        // ==================== 安全增强代码结束 ====================
 
         // ==================== JWT Token 身份验证配置 ====================
         const AUTH_CONFIG = {
+            // ==================== SSO单点登录：改为本地统一登录页 ====================
             // 前置身份验证站地址（可修改）
-            AUTH_SERVER_URL: "https://jgf122.github.io/turbo-octo-chainsaw/",
+            AUTH_SERVER_URL: "hht_login_system.html",
             // Token在URL中的参数名
             TOKEN_URL_PARAM: "token",
             // Token在localStorage中的存储键名
@@ -5367,11 +6402,103 @@ D|选项D"></textarea>
             // Token前缀
             TOKEN_PREFIX: "Bearer ",
             // 401错误时的跳转地址
-            UNAUTHORIZED_REDIRECT_URL: "https://jgf122.github.io/turbo-octo-chainsaw/"
+            UNAUTHORIZED_REDIRECT_URL: "hht_login_system.html"
+            // ==================== SSO单点登录配置结束 ====================
         };
 
         // ==================== JWT Token 工具函数 ====================
         const AuthManager = {
+            // ==================== SSO单点登录新增功能开始 ====================
+            // 从hht_user_auth字段获取并解密SSO认证数据
+            getSSOData() {
+                try {
+                    const encrypted = localStorage.getItem('hht_user_auth');
+                    if (!encrypted) return null;
+                    
+                    // 解密：base64解码 + 反转字符串
+                    const decrypted = atob(encrypted).split('').reverse().join('');
+                    const ssoData = JSON.parse(decrypted);
+                    
+                    // 检查是否过期
+                    if (ssoData.expireAt && Date.now() > ssoData.expireAt) {
+                        console.log('[SSO] SSO数据已过期');
+                        this.clearSSOData();
+                        return null;
+                    }
+                    
+                    return ssoData;
+                } catch (e) {
+                    console.error('[SSO] 解析SSO数据失败:', e);
+                    this.clearSSOData();
+                    return null;
+                }
+            },
+            
+            // 清除SSO数据
+            clearSSOData() {
+                try {
+                    localStorage.removeItem('hht_user_auth');
+                } catch (e) {
+                    console.warn('[SSO] 清除SSO数据失败:', e);
+                }
+            },
+            
+            // 验证SSO Token的有效性
+            isSSOTokenValid(ssoData) {
+                if (!ssoData || !ssoData.token) return false;
+                try {
+                    // 验证Token格式
+                    const parts = ssoData.token.split('.');
+                    if (parts.length !== 3) return false;
+                    
+                    // 检查过期时间
+                    if (ssoData.expireAt && Date.now() > ssoData.expireAt) {
+                        return false;
+                    }
+                    
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
+            
+            // 从SSO数据同步认证信息到系统
+            syncFromSSO(ssoData) {
+                if (!ssoData) return false;
+                
+                try {
+                    // 保存Token
+                    this.saveTokenToStorage(ssoData.token);
+                    
+                    // 构建用户信息对象，兼容现有系统
+                    const userData = {
+                        id: Date.now(),
+                        username: ssoData.employeeId,
+                        name: ssoData.name,
+                        shop: ssoData.shop,
+                        phone: ssoData.employeeId,
+                        role: ssoData.role || 'employee',
+                        type: ssoData.role || 'employee'
+                    };
+                    this.saveUserToStorage(userData);
+                    
+                    // ==================== 安全增强：记录SSO登录成功 ====================
+                    SecurityLogger.log('SSO_LOGIN_SUCCESS', { 
+                        employeeId: ssoData.employeeId,
+                        employeeName: ssoData.name,
+                        shop: ssoData.shop 
+                    }, 'info');
+                    // ==================== 安全增强代码结束 ====================
+                    
+                    console.log('[SSO] 已从SSO同步认证信息');
+                    return true;
+                } catch (e) {
+                    console.error('[SSO] 同步SSO数据失败:', e);
+                    return false;
+                }
+            },
+            // ==================== SSO单点登录新增功能结束 ====================
+            
             // 从URL获取Token
             getTokenFromUrl() {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -5403,18 +6530,32 @@ D|选项D"></textarea>
             clearAuth() {
                 localStorage.removeItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
                 localStorage.removeItem(AUTH_CONFIG.USER_STORAGE_KEY);
+                // ==================== SSO单点登录：同步清除hht_user_auth ====================
+                this.clearSSOData();
+                // ==================== SSO单点登录代码结束 ====================
             },
 
-            // 验证Token是否有效（基础验证）
+            // 验证Token是否有效（增强验证）
             isTokenValid(token) {
                 if (!token) return false;
                 try {
                     // 简单验证Token格式（JWT格式: xxx.yyy.zzz）
                     const parts = token.split('.');
                     if (parts.length !== 3) return false;
-                    // 可以在这里添加更复杂的验证逻辑，如过期时间检查等
+                    
+                    // 验证Token过期时间
+                    const payload = this.decodeToken(token);
+                    if (payload && payload.exp) {
+                        const now = Math.floor(Date.now() / 1000);
+                        if (now > payload.exp) {
+                            console.warn('[Auth] Token已过期');
+                            return false;
+                        }
+                    }
+                    
                     return true;
                 } catch (e) {
+                    console.error('[Auth] Token验证失败:', e);
                     return false;
                 }
             },
@@ -5437,6 +6578,15 @@ D|选项D"></textarea>
 
             // 获取当前有效的Token
             getCurrentToken() {
+                // ==================== SSO单点登录：优先检查SSO数据 ====================
+                const ssoData = this.getSSOData();
+                if (this.isSSOTokenValid(ssoData)) {
+                    // 同步SSO数据到系统存储
+                    this.syncFromSSO(ssoData);
+                    return ssoData.token;
+                }
+                // ==================== SSO单点登录代码结束 ====================
+                
                 // 优先从URL获取
                 let token = this.getTokenFromUrl();
                 if (this.isTokenValid(token)) {
@@ -5461,15 +6611,19 @@ D|选项D"></textarea>
                 return this.isTokenValid(token);
             },
 
-            // 跳转到身份验证站
+            // 跳转到身份验证站（统一登录页）
             redirectToAuthServer() {
-                window.location.href = AUTH_CONFIG.AUTH_SERVER_URL;
+                // ==================== SSO单点登录：跳转到本地统一登录页 ====================
+                window.location.href = 'hht_login_system.html';
+                // ==================== SSO单点登录代码结束 ====================
             },
 
             // 处理401未授权错误
             handleUnauthorized() {
                 this.clearAuth();
-                window.location.href = AUTH_CONFIG.UNAUTHORIZED_REDIRECT_URL;
+                // ==================== SSO单点登录：跳转到本地统一登录页 ====================
+                window.location.href = 'hht_login_system.html';
+                // ==================== SSO单点登录代码结束 ====================
             },
 
             // 为API请求添加Token Header
@@ -13421,10 +14575,12 @@ D|选项D"></textarea>
                 clearInterval(countdownTimer);
                 Proctoring.stop();
                 SecurityLogger.logout(currentUser.name || '员工', currentUser.type || 'employee');
-                elements.examContainer.style.display = 'none';
-                elements.loginContainer.style.display = 'block';
-                resetLoginForm();
+                // ==================== SSO单点登录：清除所有认证信息并跳转 ====================
+                AuthManager.clearAuth();
                 currentUser = {};
+                // 直接跳转到统一登录页，而不是显示登录表单
+                window.location.href = 'hht_login_system.html';
+                // ==================== SSO单点登录代码结束 ====================
             });
         }
 
@@ -16016,6 +17172,1996 @@ D|选项D"></textarea>
                 console.log('[系统工具] 已加载');
             }, 1000);
         };
+        
+        // ==================== 全量数据备份与恢复功能模块（仅超级管理员） ====================
+        const DataBackupManager = {
+            // 存储键定义（包含所有需要备份的键）
+            BACKUP_KEYS: [
+                'hht_exam_papers',
+                'hht_exam_records',
+                'hht_exam_config',
+                'hht_phone_bindings',
+                'hht_exam_sessions',
+                'hht_security_logs',
+                'hht_jwt_token',
+                'hht_auth_user',
+                'hht_user_auth',
+                'hht_remember_employee_id',
+                'hht_login_attempts',
+                'hht_lock_time',
+                'hht_login_records',
+                'hht_employee_data_initialized',
+                'hht_device_id',
+                'hht_last_backup_time'
+            ],
+            
+            // 获取当前时间格式化字符串
+            getFormattedTime() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hour = String(now.getHours()).padStart(2, '0');
+                const minute = String(now.getMinutes()).padStart(2, '0');
+                return `${year}${month}${day}${hour}${minute}`;
+            },
+            
+            // 获取浏览器信息（用于日志）
+            getBrowserInfo() {
+                return {
+                    userAgent: navigator.userAgent.substring(0, 100),
+                    platform: navigator.platform,
+                    language: navigator.language
+                };
+            },
+            
+            // 记录操作日志
+            logOperation(action, details = {}) {
+                try {
+                    const logData = {
+                        id: Date.now(),
+                        timestamp: new Date().toISOString(),
+                        operator: currentUser.name || '超级管理员',
+                        operatorId: currentUser.username || 'unknown',
+                        action: action,
+                        details: details,
+                        browserInfo: this.getBrowserInfo()
+                    };
+                    
+                    // 记录到安全日志
+                    let securityLogs = JSON.parse(localStorage.getItem(STORAGE_KEY.SECURITY_LOGS) || '[]');
+                    securityLogs.push({
+                        id: logData.id,
+                        timestamp: logData.timestamp,
+                        level: 'info',
+                        eventType: 'DATA_BACKUP_OPERATION',
+                        message: `${logData.operator} 执行了 ${action}`,
+                        details: logData
+                    });
+                    localStorage.setItem(STORAGE_KEY.SECURITY_LOGS, JSON.stringify(securityLogs));
+                    
+                    console.log('[DataBackupManager] 操作记录:', logData);
+                } catch (e) {
+                    console.error('[DataBackupManager] 记录操作日志失败:', e);
+                }
+            },
+            
+            // 全量JSON备份
+            backupAllToJson() {
+                try {
+                    const backupData = {};
+                    
+                    // 收集所有数据
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key) {
+                            try {
+                                backupData[key] = JSON.parse(localStorage.getItem(key) || '');
+                            } catch (e) {
+                                backupData[key] = localStorage.getItem(key);
+                            }
+                        }
+                    }
+                    
+                    // 添加备份元数据
+                    backupData._backupMeta = {
+                        version: 'v2.19.0',
+                        timestamp: new Date().toISOString(),
+                        backupBy: currentUser.name || '超级管理员'
+                    };
+                    
+                    // 生成文件名
+                    const fileName = `韩花亭考试系统全量备份_${this.getFormattedTime()}.json`;
+                    
+                    // 下载文件
+                    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    // 更新最后备份时间
+                    localStorage.setItem('hht_last_backup_time', Date.now().toString());
+                    
+                    // 记录日志
+                    this.logOperation('全量JSON备份', { fileName });
+                    
+                    showTipModal('备份成功', `已成功导出全量数据到 ${fileName}`);
+                } catch (e) {
+                    console.error('[DataBackupManager] 全量备份失败:', e);
+                    showTipModal('备份失败', '备份过程中出现错误，请重试');
+                }
+            },
+            
+            // 导出员工数据为Excel
+            exportEmployeesToExcel() {
+                try {
+                    // 获取员工数据（从绑定关系和用户信息中提取）
+                    const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                    const employees = [];
+                    
+                    for (const [phone, data] of Object.entries(phoneBindings)) {
+                        employees.push({
+                            '工号': data.username || phone,
+                            '姓名': data.name || '-',
+                            '手机号': phone,
+                            '门店': data.shop || '-',
+                            '角色': data.role || '员工',
+                            '状态': data.status || '正常',
+                            '绑定时间': data.bindTime || '-'
+                        });
+                    }
+                    
+                    if (employees.length === 0) {
+                        showTipModal('提示', '暂无员工数据可导出');
+                        return;
+                    }
+                    
+                    const ws = XLSX.utils.json_to_sheet(employees);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, '员工数据');
+                    XLSX.writeFile(wb, `韩花亭员工数据_${this.getFormattedTime()}.xlsx`);
+                    
+                    this.logOperation('导出员工Excel', { count: employees.length });
+                    showTipModal('导出成功', `已导出 ${employees.length} 条员工数据`);
+                } catch (e) {
+                    console.error('[DataBackupManager] 导出员工Excel失败:', e);
+                    showTipModal('导出失败', '导出过程中出现错误，请重试');
+                }
+            },
+            
+            // 导出成绩数据为Excel
+            exportRecordsToExcel() {
+                try {
+                    const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
+                    
+                    if (records.length === 0) {
+                        showTipModal('提示', '暂无成绩数据可导出');
+                        return;
+                    }
+                    
+                    const formattedRecords = records.map(r => ({
+                        'ID': r.id || '-',
+                        '考生姓名': r.user?.name || '-',
+                        '考生手机号': r.user?.phone || '-',
+                        '所属门店': r.user?.shop || '-',
+                        '试卷名称': r.paper?.title || '-',
+                        '得分': r.score || 0,
+                        '总分': r.totalScore || 100,
+                        '及格状态': r.passed ? '及格' : '不及格',
+                        '考试时间': r.timestamp || '-'
+                    }));
+                    
+                    const ws = XLSX.utils.json_to_sheet(formattedRecords);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, '成绩数据');
+                    XLSX.writeFile(wb, `韩花亭成绩数据_${this.getFormattedTime()}.xlsx`);
+                    
+                    this.logOperation('导出成绩Excel', { count: records.length });
+                    showTipModal('导出成功', `已导出 ${records.length} 条成绩数据`);
+                } catch (e) {
+                    console.error('[DataBackupManager] 导出成绩Excel失败:', e);
+                    showTipModal('导出失败', '导出过程中出现错误，请重试');
+                }
+            },
+            
+            // 导出题库数据为Excel
+            exportQuestionsToExcel() {
+                try {
+                    const papers = JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]');
+                    const questions = [];
+                    
+                    papers.forEach(paper => {
+                        if (paper.questions && Array.isArray(paper.questions)) {
+                            paper.questions.forEach((q, idx) => {
+                                questions.push({
+                                    '所属试卷': paper.title || '-',
+                                    '题目序号': idx + 1,
+                                    '题目类型': q.type || '-',
+                                    '题目内容': q.text || '-',
+                                    '分值': q.score || 0,
+                                    '正确答案': q.answer || '-'
+                                });
+                            });
+                        }
+                    });
+                    
+                    if (questions.length === 0) {
+                        showTipModal('提示', '暂无题库数据可导出');
+                        return;
+                    }
+                    
+                    const ws = XLSX.utils.json_to_sheet(questions);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, '题库数据');
+                    XLSX.writeFile(wb, `韩花亭题库数据_${this.getFormattedTime()}.xlsx`);
+                    
+                    this.logOperation('导出题库Excel', { count: questions.length });
+                    showTipModal('导出成功', `已导出 ${questions.length} 道题目`);
+                } catch (e) {
+                    console.error('[DataBackupManager] 导出题库Excel失败:', e);
+                    showTipModal('导出失败', '导出过程中出现错误，请重试');
+                }
+            },
+            
+            // 导出试卷数据为Excel
+            exportPapersToExcel() {
+                try {
+                    const papers = JSON.parse(localStorage.getItem(STORAGE_KEY.PAPERS) || '[]');
+                    
+                    if (papers.length === 0) {
+                        showTipModal('提示', '暂无试卷数据可导出');
+                        return;
+                    }
+                    
+                    const formattedPapers = papers.map(p => ({
+                        '试卷ID': p.id || '-',
+                        '试卷名称': p.title || '-',
+                        '题目数量': p.questions?.length || 0,
+                        '总分': p.totalScore || 100,
+                        '及格分数': p.passingScore || 60,
+                        '考试时长': p.duration || 90,
+                        '创建时间': p.createTime || '-'
+                    }));
+                    
+                    const ws = XLSX.utils.json_to_sheet(formattedPapers);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, '试卷数据');
+                    XLSX.writeFile(wb, `韩花亭试卷数据_${this.getFormattedTime()}.xlsx`);
+                    
+                    this.logOperation('导出试卷Excel', { count: papers.length });
+                    showTipModal('导出成功', `已导出 ${papers.length} 套试卷`);
+                } catch (e) {
+                    console.error('[DataBackupManager] 导出试卷Excel失败:', e);
+                    showTipModal('导出失败', '导出过程中出现错误，请重试');
+                }
+            },
+            
+            // 数据恢复（含回滚机制）
+            restoreFromJson(file) {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        const backupData = JSON.parse(e.target.result);
+                        
+                        // 二次确认
+                        showConfirmModal('⚠️ 数据恢复确认', 
+                            '恢复将覆盖现有所有数据！系统已自动备份当前数据作为临时备份。确定要继续吗？', 
+                            () => {
+                                // 第一步：自动备份当前数据
+                                const tempBackupData = {};
+                                for (let i = 0; i < localStorage.length; i++) {
+                                    const key = localStorage.key(i);
+                                    if (key) {
+                                        tempBackupData[key] = localStorage.getItem(key);
+                                    }
+                                }
+                                
+                                try {
+                                    // 第二步：清除现有数据
+                                    localStorage.clear();
+                                    
+                                    // 第三步：恢复备份数据
+                                    for (const [key, value] of Object.entries(backupData)) {
+                                        if (key !== '_backupMeta') {
+                                            if (typeof value === 'string') {
+                                                localStorage.setItem(key, value);
+                                            } else {
+                                                localStorage.setItem(key, JSON.stringify(value));
+                                            }
+                                        }
+                                    }
+                                    
+                                    // 记录日志
+                                    this.logOperation('数据恢复', { 
+                                        backupVersion: backupData._backupMeta?.version || 'unknown',
+                                        backupTime: backupData._backupMeta?.timestamp || '-'
+                                    });
+                                    
+                                    showTipModal('恢复成功', '数据已成功恢复，页面将刷新以加载新数据');
+                                    
+                                    // 刷新页面
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                    
+                                } catch (restoreError) {
+                                    console.error('[DataBackupManager] 恢复失败，开始回滚:', restoreError);
+                                    
+                                    // 回滚：恢复临时备份
+                                    localStorage.clear();
+                                    for (const [key, value] of Object.entries(tempBackupData)) {
+                                        localStorage.setItem(key, value);
+                                    }
+                                    
+                                    showTipModal('恢复失败', '数据恢复失败，已自动回滚到原有数据');
+                                    this.logOperation('数据恢复失败-已回滚', { error: restoreError.message });
+                                }
+                            }
+                        );
+                    } catch (parseError) {
+                        console.error('[DataBackupManager] 解析备份文件失败:', parseError);
+                        showTipModal('文件错误', '备份文件格式错误，请检查文件是否有效');
+                    }
+                };
+                
+                reader.readAsText(file);
+            },
+            
+            // 数据一键清零
+            clearSelectedData(dataType) {
+                if (!dataType) {
+                    showTipModal('提示', '请选择要清零的数据类型');
+                    return;
+                }
+                
+                const typeNames = {
+                    'records': '成绩数据',
+                    'exam_sessions': '考试会话',
+                    'temp_answers': '临时答案',
+                    'security_logs': '安全日志'
+                };
+                
+                const typeKeys = {
+                    'records': STORAGE_KEY.RECORDS,
+                    'exam_sessions': STORAGE_KEY.EXAM_SESSIONS,
+                    'temp_answers': STORAGE_KEY.TEMP_ANSWER,
+                    'security_logs': STORAGE_KEY.SECURITY_LOGS
+                };
+                
+                showConfirmModal('⚠️ 数据清零确认', 
+                    `确定要清零【${typeNames[dataType]}】吗？操作前会自动备份当前数据。`, 
+                    () => {
+                        // 先备份当前数据
+                        this.backupAllToJson();
+                        
+                        // 执行清零
+                        try {
+                            if (dataType === 'temp_answers') {
+                                // 临时答案可能有多个key
+                                const keysToRemove = [];
+                                for (let i = 0; i < localStorage.length; i++) {
+                                    const key = localStorage.key(i);
+                                    if (key && key.startsWith(typeKeys[dataType])) {
+                                        keysToRemove.push(key);
+                                    }
+                                }
+                                keysToRemove.forEach(key => localStorage.removeItem(key));
+                            } else {
+                                localStorage.removeItem(typeKeys[dataType]);
+                            }
+                            
+                            this.logOperation('数据清零', { dataType: typeNames[dataType] });
+                            showTipModal('清零成功', `【${typeNames[dataType]}】已成功清零`);
+                        } catch (e) {
+                            console.error('[DataBackupManager] 清零失败:', e);
+                            showTipModal('清零失败', '清零过程中出现错误');
+                        }
+                    }
+                );
+            },
+            
+            // 检查是否需要备份提醒
+            checkBackupReminder() {
+                try {
+                    const lastBackupTime = parseInt(localStorage.getItem('hht_last_backup_time') || '0');
+                    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                    
+                    if (lastBackupTime === 0 || (Date.now() - lastBackupTime) > sevenDays) {
+                        setTimeout(() => {
+                            showConfirmModal('💾 备份提醒', 
+                                '您已经超过7天没有备份数据了，建议立即进行全量备份，以防数据丢失。是否现在备份？', 
+                                () => {
+                                    this.backupAllToJson();
+                                },
+                                () => {
+                                    // 用户选择稍后备份
+                                    console.log('[DataBackupManager] 用户选择稍后备份');
+                                }
+                            );
+                        }, 2000);
+                    }
+                } catch (e) {
+                    console.warn('[DataBackupManager] 检查备份提醒失败:', e);
+                }
+            },
+            
+            // 初始化事件绑定
+            initEventBindings() {
+                // 全量JSON备份按钮
+                const backupAllBtn = document.getElementById('backupAllJsonBtn');
+                if (backupAllBtn) {
+                    backupAllBtn.addEventListener('click', () => this.backupAllToJson());
+                }
+                
+                // 分类Excel导出按钮
+                const exportEmployeesBtn = document.getElementById('exportEmployeesExcelBtn');
+                if (exportEmployeesBtn) {
+                    exportEmployeesBtn.addEventListener('click', () => this.exportEmployeesToExcel());
+                }
+                
+                const exportRecordsBtn = document.getElementById('exportRecordsExcelBtn');
+                if (exportRecordsBtn) {
+                    exportRecordsBtn.addEventListener('click', () => this.exportRecordsToExcel());
+                }
+                
+                const exportQuestionsBtn = document.getElementById('exportQuestionsExcelBtn');
+                if (exportQuestionsBtn) {
+                    exportQuestionsBtn.addEventListener('click', () => this.exportQuestionsToExcel());
+                }
+                
+                const exportPapersBtn = document.getElementById('exportPapersExcelBtn');
+                if (exportPapersBtn) {
+                    exportPapersBtn.addEventListener('click', () => this.exportPapersToExcel());
+                }
+                
+                // 数据恢复按钮
+                const restoreBtn = document.getElementById('restoreAllJsonBtn');
+                const restoreInput = document.getElementById('restoreJsonInput');
+                if (restoreBtn && restoreInput) {
+                    restoreBtn.addEventListener('click', () => {
+                        restoreInput.click();
+                    });
+                    restoreInput.addEventListener('change', (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                            this.restoreFromJson(e.target.files[0]);
+                            e.target.value = '';
+                        }
+                    });
+                }
+                
+                // 数据清零按钮
+                const clearDataBtn = document.getElementById('clearDataBtn');
+                const clearDataTypeSelect = document.getElementById('clearDataTypeSelect');
+                if (clearDataBtn && clearDataTypeSelect) {
+                    clearDataBtn.addEventListener('click', () => {
+                        this.clearSelectedData(clearDataTypeSelect.value);
+                    });
+                }
+                
+                // 渲染重置码管理UI
+                this.renderResetCodeList();
+            },
+            
+            // 渲染重置码管理列表
+            renderResetCodeList() {
+                const container = document.getElementById('resetCodeList');
+                if (!container) return;
+                
+                const resetCodes = JSON.parse(localStorage.getItem('hht_shop_reset_codes') || '{}');
+                const isSuperAdmin = currentRole === 'super_admin';
+                const isShopManager = currentRole === 'shop_manager';
+                const userShop = currentUser.shop || '';
+                
+                let html = '';
+                
+                for (const shop of ResetCodeManager.shops) {
+                    const shopCode = resetCodes[shop];
+                    if (!shopCode) continue;
+                    
+                    // 权限检查：超级管理员看所有，店长仅看自己门店，普通员工不看
+                    if (isShopManager && shop !== userShop) continue;
+                    if (!isSuperAdmin && !isShopManager) continue;
+                    
+                    const isExpired = shopCode.expireTime && Date.now() > shopCode.expireTime;
+                    const expireText = shopCode.expireTime 
+                        ? (isExpired ? '已过期' : new Date(shopCode.expireTime).toLocaleDateString())
+                        : '永久有效';
+                    
+                    html += `
+                        <div style="padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <strong style="font-size: 16px; color: var(--text-primary);">${shop}</strong>
+                                    <div style="margin-top: 8px;">
+                                        <span style="color: var(--text-muted); font-size: 13px;">重置码：</span>
+                                        <span style="font-family: monospace; font-size: 18px; color: var(--brand-orange); font-weight: bold; letter-spacing: 2px;">${shopCode.code}</span>
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        <span style="color: var(--text-muted); font-size: 13px;">有效期：</span>
+                                        <span style="color: ${isExpired ? 'var(--danger)' : 'var(--success)'}; font-size: 13px;">${expireText}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    ${isSuperAdmin ? `
+                                        <button class="btn btn-secondary" onclick="DataBackupManager.handleRefreshCode('${shop}')" style="padding: 8px 16px; font-size: 13px;">
+                                            🔄 刷新重置码
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html || '<p style="color: var(--text-muted); text-align: center;">暂无权限查看重置码</p>';
+            },
+            
+            // 处理刷新重置码
+            handleRefreshCode(shop) {
+                showConfirmModal('确认刷新', `确定要刷新【${shop}】的重置码吗？`, () => {
+                    ResetCodeManager.refreshShopCode(shop);
+                    this.renderResetCodeList();
+                    showTipModal('刷新成功', `【${shop}】的重置码已刷新`);
+                });
+            }
+        };
+        
+        // 在DOMContentLoaded中初始化备份恢复功能
+        const originalInitFunc = originalInit;
+        originalInit = function() {
+            originalInitFunc();
+            
+            // 仅超级管理员初始化备份恢复功能
+            if (currentRole === 'super_admin') {
+                DataBackupManager.initEventBindings();
+                DataBackupManager.checkBackupReminder();
+            }
+            
+            // 初始化密码重置管理
+            PasswordResetManager.init();
+            
+            // 初始化重置码管理
+            ResetCodeManager.init();
+            
+            // 初始化登录安全管理
+            LoginSecurityManager.init();
+        };
+        // ==================== 全量数据备份与恢复功能模块结束 ====================
+        
+        // ==================== 密码自助重置与账号安全体系 ====================
+        const PasswordResetManager = {
+            resetStep: 1, // 1: 身份验证  2: 设置新密码
+            verifiedEmployeeId: null,
+            verifiedShop: null,
+            lockTimer: null,
+            
+            init() {
+                // 检查重置锁定状态
+                this.checkResetLock();
+            },
+            
+            showResetPage() {
+                // 隐藏登录容器，显示重置容器
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('passwordResetContainer').style.display = 'block';
+                this.resetStep = 1;
+                this.resetForm();
+            },
+            
+            backToLogin() {
+                document.getElementById('passwordResetContainer').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'block';
+                this.resetStep = 1;
+                this.resetForm();
+            },
+            
+            resetForm() {
+                document.getElementById('resetEmployeeId').value = '';
+                document.getElementById('resetShop').value = '';
+                document.getElementById('resetCode').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                document.getElementById('passwordResetForm').style.display = 'block';
+                document.getElementById('newPasswordSection').style.display = 'none';
+                document.getElementById('resetPasswordBtn').textContent = '验证身份';
+                this.verifiedEmployeeId = null;
+                this.verifiedShop = null;
+            },
+            
+            checkResetLock() {
+                const lockData = JSON.parse(localStorage.getItem('hht_reset_lock') || '{}');
+                if (lockData.unlockTime && Date.now() < lockData.unlockTime) {
+                    this.showLockCountdown(lockData.unlockTime);
+                }
+            },
+            
+            showLockCountdown(unlockTime) {
+                document.getElementById('resetLockTip').style.display = 'block';
+                const updateCountdown = () => {
+                    const remaining = Math.max(0, unlockTime - Date.now());
+                    if (remaining <= 0) {
+                        document.getElementById('resetLockTip').style.display = 'none';
+                        return;
+                    }
+                    const minutes = Math.floor(remaining / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+                    document.getElementById('resetLockCountdown').textContent = 
+                        `操作频繁，请 ${minutes}分${seconds}秒 后再试`;
+                    this.lockTimer = setTimeout(updateCountdown, 1000);
+                };
+                updateCountdown();
+            },
+            
+            checkResetAttempts(employeeId) {
+                const attemptKey = `hht_reset_attempts_${employeeId}`;
+                const attempts = JSON.parse(localStorage.getItem(attemptKey) || '[]');
+                const oneHourAgo = Date.now() - 3600000;
+                const recentAttempts = attempts.filter(t => t > oneHourAgo);
+                
+                if (recentAttempts.length >= 3) {
+                    localStorage.setItem('hht_reset_lock', JSON.stringify({
+                        unlockTime: Date.now() + 3600000
+                    }));
+                    this.showLockCountdown(Date.now() + 3600000);
+                    this.logResetOperation(employeeId, '锁定', '重置次数超限');
+                    return false;
+                }
+                
+                recentAttempts.push(Date.now());
+                localStorage.setItem(attemptKey, JSON.stringify(recentAttempts));
+                return true;
+            },
+            
+            validatePasswordStrength(password) {
+                if (!password || password.length < 6) return false;
+                const hasLetter = /[a-zA-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                return hasLetter && hasNumber;
+            },
+            
+            logResetOperation(employeeId, action, result) {
+                const logData = {
+                    id: Date.now(),
+                    timestamp: new Date().toISOString(),
+                    employeeId: employeeId,
+                    action: action,
+                    result: result,
+                    ip: '127.0.0.1'
+                };
+                
+                let logs = JSON.parse(localStorage.getItem('hht_reset_logs') || '[]');
+                logs.push(logData);
+                if (logs.length > 1000) logs = logs.slice(logs.length - 1000);
+                localStorage.setItem('hht_reset_logs', JSON.stringify(logs));
+            },
+            
+            handleResetStep() {
+                if (this.resetStep === 1) {
+                    this.verifyIdentity();
+                } else {
+                    this.resetPassword();
+                }
+            },
+            
+            verifyIdentity() {
+                const employeeId = document.getElementById('resetEmployeeId').value.trim();
+                const shop = document.getElementById('resetShop').value;
+                const resetCode = document.getElementById('resetCode').value.trim();
+                
+                if (!employeeId) {
+                    showTipModal('验证失败', '请输入工号');
+                    return;
+                }
+                if (!shop) {
+                    showTipModal('验证失败', '请选择所属门店');
+                    return;
+                }
+                if (!resetCode || resetCode.length !== 6 || !/^\d+$/.test(resetCode)) {
+                    showTipModal('验证失败', '请输入6位数字重置码');
+                    return;
+                }
+                
+                if (!this.checkResetAttempts(employeeId)) {
+                    showTipModal('操作频繁', '1小时内最多尝试3次，请稍后再试');
+                    return;
+                }
+                
+                const resetCodes = JSON.parse(localStorage.getItem('hht_shop_reset_codes') || '{}');
+                const shopCode = resetCodes[shop];
+                
+                if (!shopCode || shopCode.code !== resetCode) {
+                    this.logResetOperation(employeeId, '验证', '重置码错误');
+                    showTipModal('验证失败', '重置码错误，请重新输入');
+                    return;
+                }
+                
+                if (shopCode.expireTime && Date.now() > shopCode.expireTime) {
+                    this.logResetOperation(employeeId, '验证', '重置码已过期');
+                    showTipModal('验证失败', '重置码已过期，请联系管理员');
+                    return;
+                }
+                
+                const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                let foundUser = null;
+                
+                for (const [phone, user] of Object.entries(phoneBindings)) {
+                    if (user.username === employeeId || user.name === employeeId) {
+                        if (user.shop === shop) {
+                            foundUser = { ...user, phone: phone };
+                            break;
+                        }
+                    }
+                }
+                
+                if (!foundUser) {
+                    this.logResetOperation(employeeId, '验证', '员工信息不匹配');
+                    showTipModal('验证失败', '未找到匹配的员工信息');
+                    return;
+                }
+                
+                this.verifiedEmployeeId = employeeId;
+                this.verifiedShop = shop;
+                this.resetStep = 2;
+                this.logResetOperation(employeeId, '验证', '成功');
+                
+                document.getElementById('passwordResetForm').style.display = 'none';
+                document.getElementById('newPasswordSection').style.display = 'block';
+                document.getElementById('resetPasswordBtn').textContent = '确认重置密码';
+            },
+            
+            resetPassword() {
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmNewPassword').value;
+                
+                if (!this.validatePasswordStrength(newPassword)) {
+                    showTipModal('密码强度不足', '密码必须6位以上，且包含数字和字母');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showTipModal('密码不一致', '两次输入的密码不一致');
+                    return;
+                }
+                
+                const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                
+                for (const [phone, user] of Object.entries(phoneBindings)) {
+                    if (user.username === this.verifiedEmployeeId || user.name === this.verifiedEmployeeId) {
+                        phoneBindings[phone].password = md5(newPassword);
+                        break;
+                    }
+                }
+                
+                localStorage.setItem(STORAGE_KEY.PHONE_BINDINGS, JSON.stringify(phoneBindings));
+                this.logResetOperation(this.verifiedEmployeeId, '重置密码', '成功');
+                
+                showTipModal('重置成功', '密码已成功重置，请使用新密码登录');
+                
+                setTimeout(() => {
+                    this.backToLogin();
+                }, 1500);
+            }
+        };
+        
+        const ResetCodeManager = {
+            shops: [
+                '韩花亭烤肉一店',
+                '韩花亭烤肉两店',
+                '韩花亭烤肉三店',
+                '韩花亭烤肉四店'
+            ],
+            
+            init() {
+                this.initResetCodes();
+            },
+            
+            initResetCodes() {
+                let resetCodes = JSON.parse(localStorage.getItem('hht_shop_reset_codes') || '{}');
+                
+                for (const shop of this.shops) {
+                    if (!resetCodes[shop]) {
+                        resetCodes[shop] = {
+                            code: this.generateResetCode(),
+                            createTime: Date.now(),
+                            expireTime: null
+                        };
+                    }
+                }
+                
+                localStorage.setItem('hht_shop_reset_codes', JSON.stringify(resetCodes));
+            },
+            
+            generateResetCode() {
+                return String(Math.floor(100000 + Math.random() * 900000));
+            },
+            
+            // 在系统设置面板中添加UI的方法
+            addToConfigPanel() {
+                // 此方法将配合管理面板调用
+            },
+            
+            // 刷新门店重置码
+            refreshShopCode(shop) {
+                const resetCodes = JSON.parse(localStorage.getItem('hht_shop_reset_codes') || '{}');
+                resetCodes[shop] = {
+                    code: this.generateResetCode(),
+                    createTime: Date.now(),
+                    expireTime: null
+                };
+                localStorage.setItem('hht_shop_reset_codes', JSON.stringify(resetCodes));
+                return resetCodes[shop];
+            },
+            
+            // 获取门店重置码
+            getShopCode(shop) {
+                const resetCodes = JSON.parse(localStorage.getItem('hht_shop_reset_codes') || '{}');
+                return resetCodes[shop];
+            },
+            
+            // 设置重置码有效期
+            setCodeExpireTime(shop, days) {
+                const resetCodes = JSON.parse(localStorage.getItem('hht_shop_reset_codes') || '{}');
+                if (resetCodes[shop]) {
+                    resetCodes[shop].expireTime = days ? Date.now() + days * 24 * 60 * 60 * 1000 : null;
+                    localStorage.setItem('hht_shop_reset_codes', JSON.stringify(resetCodes));
+                }
+            }
+        };
+        
+        const LoginSecurityManager = {
+            loginLockTimer: null,
+            
+            init() {
+                this.initDeviceFingerprint();
+                this.checkLoginLock();
+            },
+            
+            initDeviceFingerprint() {
+                if (!localStorage.getItem('hht_device_fingerprint')) {
+                    const fingerprint = md5(navigator.userAgent + navigator.platform + navigator.language + Date.now());
+                    localStorage.setItem('hht_device_fingerprint', fingerprint);
+                }
+            },
+            
+            checkLoginLock() {
+                const lockData = JSON.parse(localStorage.getItem(STORAGE_KEY.LOCK_TIME) || '{}');
+                if (lockData && Date.now() < lockData) {
+                    this.showLoginLockCountdown(lockData);
+                }
+            },
+            
+            showLoginLockCountdown(unlockTime) {
+                const lockedTip = document.getElementById('lockedTip');
+                const lockedCountdown = document.getElementById('lockedCountdown');
+                if (!lockedTip || !lockedCountdown) return;
+                
+                lockedTip.style.display = 'block';
+                const updateCountdown = () => {
+                    const remaining = Math.max(0, unlockTime - Date.now());
+                    if (remaining <= 0) {
+                        lockedTip.style.display = 'none';
+                        return;
+                    }
+                    const minutes = Math.floor(remaining / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+                    lockedCountdown.textContent = `请 ${minutes}分${seconds}秒 后再试`;
+                    this.loginLockTimer = setTimeout(updateCountdown, 1000);
+                };
+                updateCountdown();
+            },
+            
+            // 记录登录尝试
+            recordLoginAttempt(success, userId = null) {
+                const attemptKey = 'hht_login_attempts';
+                const attempts = JSON.parse(localStorage.getItem(attemptKey) || '[]');
+                const now = Date.now();
+                
+                if (!success) {
+                    attempts.push({ time: now, success: false });
+                    
+                    const recentFails = attempts.filter(a => !a.success && (now - a.time) < 600000);
+                    
+                    if (recentFails.length >= 5) {
+                        const lockTime = now + 600000;
+                        localStorage.setItem(STORAGE_KEY.LOCK_TIME, JSON.stringify(lockTime));
+                        this.showLoginLockCountdown(lockTime);
+                    }
+                } else {
+                    localStorage.removeItem(attemptKey);
+                    localStorage.removeItem(STORAGE_KEY.LOCK_TIME);
+                    
+                    if (userId) {
+                        this.checkDeviceChange(userId);
+                    }
+                }
+                
+                if (attempts.length > 50) {
+                    attempts.splice(0, attempts.length - 50);
+                }
+                localStorage.setItem(attemptKey, JSON.stringify(attempts));
+            },
+            
+            checkDeviceChange(userId) {
+                const lastDeviceKey = `hht_last_device_${userId}`;
+                const currentDevice = localStorage.getItem('hht_device_fingerprint');
+                const lastDevice = localStorage.getItem(lastDeviceKey);
+                
+                if (lastDevice && lastDevice !== currentDevice) {
+                    setTimeout(() => {
+                        showConfirmModal('🔐 登录环境提醒', 
+                            '检测到您的登录环境与上次不同。如果不是您本人操作，请立即修改密码。是否继续？',
+                            () => {
+                                localStorage.setItem(lastDeviceKey, currentDevice);
+                            },
+                            () => {
+                                logout();
+                            }
+                        );
+                    }, 1000);
+                } else {
+                    localStorage.setItem(lastDeviceKey, currentDevice);
+                }
+            },
+            
+            // 密码强度验证
+            validatePassword(password) {
+                return PasswordResetManager.validatePasswordStrength(password);
+            }
+        };
+        
+        // ==================== 密码自助重置与账号安全体系结束 ====================
+
+        /* ==================== 岗位培训模块 - JavaScript功能（已暂时关闭） ==================== */
+        /*
+        
+        // 存储键定义
+        const TRAINING_STORAGE_KEYS = {
+            COURSES: 'hht_training_courses',
+            LEARNING_RECORDS: 'hht_training_learning_records',
+            POSTS: 'hht_training_posts'
+        };
+        
+        // 默认岗位
+        const DEFAULT_POSTS = ['后厨烤师', '前厅服务员', '收银', '店长'];
+        
+        // 岗位培训管理器
+        const TrainingManager = {
+            // 初始化
+            init() {
+                this.initData();
+                this.bindEvents();
+            },
+            
+            // 初始化数据
+            initData() {
+                try {
+                    // 初始化岗位数据
+                    if (!localStorage.getItem(TRAINING_STORAGE_KEYS.POSTS)) {
+                        localStorage.setItem(TRAINING_STORAGE_KEYS.POSTS, JSON.stringify(DEFAULT_POSTS));
+                    }
+                    
+                    // 初始化课程数据
+                    if (!localStorage.getItem(TRAINING_STORAGE_KEYS.COURSES)) {
+                        localStorage.setItem(TRAINING_STORAGE_KEYS.COURSES, JSON.stringify([]));
+                    }
+                    
+                    // 初始化学习记录
+                    if (!localStorage.getItem(TRAINING_STORAGE_KEYS.LEARNING_RECORDS)) {
+                        localStorage.setItem(TRAINING_STORAGE_KEYS.LEARNING_RECORDS, JSON.stringify([]));
+                    }
+                } catch (e) {
+                    console.error('[TrainingManager] 初始化数据失败:', e);
+                }
+            },
+            
+            // 获取所有岗位
+            getPosts() {
+                try {
+                    return JSON.parse(localStorage.getItem(TRAINING_STORAGE_KEYS.POSTS) || JSON.stringify(DEFAULT_POSTS));
+                } catch (e) {
+                    return DEFAULT_POSTS;
+                }
+            },
+            
+            // 获取所有课程
+            getCourses() {
+                try {
+                    return JSON.parse(localStorage.getItem(TRAINING_STORAGE_KEYS.COURSES) || '[]');
+                } catch (e) {
+                    return [];
+                }
+            },
+            
+            // 保存课程
+            saveCourses(courses) {
+                try {
+                    localStorage.setItem(TRAINING_STORAGE_KEYS.COURSES, JSON.stringify(courses));
+                } catch (e) {
+                    console.error('[TrainingManager] 保存课程失败:', e);
+                }
+            },
+            
+            // 新增课程
+            addCourse(courseData) {
+                try {
+                    const courses = this.getCourses();
+                    const newCourse = {
+                        id: Date.now().toString(),
+                        name: courseData.name,
+                        post: courseData.post,
+                        cover: courseData.cover || '📚',
+                        content: courseData.content || '',
+                        videoUrl: courseData.videoUrl || '',
+                        sort: parseInt(courseData.sort) || courses.length,
+                        enabled: courseData.enabled !== undefined ? courseData.enabled : true,
+                        boundPaperId: courseData.boundPaperId || '',
+                        requireStudyToExam: courseData.requireStudyToExam !== undefined ? courseData.requireStudyToExam : false,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    courses.push(newCourse);
+                    this.saveCourses(courses);
+                    
+                    this.logTrainingOperation('新增课程', { courseName: newCourse.name });
+                    return newCourse;
+                } catch (e) {
+                    console.error('[TrainingManager] 新增课程失败:', e);
+                    return null;
+                }
+            },
+            
+            // 更新课程
+            updateCourse(courseId, courseData) {
+                try {
+                    const courses = this.getCourses();
+                    const index = courses.findIndex(c => c.id === courseId);
+                    
+                    if (index !== -1) {
+                        courses[index] = {
+                            ...courses[index],
+                            ...courseData,
+                            updatedAt: new Date().toISOString()
+                        };
+                        this.saveCourses(courses);
+                        this.logTrainingOperation('更新课程', { courseName: courses[index].name });
+                        return courses[index];
+                    }
+                    return null;
+                } catch (e) {
+                    console.error('[TrainingManager] 更新课程失败:', e);
+                    return null;
+                }
+            },
+            
+            // 删除课程
+            deleteCourse(courseId) {
+                try {
+                    const courses = this.getCourses();
+                    const course = courses.find(c => c.id === courseId);
+                    if (!course) return false;
+                    
+                    const newCourses = courses.filter(c => c.id !== courseId);
+                    this.saveCourses(newCourses);
+                    
+                    this.logTrainingOperation('删除课程', { courseName: course.name });
+                    return true;
+                } catch (e) {
+                    console.error('[TrainingManager] 删除课程失败:', e);
+                    return false;
+                }
+            },
+            
+            // 获取学习记录
+            getLearningRecords() {
+                try {
+                    return JSON.parse(localStorage.getItem(TRAINING_STORAGE_KEYS.LEARNING_RECORDS) || '[]');
+                } catch (e) {
+                    return [];
+                }
+            },
+            
+            // 保存学习记录
+            saveLearningRecords(records) {
+                try {
+                    localStorage.setItem(TRAINING_STORAGE_KEYS.LEARNING_RECORDS, JSON.stringify(records));
+                } catch (e) {
+                    console.error('[TrainingManager] 保存学习记录失败:', e);
+                }
+            },
+            
+            // 获取用户的学习记录
+            getUserLearningRecords(userId) {
+                const records = this.getLearningRecords();
+                return records.filter(r => r.userId === userId);
+            },
+            
+            // 获取课程的学习进度
+            getCourseProgress(userId, courseId) {
+                const records = this.getUserLearningRecords(userId);
+                const record = records.find(r => r.courseId === courseId);
+                return record || {
+                    courseId,
+                    userId,
+                    progress: 0,
+                    totalTime: 0,
+                    lastPosition: 0,
+                    completed: false,
+                    completedAt: null
+                };
+            },
+            
+            // 更新学习进度
+            updateLearningProgress(userId, courseId, progress, timeSpent = 0) {
+                try {
+                    const records = this.getLearningRecords();
+                    let record = records.find(r => r.userId === userId && r.courseId === courseId);
+                    
+                    if (!record) {
+                        record = {
+                            id: Date.now().toString(),
+                            userId,
+                            courseId,
+                            progress: 0,
+                            totalTime: 0,
+                            lastPosition: 0,
+                            completed: false,
+                            startedAt: new Date().toISOString(),
+                            completedAt: null
+                        };
+                        records.push(record);
+                    }
+                    
+                    record.progress = Math.max(record.progress, Math.min(progress, 100));
+                    record.totalTime = (record.totalTime || 0) + timeSpent;
+                    record.updatedAt = new Date().toISOString();
+                    
+                    if (record.progress >= 100 && !record.completed) {
+                        record.completed = true;
+                        record.completedAt = new Date().toISOString();
+                    }
+                    
+                    this.saveLearningRecords(records);
+                    return record;
+                } catch (e) {
+                    console.error('[TrainingManager] 更新学习进度失败:', e);
+                    return null;
+                }
+            },
+            
+            // 检查是否可以参加考试（学完再考规则）
+            canTakeExam(userId, paperId) {
+                const courses = this.getCourses();
+                const boundCourse = courses.find(c => c.boundPaperId === paperId && c.enabled);
+                
+                if (!boundCourse) {
+                    // 没有绑定课程，直接可以考试
+                    return { allowed: true, message: '' };
+                }
+                
+                if (!boundCourse.requireStudyToExam) {
+                    // 不要求学完再考
+                    return { allowed: true, message: '' };
+                }
+                
+                const progress = this.getCourseProgress(userId, boundCourse.id);
+                if (progress.progress >= 80) {
+                    return { allowed: true, message: '' };
+                }
+                
+                return {
+                    allowed: false,
+                    message: `请先完成《${boundCourse.name}》课程的80%学习进度（当前${progress.progress}%）`
+                };
+            },
+            
+            // 记录操作日志
+            logTrainingOperation(action, details = {}) {
+                try {
+                    const logData = {
+                        id: Date.now(),
+                        timestamp: new Date().toISOString(),
+                        operator: currentUser?.name || '未知用户',
+                        operatorId: currentUser?.username || 'unknown',
+                        action,
+                        details
+                    };
+                    
+                    let securityLogs = JSON.parse(localStorage.getItem(STORAGE_KEY.SECURITY_LOGS) || '[]');
+                    securityLogs.push({
+                        id: logData.id,
+                        timestamp: logData.timestamp,
+                        level: 'info',
+                        eventType: 'TRAINING_OPERATION',
+                        message: `${logData.operator} 执行了 ${action}`,
+                        details: logData
+                    });
+                    localStorage.setItem(STORAGE_KEY.SECURITY_LOGS, JSON.stringify(securityLogs));
+                } catch (e) {
+                    console.error('[TrainingManager] 记录日志失败:', e);
+                }
+            },
+            
+            // 渲染管理端课程列表
+            renderAdminCourseList() {
+                const container = document.getElementById('trainingCourseList');
+                if (!container) return;
+                
+                const shopFilter = document.getElementById('trainingShopFilter')?.value || '';
+                const postFilter = document.getElementById('trainingPostFilter')?.value || '';
+                
+                let courses = this.getCourses();
+                
+                if (postFilter) {
+                    courses = courses.filter(c => c.post === postFilter);
+                }
+                
+                if (courses.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">暂无课程数据</p>';
+                    return;
+                }
+                
+                let html = '';
+                for (const course of courses) {
+                    html += `
+                        <div class="training-course-item">
+                            <div class="course-name">${course.name}</div>
+                            <div class="course-detail">
+                                <span>岗位：${course.post}</span> | 
+                                <span>排序：${course.sort}</span> | 
+                                <span>状态：${course.enabled ? '启用' : '禁用'}</span>
+                                ${course.boundPaperId ? ' | <span>绑定试卷：是</span>' : ''}
+                                ${course.requireStudyToExam ? ' | <span>学完再考：是</span>' : ''}
+                            </div>
+                            <div class="course-actions">
+                                <button class="confirm-btn" style="padding: 8px 16px; font-size: 13px;" onclick="TrainingManager.editCourse('${course.id}')">编辑</button>
+                                <button class="success-btn" style="padding: 8px 16px; font-size: 13px;" onclick="TrainingManager.previewCourse('${course.id}')">预览</button>
+                                <button class="danger-btn" style="padding: 8px 16px; font-size: 13px;" onclick="TrainingManager.confirmDeleteCourse('${course.id}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+            },
+            
+            // 编辑课程
+            editCourse(courseId) {
+                const courses = this.getCourses();
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                
+                this.showCourseEditModal(course);
+            },
+            
+            // 预览课程
+            previewCourse(courseId) {
+                const courses = this.getCourses();
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                
+                showConfirmModal('课程预览', '是否在新窗口预览课程内容？', () => {
+                    alert('预览功能：\n\n课程名称：' + course.name + '\n岗位：' + course.post + '\n\n（实际预览将打开完整学习页面）');
+                });
+            },
+            
+            // 确认删除课程
+            confirmDeleteCourse(courseId) {
+                const courses = this.getCourses();
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                
+                showConfirmModal('确认删除', `确定要删除课程《${course.name}》吗？删除后无法恢复！`, () => {
+                    if (this.deleteCourse(courseId)) {
+                        showTipModal('删除成功', '课程已删除');
+                        this.renderAdminCourseList();
+                    }
+                });
+            },
+            
+            // 显示课程编辑弹窗
+            showCourseEditModal(course = null) {
+                const posts = this.getPosts();
+                const papers = getAllPapers();
+                
+                let postsOptions = posts.map(p => `<option value="${p}" ${course && course.post === p ? 'selected' : ''}>${p}</option>`).join('');
+                let papersOptions = '<option value="">不绑定试卷</option>' + 
+                    papers.map(p => `<option value="${p.id}" ${course && course.boundPaperId === p.id ? 'selected' : ''}>${p.title}</option>`).join('');
+                
+                const modalHtml = `
+                    <div class="modal" id="courseEditModal" style="display: flex;">
+                        <div class="modal-content training-modal-content">
+                            <div class="modal-title">${course ? '编辑课程' : '新增课程'}</div>
+                            <div style="padding: 0 20px 20px;">
+                                <div class="form-group">
+                                    <label>课程名称 *</label>
+                                    <input type="text" id="editCourseName" value="${course?.name || ''}" placeholder="请输入课程名称">
+                                </div>
+                                <div class="form-group">
+                                    <label>所属岗位 *</label>
+                                    <select id="editCoursePost">${postsOptions}</select>
+                                </div>
+                                <div class="form-group">
+                                    <label>课程封面（Emoji）</label>
+                                    <input type="text" id="editCourseCover" value="${course?.cover || '📚'}" placeholder="📚">
+                                </div>
+                                <div class="form-group">
+                                    <label>课程内容（支持HTML）</label>
+                                    <textarea id="editCourseContent" placeholder="请输入课程内容...">${course?.content || ''}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>视频嵌入链接（B站/腾讯视频）</label>
+                                    <input type="text" id="editCourseVideo" value="${course?.videoUrl || ''}" placeholder="https://...">
+                                </div>
+                                <div class="form-group">
+                                    <label>排序</label>
+                                    <input type="number" id="editCourseSort" value="${course?.sort || 0}" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>绑定考试试卷</label>
+                                    <select id="editCoursePaper">${papersOptions}</select>
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="margin: 0;">是否启用</label>
+                                    <input type="checkbox" id="editCourseEnabled" ${course?.enabled !== false ? 'checked' : ''}>
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="margin: 0;">学完再考（需完成80%）</label>
+                                    <input type="checkbox" id="editCourseRequireStudy" ${course?.requireStudyToExam ? 'checked' : ''}>
+                                </div>
+                            </div>
+                            <div class="modal-buttons">
+                                <button class="modal-btn cancel" onclick="TrainingManager.closeCourseEditModal()">取消</button>
+                                <button class="modal-btn confirm" onclick="TrainingManager.saveCourseFromModal('${course?.id || ''}')">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const oldModal = document.getElementById('courseEditModal');
+                if (oldModal) oldModal.remove();
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            },
+            
+            // 关闭课程编辑弹窗
+            closeCourseEditModal() {
+                const modal = document.getElementById('courseEditModal');
+                if (modal) modal.remove();
+            },
+            
+            // 从弹窗保存课程
+            saveCourseFromModal(courseId) {
+                const name = document.getElementById('editCourseName')?.value?.trim();
+                const post = document.getElementById('editCoursePost')?.value;
+                const cover = document.getElementById('editCourseCover')?.value?.trim() || '📚';
+                const content = document.getElementById('editCourseContent')?.value;
+                const videoUrl = document.getElementById('editCourseVideo')?.value?.trim();
+                const sort = document.getElementById('editCourseSort')?.value || 0;
+                const boundPaperId = document.getElementById('editCoursePaper')?.value;
+                const enabled = document.getElementById('editCourseEnabled')?.checked;
+                const requireStudyToExam = document.getElementById('editCourseRequireStudy')?.checked;
+                
+                if (!name || !post) {
+                    showTipModal('保存失败', '请填写课程名称和所属岗位');
+                    return;
+                }
+                
+                const courseData = {
+                    name,
+                    post,
+                    cover,
+                    content,
+                    videoUrl,
+                    sort,
+                    boundPaperId,
+                    enabled,
+                    requireStudyToExam
+                };
+                
+                let result;
+                if (courseId) {
+                    result = this.updateCourse(courseId, courseData);
+                } else {
+                    result = this.addCourse(courseData);
+                }
+                
+                if (result) {
+                    showTipModal('保存成功', '课程已保存');
+                    this.closeCourseEditModal();
+                    this.renderAdminCourseList();
+                }
+            },
+            
+            // 渲染学习数据统计
+            renderTrainingStats() {
+                const panel = document.getElementById('trainingStatPanel');
+                const tbody = document.getElementById('trainingStatTableBody');
+                if (!panel || !tbody) return;
+                
+                panel.style.display = 'block';
+                
+                const shopFilter = document.getElementById('trainingShopFilter')?.value || '';
+                const postFilter = document.getElementById('trainingPostFilter')?.value || '';
+                
+                const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                const courses = this.getCourses().filter(c => c.enabled);
+                const records = this.getLearningRecords();
+                
+                let employees = [];
+                for (const [phone, data] of Object.entries(phoneBindings)) {
+                    employees.push({
+                        id: data.username || phone,
+                        name: data.name || '-',
+                        shop: data.shop || '-',
+                        post: data.post || '-',
+                        phone
+                    });
+                }
+                
+                if (shopFilter) {
+                    employees = employees.filter(e => e.shop === shopFilter);
+                }
+                if (postFilter) {
+                    employees = employees.filter(e => e.post === postFilter);
+                }
+                
+                let html = '';
+                for (const emp of employees) {
+                    const empCourses = courses.filter(c => c.post === emp.post);
+                    const empRecords = records.filter(r => r.userId === emp.id);
+                    
+                    const completedCount = empRecords.filter(r => r.completed).length;
+                    const totalCourses = empCourses.length;
+                    const completionRate = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+                    const totalTime = empRecords.reduce((sum, r) => sum + (r.totalTime || 0), 0);
+                    const totalTimeStr = this.formatDuration(totalTime);
+                    
+                    html += `
+                        <tr>
+                            <td>${emp.name}</td>
+                            <td>${emp.id}</td>
+                            <td>${emp.shop}</td>
+                            <td>${emp.post}</td>
+                            <td>${completedCount}</td>
+                            <td>${totalCourses}</td>
+                            <td>${completionRate}%</td>
+                            <td>${totalTimeStr}</td>
+                            <td>
+                                <button class="confirm-btn" style="padding: 6px 12px; font-size: 12px;" onclick="TrainingManager.viewEmpLearningDetail('${emp.id}')">查看详情</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                tbody.innerHTML = html || '<tr><td colspan="9" style="text-align: center; color: var(--text-light);">暂无数据</td></tr>';
+            },
+            
+            // 查看员工学习详情
+            viewEmpLearningDetail(userId) {
+                const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                let empName = userId;
+                for (const [phone, data] of Object.entries(phoneBindings)) {
+                    if ((data.username || phone) === userId) {
+                        empName = data.name || userId;
+                        break;
+                    }
+                }
+                
+                const records = this.getUserLearningRecords(userId);
+                const courses = this.getCourses();
+                
+                let html = '<div style="max-height: 400px; overflow-y: auto;">';
+                if (records.length === 0) {
+                    html += '<p style="text-align: center; color: var(--text-light);">暂无学习记录</p>';
+                } else {
+                    for (const record of records) {
+                        const course = courses.find(c => c.id === record.courseId);
+                        const courseName = course?.name || '未知课程';
+                        
+                        html += `
+                            <div style="padding: 12px; margin-bottom: 10px; background: var(--bg-color); border-radius: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 6px;">${courseName}</div>
+                                <div style="font-size: 13px; color: var(--text-light);">
+                                    进度：${record.progress}% | 
+                                    学习时长：${this.formatDuration(record.totalTime || 0)} | 
+                                    状态：${record.completed ? '已完成' : '学习中'}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                html += '</div>';
+                
+                showTipModal(`${empName} 的学习详情`, html);
+            },
+            
+            // 格式化时长
+            formatDuration(seconds) {
+                if (!seconds || seconds < 60) return '不足1分钟';
+                const mins = Math.floor(seconds / 60);
+                if (mins < 60) return `${mins}分钟`;
+                const hours = Math.floor(mins / 60);
+                const remainMins = mins % 60;
+                return `${hours}小时${remainMins}分钟`;
+            },
+            
+            // 导出学习统计数据为Excel
+            exportTrainingStatsToExcel() {
+                if (typeof XLSX === 'undefined') {
+                    showTipModal('导出失败', 'XLSX库未加载，请刷新页面重试');
+                    return;
+                }
+                
+                try {
+                    const shopFilter = document.getElementById('trainingShopFilter')?.value || '';
+                    const postFilter = document.getElementById('trainingPostFilter')?.value || '';
+                    
+                    const phoneBindings = JSON.parse(localStorage.getItem(STORAGE_KEY.PHONE_BINDINGS) || '{}');
+                    const courses = this.getCourses().filter(c => c.enabled);
+                    const records = this.getLearningRecords();
+                    
+                    let employees = [];
+                    for (const [phone, data] of Object.entries(phoneBindings)) {
+                        employees.push({
+                            id: data.username || phone,
+                            name: data.name || '-',
+                            shop: data.shop || '-',
+                            post: data.post || '-',
+                            phone
+                        });
+                    }
+                    
+                    if (shopFilter) {
+                        employees = employees.filter(e => e.shop === shopFilter);
+                    }
+                    if (postFilter) {
+                        employees = employees.filter(e => e.post === postFilter);
+                    }
+                    
+                    const exportData = employees.map(emp => {
+                        const empCourses = courses.filter(c => c.post === emp.post);
+                        const empRecords = records.filter(r => r.userId === emp.id);
+                        
+                        const completedCount = empRecords.filter(r => r.completed).length;
+                        const totalCourses = empCourses.length;
+                        const completionRate = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+                        const totalTime = empRecords.reduce((sum, r) => sum + (r.totalTime || 0), 0);
+                        
+                        return {
+                            '员工姓名': emp.name,
+                            '工号': emp.id,
+                            '门店': emp.shop,
+                            '岗位': emp.post,
+                            '已完成课程': completedCount,
+                            '总课程数': totalCourses,
+                            '完成率': completionRate + '%',
+                            '总学习时长(秒)': totalTime
+                        };
+                    });
+                    
+                    const ws = XLSX.utils.json_to_sheet(exportData);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, '学习数据统计');
+                    
+                    const fileName = `韩花亭培训学习数据统计_${this.getFormattedTime()}.xlsx`;
+                    XLSX.writeFile(wb, fileName);
+                    
+                    this.logTrainingOperation('导出学习统计数据');
+                    showTipModal('导出成功', `已导出 ${fileName}`);
+                } catch (e) {
+                    console.error('[TrainingManager] 导出失败:', e);
+                    showTipModal('导出失败', '导出过程中出现错误');
+                }
+            },
+            
+            // 获取格式化时间
+            getFormattedTime() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hour = String(now.getHours()).padStart(2, '0');
+                const minute = String(now.getMinutes()).padStart(2, '0');
+                return `${year}${month}${day}${hour}${minute}`;
+            },
+            
+            // 渲染用户端课程列表
+            renderUserCourseList() {
+                const container = document.getElementById('trainingCourseList');
+                if (!container) return;
+                
+                const userPost = currentUser?.post || '';
+                const userId = currentUser?.username || '';
+                let courses = this.getCourses().filter(c => c.enabled && c.post === userPost);
+                
+                if (courses.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 60px;">暂无您岗位的培训课程</p>';
+                    return;
+                }
+                
+                courses.sort((a, b) => (a.sort || 0) - (b.sort || 0));
+                
+                let html = '';
+                for (const course of courses) {
+                    const progress = this.getCourseProgress(userId, course.id);
+                    let statusClass = 'not-started';
+                    let statusText = '未开始';
+                    
+                    if (progress.completed) {
+                        statusClass = 'completed';
+                        statusText = '已完成';
+                    } else if (progress.progress > 0) {
+                        statusClass = 'in-progress';
+                        statusText = '学习中';
+                    }
+                    
+                    const examBtnDisabled = course.boundPaperId && course.requireStudyToExam && progress.progress < 80;
+                    
+                    html += `
+                        <div class="course-card">
+                            <div class="course-cover">${course.cover}</div>
+                            <div class="course-info">
+                                <div class="course-title">${course.name}</div>
+                                <div class="course-meta">岗位：${course.post}${course.boundPaperId ? ' | 绑定考试：是' : ''}</div>
+                                <div class="course-progress">
+                                    <div class="progress-text">
+                                        <span>学习进度</span>
+                                        <span>${progress.progress}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${progress.progress}%;"></div>
+                                    </div>
+                                </div>
+                                <span class="course-status ${statusClass}">${statusText}</span>
+                                <div class="course-actions">
+                                    <button class="confirm-btn" onclick="TrainingManager.openCourseLearning('${course.id}')">
+                                        ${progress.progress > 0 ? '继续学习' : '开始学习'}
+                                    </button>
+                                    ${course.boundPaperId ? `
+                                        <button class="success-btn" ${examBtnDisabled ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''} onclick="TrainingManager.goToExam('${course.boundPaperId}')">
+                                            前往考试
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                ${examBtnDisabled ? `<div style="font-size: 12px; color: var(--brand-orange); margin-top: 8px;">需完成80%学习进度才能参加考试</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+            },
+            
+            // 打开课程学习页面
+            openCourseLearning(courseId) {
+                const courses = this.getCourses();
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                
+                const userId = currentUser?.username || '';
+                const progress = this.getCourseProgress(userId, courseId);
+                
+                document.getElementById('learningCourseTitle').textContent = course.name;
+                document.getElementById('learningProgressText').textContent = progress.progress + '%';
+                document.getElementById('learningProgressFill').style.width = progress.progress + '%';
+                
+                const videoSection = document.getElementById('learningVideoSection');
+                const videoFrame = document.getElementById('learningVideoFrame');
+                const richContent = document.getElementById('learningRichContent');
+                
+                if (course.videoUrl) {
+                    videoSection.style.display = 'block';
+                    videoFrame.src = course.videoUrl;
+                } else {
+                    videoSection.style.display = 'none';
+                }
+                
+                richContent.innerHTML = course.content || '<p>暂无课程内容</p>';
+                
+                const examBtnContainer = document.getElementById('learningExamBtnContainer');
+                if (course.boundPaperId) {
+                    const canExam = this.canTakeExam(userId, course.boundPaperId);
+                    examBtnContainer.style.display = canExam.allowed ? 'block' : 'none';
+                } else {
+                    examBtnContainer.style.display = 'none';
+                }
+                
+                // 隐藏其他容器，显示学习容器
+                document.getElementById('trainingContainer').style.display = 'none';
+                document.getElementById('trainingRecordsContainer').style.display = 'none';
+                document.getElementById('trainingLearningContainer').style.display = 'block';
+                
+                // 开始记录学习时间
+                this.startLearningTimer(courseId);
+            },
+            
+            // 学习计时器
+            learningStartTime: null,
+            learningCourseId: null,
+            
+            startLearningTimer(courseId) {
+                this.learningCourseId = courseId;
+                this.learningStartTime = Date.now();
+                
+                // 每30秒自动更新一次进度
+                if (this.learningTimer) clearInterval(this.learningTimer);
+                this.learningTimer = setInterval(() => {
+                    this.autoUpdateLearningProgress();
+                }, 30000);
+            },
+            
+            stopLearningTimer() {
+                if (this.learningTimer) {
+                    clearInterval(this.learningTimer);
+                    this.learningTimer = null;
+                }
+                if (this.learningStartTime && this.learningCourseId) {
+                    const timeSpent = Math.floor((Date.now() - this.learningStartTime) / 1000);
+                    if (timeSpent > 0) {
+                        const userId = currentUser?.username || '';
+                        const progress = this.getCourseProgress(userId, this.learningCourseId);
+                        const newProgress = Math.min(progress.progress + Math.max(5, Math.floor(timeSpent / 60)), 100);
+                        this.updateLearningProgress(userId, this.learningCourseId, newProgress, timeSpent);
+                    }
+                }
+                this.learningStartTime = null;
+                this.learningCourseId = null;
+            },
+            
+            autoUpdateLearningProgress() {
+                if (!this.learningStartTime || !this.learningCourseId) return;
+                const timeSpent = Math.floor((Date.now() - this.learningStartTime) / 1000);
+                if (timeSpent < 30) return;
+                
+                const userId = currentUser?.username || '';
+                const progress = this.getCourseProgress(userId, this.learningCourseId);
+                const newProgress = Math.min(progress.progress + 5, 100);
+                
+                this.updateLearningProgress(userId, this.learningCourseId, newProgress, timeSpent);
+                this.learningStartTime = Date.now();
+                
+                document.getElementById('learningProgressText').textContent = newProgress + '%';
+                document.getElementById('learningProgressFill').style.width = newProgress + '%';
+            },
+            
+            // 返回课程列表
+            backToCourseList() {
+                this.stopLearningTimer();
+                document.getElementById('trainingLearningContainer').style.display = 'none';
+                document.getElementById('trainingRecordsContainer').style.display = 'none';
+                document.getElementById('trainingContainer').style.display = 'block';
+                this.renderUserCourseList();
+            },
+            
+            // 前往考试
+            goToExam(paperId) {
+                const userId = currentUser?.username || '';
+                const check = this.canTakeExam(userId, paperId);
+                if (!check.allowed) {
+                    showTipModal('无法参加考试', check.message);
+                    return;
+                }
+                
+                this.stopLearningTimer();
+                
+                // 隐藏培训容器，显示考试容器
+                document.getElementById('trainingContainer').style.display = 'none';
+                document.getElementById('trainingLearningContainer').style.display = 'none';
+                document.getElementById('trainingRecordsContainer').style.display = 'none';
+                document.getElementById('examContainer').style.display = 'block';
+                
+                // 刷新考试列表
+                renderExamList();
+            },
+            
+            // 渲染我的学习记录
+            renderMyLearningRecords() {
+                const container = document.getElementById('trainingRecordsList');
+                if (!container) return;
+                
+                const userId = currentUser?.username || '';
+                const records = this.getUserLearningRecords(userId);
+                const courses = this.getCourses();
+                
+                if (records.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 60px;">暂无学习记录</p>';
+                    return;
+                }
+                
+                records.sort((a, b) => new Date(b.updatedAt || b.startedAt) - new Date(a.updatedAt || a.startedAt));
+                
+                let html = '';
+                for (const record of records) {
+                    const course = courses.find(c => c.id === record.courseId);
+                    const courseName = course?.name || '未知课程';
+                    const updatedAt = record.updatedAt ? new Date(record.updatedAt).toLocaleString() : '-';
+                    
+                    html += `
+                        <div class="training-record-item">
+                            <div class="record-title">${courseName}</div>
+                            <div class="record-meta">
+                                学习进度：${record.progress}% | 
+                                学习时长：${this.formatDuration(record.totalTime || 0)} | 
+                                ${record.completed ? `完成时间：${record.completedAt ? new Date(record.completedAt).toLocaleString() : '-'}` : `最后学习：${updatedAt}`}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+            },
+            
+            // 打开我的学习记录
+            openMyRecords() {
+                document.getElementById('trainingContainer').style.display = 'none';
+                document.getElementById('trainingLearningContainer').style.display = 'none';
+                document.getElementById('trainingRecordsContainer').style.display = 'block';
+                this.renderMyLearningRecords();
+            },
+            
+            // 绑定事件
+            bindEvents() {
+                // 管理端事件
+                const addCourseBtn = document.getElementById('addTrainingCourseBtn');
+                if (addCourseBtn) {
+                    addCourseBtn.addEventListener('click', () => this.showCourseEditModal());
+                }
+                
+                const trainingStatBtn = document.getElementById('trainingStatBtn');
+                if (trainingStatBtn) {
+                    trainingStatBtn.addEventListener('click', () => this.renderTrainingStats());
+                }
+                
+                const exportTrainingBtn = document.getElementById('exportTrainingDataBtn');
+                if (exportTrainingBtn) {
+                    exportTrainingBtn.addEventListener('click', () => this.exportTrainingStatsToExcel());
+                }
+                
+                const shopFilter = document.getElementById('trainingShopFilter');
+                const postFilter = document.getElementById('trainingPostFilter');
+                if (shopFilter) {
+                    shopFilter.addEventListener('change', () => {
+                        this.renderAdminCourseList();
+                        const panel = document.getElementById('trainingStatPanel');
+                        if (panel && panel.style.display !== 'none') {
+                            this.renderTrainingStats();
+                        }
+                    });
+                }
+                if (postFilter) {
+                    postFilter.addEventListener('change', () => {
+                        this.renderAdminCourseList();
+                        const panel = document.getElementById('trainingStatPanel');
+                        if (panel && panel.style.display !== 'none') {
+                            this.renderTrainingStats();
+                        }
+                    });
+                }
+                
+                // 用户端事件
+                const trainingBackBtn = document.getElementById('trainingBackBtn');
+                if (trainingBackBtn) {
+                    trainingBackBtn.addEventListener('click', () => {
+                        document.getElementById('trainingContainer').style.display = 'none';
+                        document.getElementById('examContainer').style.display = 'block';
+                        renderExamList();
+                    });
+                }
+                
+                const myRecordsBtn = document.getElementById('trainingMyRecordsBtn');
+                if (myRecordsBtn) {
+                    myRecordsBtn.addEventListener('click', () => this.openMyRecords());
+                }
+                
+                const learningBackBtn = document.getElementById('learningBackBtn');
+                if (learningBackBtn) {
+                    learningBackBtn.addEventListener('click', () => this.backToCourseList());
+                }
+                
+                const recordsBackBtn = document.getElementById('recordsBackBtn');
+                if (recordsBackBtn) {
+                    recordsBackBtn.addEventListener('click', () => {
+                        document.getElementById('trainingRecordsContainer').style.display = 'none';
+                        document.getElementById('trainingContainer').style.display = 'block';
+                        this.renderUserCourseList();
+                    });
+                }
+                
+                const goToExamBtn = document.getElementById('learningGoToExamBtn');
+                if (goToExamBtn) {
+                    goToExamBtn.addEventListener('click', () => {
+                        // 查找当前课程绑定的试卷
+                        const titleEl = document.getElementById('learningCourseTitle');
+                        if (!titleEl) return;
+                        const courses = this.getCourses();
+                        const course = courses.find(c => c.name === titleEl.textContent);
+                        if (course && course.boundPaperId) {
+                            this.goToExam(course.boundPaperId);
+                        }
+                    });
+                }
+            }
+        };
+        
+        // 扩展原有管理员标签切换逻辑以支持岗位培训
+        const originalInitAdminTabs = function() {
+            const tabs = document.querySelectorAll('.admin-tab');
+            const contents = document.querySelectorAll('.admin-tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    contents.forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    const targetContent = document.getElementById(tabId + 'Tab') || document.getElementById(tabId + 'TabContent');
+                    if (targetContent) {
+                        targetContent.style.display = 'block';
+                    }
+                    
+                    // 岗位培训标签特殊处理
+                    if (tabId === 'training') {
+                        TrainingManager.renderAdminCourseList();
+                    }
+                });
+            });
+        };
+        
+        // 在考试系统入口处添加岗位培训导航
+        let originalRenderExamList = renderExamList;
+        window.renderExamList = function() {
+            originalRenderExamList();
+            
+            // 在考试容器的btn-group中添加岗位培训按钮
+            const examContainer = document.getElementById('examContainer');
+            if (!examContainer) return;
+            
+            let btnGroup = examContainer.querySelector('.btn-group');
+            if (btnGroup && !btnGroup.querySelector('#openTrainingBtn')) {
+                const trainingBtn = document.createElement('button');
+                trainingBtn.className = 'confirm-btn';
+                trainingBtn.id = 'openTrainingBtn';
+                trainingBtn.innerHTML = '📚 岗位培训';
+                trainingBtn.addEventListener('click', function() {
+                    document.getElementById('examContainer').style.display = 'none';
+                    document.getElementById('trainingContainer').style.display = 'block';
+                    TrainingManager.renderUserCourseList();
+                });
+                
+                const logoutBtn = btnGroup.querySelector('#logoutBtn');
+                if (logoutBtn) {
+                    btnGroup.insertBefore(trainingBtn, logoutBtn);
+                } else {
+                    btnGroup.appendChild(trainingBtn);
+                }
+            }
+        };
+        
+        // 在DOMContentLoaded中初始化培训模块
+        const originalDOMContentLoaded = originalInit;
+        window.originalInit = function() {
+            originalDOMContentLoaded();
+            
+            TrainingManager.init();
+            
+            // 初始化管理员标签切换
+            originalInitAdminTabs();
+        };
+        
+        */
+        /* ==================== 岗位培训模块 - JavaScript功能 结束 ==================== */
         
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', originalInit);
