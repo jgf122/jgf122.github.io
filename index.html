@@ -31,6 +31,46 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
+    <!-- Supabase库引入 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <!-- Supabase初始化脚本 -->
+    <script>
+        const SUPABASE_CONFIG = {
+            URL: 'https://aolmkhiumqfhgkxskrhc.supabase.co',
+            ANON_KEY: 'sb_publishable_PtxWniDhW4Ny_CxfUZzJQg_eoU1OQTP'
+        };
+
+        let supabase = null;
+
+        // 安全初始化Supabase
+        function initSupabaseClient() {
+            try {
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(
+                        SUPABASE_CONFIG.URL,
+                        SUPABASE_CONFIG.ANON_KEY,
+                        {
+                            auth: {
+                                autoRefreshToken: true,
+                                persistSession: true,
+                                detectSessionInUrl: false
+                            }
+                        }
+                    );
+                    console.log('✅ Supabase客户端初始化成功');
+                    return true;
+                }
+                console.warn('⚠️ Supabase库未加载，将使用本地模式');
+                return false;
+            } catch (error) {
+                console.error('❌ Supabase初始化失败:', error);
+                return false;
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initSupabaseClient);
+    </script>
     <style>
         * {
             box-sizing: border-box;
