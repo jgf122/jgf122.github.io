@@ -4397,8 +4397,7 @@
             height: 100%;
         }
         
-        /* ==================== 岗位培训模块CSS样式（已暂时关闭） ==================== */
-        /*
+        /* ==================== 岗位培训模块CSS样式 ==================== */
         .training-container,
         .training-learning-container,
         .training-records-container {
@@ -4682,7 +4681,6 @@
             min-height: 120px;
             resize: vertical;
         }
-        */
         /* ==================== 岗位培训模块CSS样式 结束 ==================== */
         
         /* ==================== 全响应式移动端标准化适配 - 考试系统 结束 ==================== */
@@ -5183,6 +5181,7 @@ D|选项D"></textarea>
             <button class="history-btn" id="historyBtn">查看历史记录</button>
             <button class="history-btn" id="profileBtn" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">👤 个人中心</button>
             <button class="history-btn" id="forumBtn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">📢 员工论坛</button>
+            <button class="history-btn" id="trainingBtn" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">📚 岗位培训</button>
             <button class="history-btn" id="friendBtn" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">👥 好友系统</button>
             <button class="history-btn" id="notificationBtn" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">🔔 通知中心</button>
             <button class="reset-btn" id="resetBtn">重新答题</button>
@@ -5211,8 +5210,8 @@ D|选项D"></textarea>
             <div class="admin-tab" data-tab="record">学员记录</div>
             <div class="admin-tab" data-tab="stat">成绩统计</div>
             <div class="admin-tab" data-tab="user">👥 用户管理</div>
-            <!-- ==================== 岗位培训：管理面板入口（已暂时关闭） ==================== -->
-            <!-- <div class="admin-tab" data-tab="training" id="trainingTab">📚 岗位培训</div> -->
+            <!-- ==================== 岗位培训：管理面板入口 ==================== -->
+            <div class="admin-tab" data-tab="training" id="trainingTab">📚 岗位培训</div>
             <!-- ==================== 岗位培训入口结束 ==================== -->
             <div class="admin-tab" data-tab="rank" id="superAdminRankTab" style="display: none;">🏆 榜单管理</div>
             <div class="admin-tab" data-tab="forum" id="superAdminForumTab" style="display: none;">📢 论坛管理</div>
@@ -5680,8 +5679,7 @@ D|选项D"></textarea>
             <div id="adminForumList"></div>
         </div>
         
-        <!-- ==================== 岗位培训管理（已暂时关闭） ==================== -->
-        <!--
+        <!-- ==================== 岗位培训管理 ==================== -->
         <div class="admin-tab-content" id="trainingTabContent" style="display: none;">
             <div class="btn-group" style="margin-bottom: 20px;">
                 <button class="confirm-btn" id="addTrainingCourseBtn">📚 新增课程</button>
@@ -5739,7 +5737,6 @@ D|选项D"></textarea>
                 </div>
             </div>
         </div>
-        -->
         <!-- ==================== 岗位培训管理结束 ==================== -->
     </div>
 
@@ -5753,8 +5750,7 @@ D|选项D"></textarea>
         <div id="historyList"></div>
     </div>
 
-    <!-- ==================== 岗位培训学习界面（已暂时关闭） ==================== -->
-    <!--
+    <!-- ==================== 岗位培训学习界面 ==================== -->
     <div class="training-container" id="trainingContainer" style="display: none;">
         <div class="training-header">
             <h2>📚 岗位培训学习</h2>
@@ -5818,7 +5814,6 @@ D|选项D"></textarea>
         
         <div id="trainingRecordsList"></div>
     </div>
-    -->
     <!-- ==================== 岗位培训学习界面结束 ==================== -->
 
     <!-- 个人中心界面 -->
@@ -12542,6 +12537,9 @@ D|选项D"></textarea>
             // 初始化论坛模块
             ForumSystem.init();
             
+            // 初始化岗位培训模块
+            TrainingManager.init();
+            
             // 初始化社交系统模块
             FriendSystem.init();
             
@@ -13146,7 +13144,12 @@ D|选项D"></textarea>
                     elements.adminTabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
                     elements.tabContents.forEach(content => content.style.display = 'none');
-                    document.getElementById(`${tabName}Tab`).style.display = 'block';
+                    if (tabName === 'training') {
+                        document.getElementById('trainingTabContent').style.display = 'block';
+                        TrainingManager.renderAdminCourseList();
+                    } else {
+                        document.getElementById(`${tabName}Tab`).style.display = 'block';
+                    }
                     if (tabName === 'question') {
                         renderAdminQuestionTable();
                     } else if (tabName === 'stat') {
@@ -13559,6 +13562,14 @@ D|选项D"></textarea>
             // 论坛按钮
             document.getElementById('forumBtn')?.addEventListener('click', () => {
                 ForumSystem.showForum();
+            });
+            
+            // ==================== 岗位培训事件监听 ====================
+            // 岗位培训按钮
+            document.getElementById('trainingBtn')?.addEventListener('click', () => {
+                document.getElementById('examContainer').style.display = 'none';
+                document.getElementById('trainingContainer').style.display = 'block';
+                TrainingManager.renderUserCourseList();
             });
             
             // 论坛返回按钮
@@ -18157,8 +18168,7 @@ D|选项D"></textarea>
         
         // ==================== 密码自助重置与账号安全体系结束 ====================
 
-        /* ==================== 岗位培训模块 - JavaScript功能（已暂时关闭） ==================== */
-        /*
+        /* ==================== 岗位培训模块 - JavaScript功能 ==================== */
         
         // 存储键定义
         const TRAINING_STORAGE_KEYS = {
@@ -19200,7 +19210,6 @@ D|选项D"></textarea>
             originalInitAdminTabs();
         };
         
-        */
         /* ==================== 岗位培训模块 - JavaScript功能 结束 ==================== */
         
         if (document.readyState === 'loading') {
