@@ -45,8 +45,8 @@
         // 安全初始化Supabase
         function initSupabaseClient() {
             try {
-                if (window.supabase) {
-                    supabase = window.supabase.createClient(
+                if (globalThis.supabase) {
+                    supabase = globalThis.supabase.createClient(
                         SUPABASE_CONFIG.URL,
                         SUPABASE_CONFIG.ANON_KEY,
                         {
@@ -77,6 +77,7 @@
             margin: 0;
             padding: 0;
             font-family: "Microsoft YaHei", sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         :root {
             --brand-orange: #ff7a45;
@@ -117,6 +118,8 @@
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
         body::before {
             content: '';
@@ -2411,7 +2414,7 @@
                 margin-top: 5px;
             }
             .section {
-                padding: 20px 15px;
+                padding: 20px;
             }
             .captcha-container {
                 flex-direction: column;
@@ -2455,13 +2458,16 @@
             }
             .btn-group {
                 flex-direction: column;
+                gap: 10px;
             }
             .submit-btn, .history-btn, .back-btn, .reset-btn, .export-btn {
                 width: 100%;
                 min-width: unset;
+                padding: 14px 20px;
+                font-size: 15px;
             }
             .header h1 {
-                font-size: 20px;
+                font-size: 22px;
             }
             .countdown {
                 font-size: 18px;
@@ -2478,9 +2484,6 @@
                 padding: 15px;
                 border-radius: 12px;
             }
-            .section {
-                padding: 20px;
-            }
             .question {
                 margin-bottom: 20px;
                 padding-bottom: 15px;
@@ -2492,16 +2495,6 @@
             .option {
                 padding: 12px 14px;
                 font-size: 14px;
-            }
-            .btn-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .submit-btn, .history-btn, .back-btn, .reset-btn, .export-btn {
-                width: 100%;
-                min-width: unset;
-                padding: 14px 20px;
-                font-size: 15px;
             }
             .progress-container {
                 padding: 12px 15px;
@@ -2515,9 +2508,6 @@
             }
             .header {
                 padding: 20px;
-            }
-            .header h1 {
-                font-size: 22px;
             }
             .result {
                 padding: 25px 20px;
@@ -3475,7 +3465,7 @@
             flex-wrap: wrap;
         }
         
-        .text-btn {
+        .friend-text-btn {
             background: none;
             border: none;
             color: var(--brand-blue);
@@ -3486,7 +3476,7 @@
             transition: all 0.2s;
         }
         
-        .text-btn:hover {
+        .friend-text-btn:hover {
             background: rgba(22,93,255,0.1);
         }
         
@@ -3991,10 +3981,7 @@
             }
         }
         
-        /* 防止iOS上的点击延迟 */
-        * {
-            -webkit-tap-highlight-color: transparent;
-        }
+
         
         /* 更好的触摸反馈 */
         button,
@@ -4366,12 +4353,7 @@
             opacity: 0.85;
         }
         
-        /* 防止手机端缩放和内容溢出 */
-        body {
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
-        }
+
         
         /* 优化输入框在手机键盘弹出时的表现 */
         input, select, textarea {
@@ -5761,7 +5743,7 @@ D|选项D"></textarea>
         </div>
         
         <!-- 课程列表区域 -->
-        <div id="trainingCourseList" class="training-course-list"></div>
+        <div id="trainingCourseListLearning" class="training-course-list"></div>
     </div>
 
     <!-- ==================== 课程学习详情界面 ==================== -->
@@ -5787,7 +5769,7 @@ D|选项D"></textarea>
             <!-- 视频嵌入 -->
             <div id="learningVideoSection" style="display: none; margin-bottom: 20px;">
                 <div class="video-embed">
-                    <iframe id="learningVideoFrame" src="" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; border-radius: 8px;"></iframe>
+                    <iframe id="learningVideoFrame" src="" title="课程视频" allowfullscreen style="width: 100%; aspect-ratio: 16/9; border-radius: 8px;"></iframe>
                 </div>
             </div>
             
@@ -6380,7 +6362,7 @@ D|选项D"></textarea>
                                 return data.value;
                             }
                         } catch (e) {
-                            // 非HMAC格式，直接返回
+                            console.warn('[Security] 非HMAC格式，直接返回:', e);
                         }
                     }
                     
@@ -6442,226 +6424,301 @@ D|选项D"></textarea>
         };
 
         // ==================== JWT Token 工具函数 ====================
+        const AUTH_CONSTANTS = {
+            SSO_STORAGE_KEY: 'hht_user_auth',
+            JWT_PART_COUNT: 3,
+            BASE64_URL_PATTERNS: {
+                HYPHEN: '-',
+                UNDERSCORE: '_',
+                PLUS: '+',
+                SLASH: '/'
+            },
+            HEX_PADDING: '00',
+            TOKEN_PAYLOAD_INDEX: 1,
+            MILLISECONDS_PER_SECOND: 1000,
+            DEFAULT_ROLE: 'employee',
+            LOGIN_SYSTEM_URL: 'hht_login_system.html',
+            LOG_PREFIX: {
+                SSO: '[SSO]',
+                AUTH: '[Auth]'
+            }
+        };
+
+        const AuthUtils = {
+            decryptSSOData(encryptedData) {
+                try {
+                    const decrypted = atob(encryptedData).split('').reverse().join('');
+                    return JSON.parse(decrypted);
+                } catch (error) {
+                    console.error(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} 解密SSO数据失败:`, error);
+                    return null;
+                }
+            },
+
+            isSSODataExpired(ssoData) {
+                if (!ssoData || !ssoData.expireAt) {
+                    return false;
+                }
+                return Date.now() > ssoData.expireAt;
+            },
+
+            isValidJWTFormat(token) {
+                if (!token) return false;
+                const parts = token.split('.');
+                return parts.length === AUTH_CONSTANTS.JWT_PART_COUNT;
+            },
+
+            convertBase64UrlToStandard(base64Url) {
+                return base64Url
+                    .replaceAll(AUTH_CONSTANTS.BASE64_URL_PATTERNS.HYPHEN, AUTH_CONSTANTS.BASE64_URL_PATTERNS.PLUS)
+                    .replaceAll(AUTH_CONSTANTS.BASE64_URL_PATTERNS.UNDERSCORE, AUTH_CONSTANTS.BASE64_URL_PATTERNS.SLASH);
+            },
+
+            charToHex(char) {
+                const codePoint = char.codePointAt(0);
+                return (AUTH_CONSTANTS.HEX_PADDING + codePoint.toString(16)).slice(-2);
+            },
+
+            buildUserDataFromSSO(ssoData) {
+                return {
+                    id: Date.now(),
+                    username: ssoData.employeeId,
+                    name: ssoData.name,
+                    shop: ssoData.shop,
+                    phone: ssoData.employeeId,
+                    role: ssoData.role || AUTH_CONSTANTS.DEFAULT_ROLE,
+                    type: ssoData.role || AUTH_CONSTANTS.DEFAULT_ROLE
+                };
+            },
+
+            isTokenExpired(payload) {
+                if (!payload || !payload.exp) {
+                    return false;
+                }
+                const now = Math.floor(Date.now() / AUTH_CONSTANTS.MILLISECONDS_PER_SECOND);
+                return now > payload.exp;
+            },
+
+            clearTokenFromUrl() {
+                const url = new URL(globalThis.location.href);
+                url.searchParams.delete(AUTH_CONFIG.TOKEN_URL_PARAM);
+                globalThis.history.replaceState({}, '', url.toString());
+            }
+        };
+
         const AuthManager = {
-            // ==================== SSO单点登录新增功能开始 ====================
-            // 从hht_user_auth字段获取并解密SSO认证数据
             getSSOData() {
                 try {
-                    const encrypted = localStorage.getItem('hht_user_auth');
-                    if (!encrypted) return null;
-                    
-                    // 解密：base64解码 + 反转字符串
-                    const decrypted = atob(encrypted).split('').reverse().join('');
-                    const ssoData = JSON.parse(decrypted);
-                    
-                    // 检查是否过期
-                    if (ssoData.expireAt && Date.now() > ssoData.expireAt) {
-                        console.log('[SSO] SSO数据已过期');
+                    const encrypted = localStorage.getItem(AUTH_CONSTANTS.SSO_STORAGE_KEY);
+                    if (!encrypted) {
+                        return null;
+                    }
+
+                    const ssoData = AuthUtils.decryptSSOData(encrypted);
+                    if (!ssoData) {
                         this.clearSSOData();
                         return null;
                     }
-                    
+
+                    if (AuthUtils.isSSODataExpired(ssoData)) {
+                        console.log(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} SSO数据已过期`);
+                        this.clearSSOData();
+                        return null;
+                    }
+
                     return ssoData;
-                } catch (e) {
-                    console.error('[SSO] 解析SSO数据失败:', e);
+                } catch (error) {
+                    console.error(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} 解析SSO数据失败:`, error);
                     this.clearSSOData();
                     return null;
                 }
             },
-            
-            // 清除SSO数据
+
             clearSSOData() {
                 try {
-                    localStorage.removeItem('hht_user_auth');
-                } catch (e) {
-                    console.warn('[SSO] 清除SSO数据失败:', e);
+                    localStorage.removeItem(AUTH_CONSTANTS.SSO_STORAGE_KEY);
+                } catch (error) {
+                    console.warn(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} 清除SSO数据失败:`, error);
                 }
             },
-            
-            // 验证SSO Token的有效性
+
             isSSOTokenValid(ssoData) {
-                if (!ssoData || !ssoData.token) return false;
+                if (!ssoData || !ssoData.token) {
+                    return false;
+                }
+
                 try {
-                    // 验证Token格式
-                    const parts = ssoData.token.split('.');
-                    if (parts.length !== 3) return false;
-                    
-                    // 检查过期时间
-                    if (ssoData.expireAt && Date.now() > ssoData.expireAt) {
+                    if (!AuthUtils.isValidJWTFormat(ssoData.token)) {
                         return false;
                     }
-                    
+
+                    if (AuthUtils.isSSODataExpired(ssoData)) {
+                        return false;
+                    }
+
                     return true;
-                } catch (e) {
+                } catch (error) {
+                    console.warn(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} 验证SSO Token失败:`, error);
                     return false;
                 }
             },
-            
-            // 从SSO数据同步认证信息到系统
+
             syncFromSSO(ssoData) {
-                if (!ssoData) return false;
-                
+                if (!ssoData) {
+                    return false;
+                }
+
                 try {
-                    // 保存Token
                     this.saveTokenToStorage(ssoData.token);
-                    
-                    // 构建用户信息对象，兼容现有系统
-                    const userData = {
-                        id: Date.now(),
-                        username: ssoData.employeeId,
-                        name: ssoData.name,
-                        shop: ssoData.shop,
-                        phone: ssoData.employeeId,
-                        role: ssoData.role || 'employee',
-                        type: ssoData.role || 'employee'
-                    };
+
+                    const userData = AuthUtils.buildUserDataFromSSO(ssoData);
                     this.saveUserToStorage(userData);
-                    
-                    // ==================== 安全增强：记录SSO登录成功 ====================
-                    SecurityLogger.log('SSO_LOGIN_SUCCESS', { 
+
+                    SecurityLogger.log('SSO_LOGIN_SUCCESS', {
                         employeeId: ssoData.employeeId,
                         employeeName: ssoData.name,
-                        shop: ssoData.shop 
+                        shop: ssoData.shop
                     }, 'info');
-                    // ==================== 安全增强代码结束 ====================
-                    
-                    console.log('[SSO] 已从SSO同步认证信息');
+
+                    console.log(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} 已从SSO同步认证信息`);
                     return true;
-                } catch (e) {
-                    console.error('[SSO] 同步SSO数据失败:', e);
+                } catch (error) {
+                    console.error(`${AUTH_CONSTANTS.LOG_PREFIX.SSO} 同步SSO数据失败:`, error);
                     return false;
                 }
             },
-            // ==================== SSO单点登录新增功能结束 ====================
-            
-            // 从URL获取Token
+
             getTokenFromUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
+                const urlParams = new URLSearchParams(globalThis.location.search);
                 return urlParams.get(AUTH_CONFIG.TOKEN_URL_PARAM);
             },
 
-            // 从localStorage获取Token
             getTokenFromStorage() {
                 return localStorage.getItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
             },
 
-            // 保存Token到localStorage
             saveTokenToStorage(token) {
                 localStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, token);
             },
 
-            // 从localStorage获取用户信息
+            decodeToken(token) {
+                if (!token) {
+                    return null;
+                }
+
+                try {
+                    const base64Url = token.split('.')[AUTH_CONSTANTS.TOKEN_PAYLOAD_INDEX];
+                    const base64 = AuthUtils.convertBase64UrlToStandard(base64Url);
+                    
+                    const jsonPayload = decodeURIComponent(
+                        atob(base64)
+                            .split('')
+                            .map(AuthUtils.charToHex)
+                            .join('')
+                    );
+
+                    return JSON.parse(jsonPayload);
+                } catch (error) {
+                    console.error(`${AUTH_CONSTANTS.LOG_PREFIX.AUTH} Token解码失败:`, error);
+                    return null;
+                }
+            },
+
+            isTokenValid(token) {
+                if (!token) {
+                    return false;
+                }
+
+                try {
+                    if (!AuthUtils.isValidJWTFormat(token)) {
+                        return false;
+                    }
+
+                    const payload = this.decodeToken(token);
+                    if (AuthUtils.isTokenExpired(payload)) {
+                        console.warn(`${AUTH_CONSTANTS.LOG_PREFIX.AUTH} Token已过期`);
+                        return false;
+                    }
+
+                    return true;
+                } catch (error) {
+                    console.error(`${AUTH_CONSTANTS.LOG_PREFIX.AUTH} Token验证失败:`, error);
+                    return false;
+                }
+            },
+
             getUserFromStorage() {
                 const userStr = localStorage.getItem(AUTH_CONFIG.USER_STORAGE_KEY);
                 return userStr ? JSON.parse(userStr) : null;
             },
 
-            // 保存用户信息到localStorage
             saveUserToStorage(user) {
                 localStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, JSON.stringify(user));
             },
 
-            // 清除所有认证信息
-            clearAuth() {
-                localStorage.removeItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
-                localStorage.removeItem(AUTH_CONFIG.USER_STORAGE_KEY);
-                // ==================== SSO单点登录：同步清除hht_user_auth ====================
-                this.clearSSOData();
-                // ==================== SSO单点登录代码结束 ====================
-            },
-
-            // 验证Token是否有效（增强验证）
-            isTokenValid(token) {
-                if (!token) return false;
-                try {
-                    // 简单验证Token格式（JWT格式: xxx.yyy.zzz）
-                    const parts = token.split('.');
-                    if (parts.length !== 3) return false;
-                    
-                    // 验证Token过期时间
-                    const payload = this.decodeToken(token);
-                    if (payload && payload.exp) {
-                        const now = Math.floor(Date.now() / 1000);
-                        if (now > payload.exp) {
-                            console.warn('[Auth] Token已过期');
-                            return false;
-                        }
-                    }
-                    
-                    return true;
-                } catch (e) {
-                    console.error('[Auth] Token验证失败:', e);
-                    return false;
-                }
-            },
-
-            // 解码JWT Token（获取payload）
-            decodeToken(token) {
-                if (!token) return null;
-                try {
-                    const base64Url = token.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                    return JSON.parse(jsonPayload);
-                } catch (e) {
-                    console.error('[Auth] Token解码失败:', e);
+            getTokenFromSSO() {
+                const ssoData = this.getSSOData();
+                if (!this.isSSOTokenValid(ssoData)) {
                     return null;
                 }
+
+                this.syncFromSSO(ssoData);
+                return ssoData.token;
             },
 
-            // 获取当前有效的Token
-            getCurrentToken() {
-                // ==================== SSO单点登录：优先检查SSO数据 ====================
-                const ssoData = this.getSSOData();
-                if (this.isSSOTokenValid(ssoData)) {
-                    // 同步SSO数据到系统存储
-                    this.syncFromSSO(ssoData);
-                    return ssoData.token;
+            getTokenFromUrlAndProcess() {
+                const token = this.getTokenFromUrl();
+                if (!this.isTokenValid(token)) {
+                    return null;
                 }
-                // ==================== SSO单点登录代码结束 ====================
-                
-                // 优先从URL获取
-                let token = this.getTokenFromUrl();
-                if (this.isTokenValid(token)) {
-                    this.saveTokenToStorage(token);
-                    // 清除URL中的token参数（可选，保持URL整洁）
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete(AUTH_CONFIG.TOKEN_URL_PARAM);
-                    window.history.replaceState({}, '', url.toString());
-                    return token;
-                }
-                // 其次从localStorage获取
-                token = this.getTokenFromStorage();
+
+                this.saveTokenToStorage(token);
+                AuthUtils.clearTokenFromUrl();
+                return token;
+            },
+
+            getValidTokenFromStorage() {
+                const token = this.getTokenFromStorage();
                 if (this.isTokenValid(token)) {
                     return token;
                 }
                 return null;
             },
 
-            // 检查是否已认证
+            getCurrentToken() {
+                const ssoToken = this.getTokenFromSSO();
+                if (ssoToken) {
+                    return ssoToken;
+                }
+
+                const urlToken = this.getTokenFromUrlAndProcess();
+                if (urlToken) {
+                    return urlToken;
+                }
+
+                return this.getValidTokenFromStorage();
+            },
+
             isAuthenticated() {
                 const token = this.getCurrentToken();
                 return this.isTokenValid(token);
             },
 
-            // 跳转到身份验证站（统一登录页）
-            redirectToAuthServer() {
-                // ==================== SSO单点登录：跳转到本地统一登录页 ====================
-                window.location.href = 'hht_login_system.html';
-                // ==================== SSO单点登录代码结束 ====================
+            clearAuth() {
+                localStorage.removeItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
+                localStorage.removeItem(AUTH_CONFIG.USER_STORAGE_KEY);
+                this.clearSSOData();
             },
 
-            // 处理401未授权错误
+            redirectToAuthServer() {
+                globalThis.location.href = AUTH_CONSTANTS.LOGIN_SYSTEM_URL;
+            },
+
             handleUnauthorized() {
                 this.clearAuth();
-                // ==================== SSO单点登录：跳转到本地统一登录页 ====================
-                window.location.href = 'hht_login_system.html';
-                // ==================== SSO单点登录代码结束 ====================
+                globalThis.location.href = AUTH_CONSTANTS.LOGIN_SYSTEM_URL;
             },
 
-            // 为API请求添加Token Header
             addAuthHeaders(headers = {}) {
                 const token = this.getCurrentToken();
                 if (token) {
@@ -7023,8 +7080,8 @@ D|选项D"></textarea>
             },
             
             requestIdleCallback(callback) {
-                if (window.requestIdleCallback) {
-                    return window.requestIdleCallback(callback);
+                if (globalThis.requestIdleCallback) {
+                    return globalThis.requestIdleCallback(callback);
                 }
                 return setTimeout(callback, 1);
             },
@@ -7676,6 +7733,7 @@ D|选项D"></textarea>
                 try {
                     return JSON.parse(localStorage.getItem(this.STORAGE_KEY.SCORES) || '[]');
                 } catch (e) {
+                    console.warn('[排行榜] 读取本地分数失败:', e);
                     return [];
                 }
             },
@@ -7688,6 +7746,7 @@ D|选项D"></textarea>
                 try {
                     return JSON.parse(localStorage.getItem(this.STORAGE_KEY.RANK_DATA) || '{}');
                 } catch (e) {
+                    console.warn('[排行榜] 读取本地排名数据失败:', e);
                     return {};
                 }
             },
@@ -7780,7 +7839,7 @@ D|选项D"></textarea>
 
                     const avgRank = [...userList]
                         .filter(u => u.count > 0)
-                        .map(u => ({ ...u, sortValue: parseFloat((u.totalScore / u.count).toFixed(1)) }))
+                        .map(u => ({ ...u, sortValue: Number.parseFloat((u.totalScore / u.count).toFixed(1)) }))
                         .sort((a, b) => b.sortValue - a.sortValue)
                         .slice(0, 20);
 
@@ -8033,7 +8092,7 @@ D|选项D"></textarea>
                             hasMatch = true;
                             matchedWords.push(word);
                             const replacement = '*'.repeat(word.length);
-                            const regex = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                            const regex = new RegExp(word.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`), 'g');
                             filteredContent = filteredContent.replace(regex, replacement);
                         }
                     }
@@ -8059,14 +8118,6 @@ D|选项D"></textarea>
 
             async checkQuestionBankPermission(userId, shopId) {
                 try {
-                    const configData = await this.getConfigData();
-                    const permissionRules = configData.permissionRules || {
-                        super_admin: ['all'],
-                        admin: ['shop_questions'],
-                        shop_manager: ['shop_questions'],
-                        employee: ['none']
-                    };
-
                     const user = UserManager.getUserInfo(userId);
                     const userRole = user?.role || 'employee';
                     const userShop = user?.shop || '';
@@ -8292,16 +8343,18 @@ D|选项D"></textarea>
                         return { scores: [] };
                     case 'rank':
                         return {};
-                    case 'forum':
+                    case 'forum': {
                         const posts = JSON.parse(localStorage.getItem('forum_posts') || '[]');
                         const replies = JSON.parse(localStorage.getItem('forum_replies') || '[]');
                         const boards = JSON.parse(localStorage.getItem('forum_boards') || '[]');
                         return { posts, replies, boards };
-                    case 'social':
+                    }
+                    case 'social': {
                         const friends = JSON.parse(localStorage.getItem('social_friends') || '[]');
                         const messages = JSON.parse(localStorage.getItem('social_messages') || '[]');
                         const notifications = JSON.parse(localStorage.getItem('social_notifications') || '[]');
                         return { friends, messages, notifications };
+                    }
                     default:
                         return {};
                 }
@@ -8741,7 +8794,7 @@ D|选项D"></textarea>
             }
         };
         
-        window.showBinIdModal = function() {
+        globalThis.showBinIdModal = function() {
             const currentBinId = CloudSync.getBinId() || '';
             const binIdHtml = `
                 <div class="api-key-modal-content">
@@ -8762,7 +8815,7 @@ D|选项D"></textarea>
             elements.tipModal.style.display = 'flex';
         };
         
-        window.saveBinId = function() {
+        globalThis.saveBinId = function() {
             const newBinId = document.getElementById('inputBinId').value.trim();
             if (newBinId) {
                 SYSTEM_CONFIG.jsonBinId = newBinId;
@@ -8774,7 +8827,7 @@ D|选项D"></textarea>
             showTipModal('保存成功', 'Bin ID已更新，正在同步数据...');
         };
         
-        window.runSecurityScan = async function() {
+        globalThis.runSecurityScan = async function() {
             showTipModal('安全扫描', '正在进行安全巡检...');
             const results = await SecurityScanner.runFullScan();
             updateSecurityScanUI(results);
@@ -8782,7 +8835,7 @@ D|选项D"></textarea>
             showTipModal('扫描完成', `安全评分: ${results.score}/100`);
         };
         
-        window.showScanReport = function() {
+        globalThis.showScanReport = function() {
             const report = SecurityScanner.getScanReport();
             alert(report);
         };
@@ -8922,13 +8975,19 @@ D|选项D"></textarea>
                     score: 100
                 };
                 
-                results.vulnerabilities.push(...this.checkXSSVulnerabilities());
-                results.vulnerabilities.push(...this.checkSQLInjectionVulnerabilities());
-                results.vulnerabilities.push(...this.checkCSRFVulnerabilities());
-                results.warnings.push(...this.checkDataSecurity());
-                results.warnings.push(...this.checkSessionSecurity());
-                results.info.push(...this.checkBrowserSecurity());
-                results.info.push(...this.checkStorageSecurity());
+                results.vulnerabilities.push(
+                    ...this.checkXSSVulnerabilities(),
+                    ...this.checkSQLInjectionVulnerabilities(),
+                    ...this.checkCSRFVulnerabilities()
+                );
+                results.warnings.push(
+                    ...this.checkDataSecurity(),
+                    ...this.checkSessionSecurity()
+                );
+                results.info.push(
+                    ...this.checkBrowserSecurity(),
+                    ...this.checkStorageSecurity()
+                );
                 
                 const totalIssues = results.vulnerabilities.length + results.warnings.length;
                 results.score = Math.max(0, 100 - (results.vulnerabilities.length * 20) - (results.warnings.length * 5));
@@ -9001,7 +9060,7 @@ D|选项D"></textarea>
             checkSessionSecurity() {
                 const issues = [];
                 
-                if (!window.isSecureContext) {
+                if (!globalThis.isSecureContext) {
                     issues.push({
                         type: 'session',
                         severity: 'low',
@@ -9162,7 +9221,7 @@ D|选项D"></textarea>
                     level: level,
                     details: details,
                     userAgent: navigator.userAgent,
-                    url: window.location.href
+                    url: globalThis.location.href
                 };
                 
                 let logs = this.getLogs();
@@ -9663,7 +9722,7 @@ D|选项D"></textarea>
             
             init() {
                 console.log('[防作弊] 监考模块初始化');
-                window.addEventListener('online', () => {
+                globalThis.addEventListener('online', () => {
                     console.log('[防作弊] 网络已恢复');
                     SafeSync.processOfflineCache();
                 });
@@ -9688,7 +9747,6 @@ D|选项D"></textarea>
                 this.isActive = false;
                 this.stopWatermark();
                 this.stopEnvDetect();
-                // this.stopFaceDetect(); // 人脸检测已禁用
                 console.log('[防作弊] 监考已停止');
             },
             
@@ -9707,8 +9765,8 @@ D|选项D"></textarea>
             
             drawWatermark(canvas) {
                 const ctx = canvas.getContext('2d');
-                const width = window.innerWidth;
-                const height = window.innerHeight;
+                const width = globalThis.innerWidth;
+                const height = globalThis.innerHeight;
                 
                 canvas.width = width;
                 canvas.height = height;
@@ -10263,7 +10321,7 @@ D|选项D"></textarea>
                     
                     const chart = echarts.init(dom);
                     chart.setOption(option);
-                    window.addEventListener('resize', () => chart.resize());
+                    globalThis.addEventListener('resize', () => chart.resize());
                     return chart;
                 },
                 
@@ -13447,7 +13505,7 @@ D|选项D"></textarea>
             const devToolsCheck = setInterval(() => {
                 if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enableDevToolsBlock) {
                     const threshold = 160;
-                    if (window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold) {
+                    if (globalThis.outerHeight - globalThis.innerHeight > threshold || globalThis.outerWidth - globalThis.innerWidth > threshold) {
                         if (!devToolsOpened) {
                             devToolsOpened = true;
                             screenSwitchCount++;
@@ -13488,7 +13546,7 @@ D|选项D"></textarea>
                 }
             }, 1000);
             // 浏览器焦点检测
-            window.addEventListener('blur', () => {
+            globalThis.addEventListener('blur', () => {
                 if (elements.examContainer.style.display === 'block' && SYSTEM_CONFIG.antiCheat.enableBrowserLock) {
                     screenSwitchCount++;
                     if (screenSwitchCount >= 3) {
@@ -14630,7 +14688,7 @@ D|选项D"></textarea>
                 AuthManager.clearAuth();
                 currentUser = {};
                 // 直接跳转到统一登录页，而不是显示登录表单
-                window.location.href = 'hht_login_system.html';
+                globalThis.location.href = 'hht_login_system.html';
                 // ==================== SSO单点登录代码结束 ====================
             });
         }
@@ -14760,7 +14818,7 @@ D|选项D"></textarea>
             document.getElementById('profileContainer').style.display = 'block';
         }
 
-        window.showChangeApiKeyModal = function() {
+        globalThis.showChangeApiKeyModal = function() {
             const apiKeyHtml = `
                 <div class="api-key-modal-content">
                     <div class="form-group">
@@ -14779,7 +14837,7 @@ D|选项D"></textarea>
             elements.tipModal.style.display = 'flex';
         };
 
-        window.saveNewApiKey = function() {
+        globalThis.saveNewApiKey = function() {
             const newApiKey = document.getElementById('newApiKey').value.trim();
             if (!newApiKey) {
                 alert('请输入密钥');
@@ -14792,7 +14850,7 @@ D|选项D"></textarea>
             showTipModal('保存成功', '密钥已更新并开始同步');
         };
 
-        window.closeApiKeyModal = function() {
+        globalThis.closeApiKeyModal = function() {
             elements.tipModal.style.display = 'none';
         }
 
@@ -14951,7 +15009,7 @@ D|选项D"></textarea>
         });
 
         // ==================== 成绩分享功能 ====================
-        window.shareScore = function(recordId) {
+        globalThis.shareScore = function(recordId) {
             const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
             const record = records.find(r => r.id === recordId);
             if (!record) return;
@@ -14993,7 +15051,7 @@ D|选项D"></textarea>
             elements.tipModal.style.display = 'flex';
         };
 
-        window.copyShareContent = function(recordId) {
+        globalThis.copyShareContent = function(recordId) {
             const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
             const record = records.find(r => r.id === recordId);
             if (!record) return;
@@ -15053,7 +15111,7 @@ D|选项D"></textarea>
             `).join('');
         }
 
-        window.editPaper = function(paperId) {
+        globalThis.editPaper = function(paperId) {
             const paper = PAPERS.find(p => p.id === paperId);
             if (!paper) return;
             currentEditingPaperId = paperId;
@@ -15073,7 +15131,7 @@ D|选项D"></textarea>
             elements.paperEditModal.style.display = 'flex';
         }
 
-        window.copyPaper = function(paperId) {
+        globalThis.copyPaper = function(paperId) {
             const paper = PAPERS.find(p => p.id === paperId);
             if (!paper) return;
             const newPaper = JSON.parse(JSON.stringify(paper));
@@ -15087,13 +15145,13 @@ D|选项D"></textarea>
             showTipModal('复制成功', '试卷已复制');
         }
 
-        window.exportPaper = function(paperId) {
+        globalThis.exportPaper = function(paperId) {
             const paper = PAPERS.find(p => p.id === paperId);
             if (!paper) return;
             downloadJSON(paper, `${paper.name}_${Date.now()}.json`);
         }
 
-        window.togglePaperStatus = function(paperId) {
+        globalThis.togglePaperStatus = function(paperId) {
             const paperIndex = PAPERS.findIndex(p => p.id === paperId);
             if (paperIndex === -1) return;
             PAPERS[paperIndex].status = PAPERS[paperIndex].status === 'active' ? 'inactive' : 'active';
@@ -15106,7 +15164,7 @@ D|选项D"></textarea>
             showTipModal('操作成功', `试卷已${PAPERS[paperIndex].status === 'active' ? '启用' : '停用'}`);
         }
 
-        window.deletePaper = function(paperId) {
+        globalThis.deletePaper = function(paperId) {
             if (PAPERS.length <= 1) {
                 showTipModal('删除失败', '至少需要保留一份试卷');
                 return;
@@ -15249,7 +15307,7 @@ D|选项D"></textarea>
         }
 
         // 解析编辑功能
-        window.editAnalysis = function(paperId, type, qid) {
+        globalThis.editAnalysis = function(paperId, type, qid) {
             const paper = PAPERS.find(p => p.id === paperId);
             if (!paper || !paper.questions) return;
             const question = paper.questions[type].find(q => q.id === qid);
@@ -15278,7 +15336,7 @@ D|选项D"></textarea>
             elements.tipModal.style.display = 'flex';
         };
 
-        window.saveAnalysis = function(paperId, type, qid) {
+        globalThis.saveAnalysis = function(paperId, type, qid) {
             const paperIndex = PAPERS.findIndex(p => p.id === paperId);
             if (paperIndex === -1) return;
             const question = PAPERS[paperIndex].questions[type].find(q => q.id === qid);
@@ -15293,11 +15351,11 @@ D|选项D"></textarea>
             showTipModal('保存成功', '题目解析已更新');
         };
 
-        window.closeAnalysisModal = function() {
+        globalThis.closeAnalysisModal = function() {
             elements.tipModal.style.display = 'none';
         };
 
-        window.editQuestion = function(paperId, type, qid) {
+        globalThis.editQuestion = function(paperId, type, qid) {
             const paper = PAPERS.find(p => p.id === paperId);
             if (!paper || !paper.questions) return;
             const question = paper.questions[type].find(q => q.id === qid);
@@ -15321,7 +15379,7 @@ D|选项D"></textarea>
             elements.questionEditModal.style.display = 'flex';
         }
 
-        window.deleteQuestion = function(paperId, type, qid) {
+        globalThis.deleteQuestion = function(paperId, type, qid) {
             showConfirmModal('确认删除', '确定要删除这道题目吗？', () => {
                 const paperIndex = PAPERS.findIndex(p => p.id === paperId);
                 if (paperIndex === -1) return;
@@ -15490,7 +15548,7 @@ D|选项D"></textarea>
             };
         }
 
-        window.updateSubjectiveScore = function(recordId) {
+        globalThis.updateSubjectiveScore = function(recordId) {
             const input = document.querySelector(`.subjective-score-input[data-id="${recordId}"]`);
             const maxScore = parseInt(input.max);
             const newScore = Math.min(maxScore, Math.max(0, parseInt(input.value) || 0));
@@ -15507,7 +15565,7 @@ D|选项D"></textarea>
             }
         }
 
-        window.deleteRecord = function(recordId) {
+        globalThis.deleteRecord = function(recordId) {
             showConfirmModal('确认删除', '确定要删除这条记录吗？此操作不可恢复！', () => {
                 let records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
                 records = records.filter(r => r.id !== recordId);
@@ -15517,7 +15575,7 @@ D|选项D"></textarea>
             });
         }
 
-        window.viewRecordDetail = function(recordId) {
+        globalThis.viewRecordDetail = function(recordId) {
             const records = JSON.parse(localStorage.getItem(STORAGE_KEY.RECORDS) || '[]');
             const record = records.find(r => r.id === recordId);
             if (!record) return;
@@ -16580,7 +16638,9 @@ D|选项D"></textarea>
                                 largestSize = size;
                                 largestKey = key;
                             }
-                        } catch (e) {}
+                        } catch (e) {
+                            console.warn('[存储诊断] 读取localStorage项失败:', key, e);
+                        }
                     }
                 }
                 
@@ -16744,7 +16804,7 @@ D|选项D"></textarea>
                         ? ((snapshots[snapshots.length - 1].id - snapshots[0].id) / 1000).toFixed(0) + '秒'
                         : 'N/A',
                     averageMemory: snapshots.length > 0 && snapshots[0].data.memory
-                        ? snapshots.map(s => parseFloat(s.data.memory.used)).reduce((a, b) => a + b, 0) / snapshots.length
+                        ? snapshots.map(s => Number.parseFloat(s.data.memory.used)).reduce((a, b) => a + b, 0) / snapshots.length
                         : null
                 };
             },
@@ -17538,7 +17598,7 @@ D|选项D"></textarea>
                                     
                                     // 刷新页面
                                     setTimeout(() => {
-                                        window.location.reload();
+                                        globalThis.location.reload();
                                     }, 1500);
                                     
                                 } catch (restoreError) {
@@ -19171,7 +19231,7 @@ D|选项D"></textarea>
         
         // 在考试系统入口处添加岗位培训导航
         let originalRenderExamList = renderExamList;
-        window.renderExamList = function() {
+        globalThis.renderExamList = function() {
             originalRenderExamList();
             
             // 在考试容器的btn-group中添加岗位培训按钮
@@ -19201,7 +19261,7 @@ D|选项D"></textarea>
         
         // 在DOMContentLoaded中初始化培训模块
         const originalDOMContentLoaded = originalInit;
-        window.originalInit = function() {
+        globalThis.originalInit = function() {
             originalDOMContentLoaded();
             
             TrainingManager.init();
